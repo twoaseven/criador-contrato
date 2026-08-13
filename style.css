@@ -556,3 +556,27 @@ footer span {
 .btn-voltar:hover {
     background-color: #555; /* Efeito ao passar o mouse */
 }
+
+.btn-acao {
+    padding: 12px 24px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: opacity 0.3s;
+}
+
+.btn-salvar {
+    background-color: #28a745; /* Verde */
+    color: white;
+}
+
+.btn-pdf {
+    background-color: #007bff; /* Azul */
+    color: white;
+}
+
+.btn-acao:hover {
+    opacity: 0.8;
+}
