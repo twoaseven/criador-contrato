@@ -1,0 +1,508 @@
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background: #f4f7fc; 
+    padding: 20px; 
+}
+
+.container { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    background: white; 
+    padding: 25px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+}
+
+h1 { 
+    color: #1a2a3a; 
+    border-bottom: 3px solid #2a7de1; 
+    padding-bottom: 10px; 
+    margin-bottom: 25px; 
+}
+
+h2 { 
+    color: #1a2a3a; 
+    margin: 25px 0 15px; 
+    font-size: 1.2rem; 
+    border-left: 4px solid #2a7de1; 
+    padding-left: 10px; 
+}
+
+h3 { 
+    color: #1a2a3a; 
+    margin: 15px 0 10px; 
+    font-size: 1.1rem; 
+}
+
+h4 { 
+    color: #1a2a3a; 
+    margin: 10px 0 8px; 
+    font-size: 1rem; 
+}
+
+.form-row { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 15px; 
+    margin-bottom: 15px; 
+}
+
+.form-group { 
+    flex: 1 1 200px; 
+    min-width: 180px; 
+}
+
+label { 
+    display: block; 
+    font-weight: 600; 
+    font-size: 0.9rem; 
+    margin-bottom: 4px; 
+    color: #333; 
+}
+
+input, select, textarea { 
+    width: 100%; 
+    padding: 8px 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    font-size: 0.95rem; 
+    font-family: inherit; 
+}
+
+textarea { 
+    resize: vertical; 
+    min-height: 60px; 
+}
+
+.busca { 
+    background: #eef3fa; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+    display: flex; 
+    align-items: flex-end; 
+    gap: 15px; 
+    flex-wrap: wrap; 
+}
+
+.busca .form-group { 
+    flex: 1 1 150px; 
+}
+
+.clausulas-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 8px 15px; 
+    background: #f9fafc; 
+    padding: 15px; 
+    border-radius: 8px; 
+    border: 1px solid #dde2e8; 
+    margin-bottom: 15px; 
+    max-height: 400px; 
+    overflow-y: auto; 
+}
+
+.clausulas-grid label { 
+    display: flex; 
+    align-items: flex-start; 
+    gap: 8px; 
+    font-weight: normal; 
+    font-size: 0.95rem; 
+    cursor: pointer; 
+    padding: 5px; 
+}
+
+.clausulas-grid label:hover { 
+    background: #e8edf5; 
+    border-radius: 4px; 
+}
+
+.clausulas-grid input[type="checkbox"] { 
+    width: auto; 
+    margin-right: 5px; 
+    margin-top: 3px; 
+}
+
+.botoes { 
+    margin: 20px 0 10px; 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 12px; 
+}
+
+.botoes button { 
+    padding: 10px 24px; 
+    border: none; 
+    border-radius: 6px; 
+    font-weight: 600; 
+    font-size: 1rem; 
+    cursor: pointer; 
+    transition: 0.2s; 
+}
+
+.btn-prev { 
+    background: #2a7de1; 
+    color: white; 
+}
+
+.btn-prev:hover { 
+    background: #1a5db5; 
+}
+
+.btn-pdf { 
+    background: #28a745; 
+    color: white; 
+}
+
+.btn-pdf:hover { 
+    background: #1e7e34; 
+}
+
+.btn-salvar { 
+    background: #6c757d; 
+    color: white; 
+}
+
+.btn-salvar:hover { 
+    background: #5a6268; 
+}
+
+.btn-buscar { 
+    background: #17a2b8; 
+    color: white; 
+}
+
+.btn-buscar:hover { 
+    background: #117a8b; 
+}
+
+.btn-add-clausula { 
+    background: #6f42c1; 
+    color: white; 
+}
+
+.btn-add-clausula:hover { 
+    background: #5530a0; 
+}
+
+.btn-remove-clausula { 
+    background: #dc3545; 
+    color: white; 
+    padding: 2px 10px; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-size: 0.8rem; 
+}
+
+.btn-remove-clausula:hover { 
+    background: #c82333; 
+}
+
+.btn-gerenciar { 
+    background: #fd7e14; 
+    color: white; 
+}
+
+.btn-gerenciar:hover { 
+    background: #e66a0d; 
+}
+
+.btn-excluir { 
+    background: #dc3545; 
+    color: white; 
+}
+
+.btn-excluir:hover { 
+    background: #c82333; 
+}
+
+.btn-sync { 
+    background: #20c997; 
+    color: white; 
+}
+
+.btn-sync:hover { 
+    background: #1ba87e; 
+}
+
+.previa { 
+    margin-top: 25px; 
+    background: #fafafa; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    padding: 20px; 
+    white-space: pre-wrap; 
+    font-family: 'Courier New', monospace; 
+    font-size: 0.85rem; 
+    max-height: 700px; 
+    overflow-y: auto; 
+    display: none; 
+    line-height: 1.6; 
+}
+
+.previa.visivel { 
+    display: block; 
+}
+
+footer { 
+    margin-top: 40px; 
+    text-align: left; 
+    font-size: 0.85rem; 
+    color: #555; 
+    border-top: 1px solid #ddd; 
+    padding-top: 15px; 
+}
+
+footer span { 
+    display: block; 
+}
+
+.campo-obrigatorio { 
+    color: #dc3545; 
+}
+
+.info-box { 
+    background: #fff3cd; 
+    border: 1px solid #ffc107; 
+    padding: 12px; 
+    border-radius: 6px; 
+    margin-bottom: 15px; 
+}
+
+.info-box strong { 
+    color: #856404; 
+}
+
+.loading { 
+    display: none; 
+    text-align: center; 
+    padding: 10px; 
+    color: #2a7de1; 
+    font-weight: bold; 
+}
+
+.loading.ativo { 
+    display: block; 
+}
+
+.secao-destaque { 
+    background: #f8f9fa; 
+    border-left: 4px solid #2a7de1; 
+    padding: 10px 15px; 
+    margin: 10px 0; 
+    border-radius: 4px; 
+}
+
+.cadastro-clausula { 
+    background: #f8f9fa; 
+    padding: 15px; 
+    border-radius: 8px; 
+    border: 2px dashed #6f42c1; 
+    margin-bottom: 15px; 
+}
+
+.cadastro-clausula .form-row { 
+    margin-bottom: 10px; 
+}
+
+.modal { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.5); 
+    z-index: 1000; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+.modal.ativo { 
+    display: flex; 
+}
+
+.modal-content { 
+    background: white; 
+    padding: 25px; 
+    border-radius: 12px; 
+    max-width: 800px; 
+    width: 90%; 
+    max-height: 80vh; 
+    overflow-y: auto; 
+}
+
+.modal-content h2 { 
+    margin-top: 0; 
+}
+
+.modal-close { 
+    float: right; 
+    cursor: pointer; 
+    font-size: 1.5rem; 
+    color: #999; 
+}
+
+.modal-close:hover { 
+    color: #333; 
+}
+
+.tabela-dados { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 15px; 
+}
+
+.tabela-dados th { 
+    background: #2a7de1; 
+    color: white; 
+    padding: 10px; 
+    text-align: left; 
+}
+
+.tabela-dados td { 
+    padding: 10px; 
+    border-bottom: 1px solid #ddd; 
+}
+
+.tabela-dados tr:hover { 
+    background: #f5f5f5; 
+}
+
+.badge { 
+    display: inline-block; 
+    padding: 3px 8px; 
+    border-radius: 4px; 
+    font-size: 0.8rem; 
+    font-weight: 600; 
+}
+
+.badge-success { 
+    background: #28a745; 
+    color: white; 
+}
+
+.badge-info { 
+    background: #17a2b8; 
+    color: white; 
+}
+
+.badge-warning { 
+    background: #ffc107; 
+    color: #333; 
+}
+
+.badge-danger { 
+    background: #dc3545; 
+    color: white; 
+}
+
+.status-db { 
+    display: inline-block; 
+    padding: 5px 12px; 
+    border-radius: 20px; 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+}
+
+.status-online { 
+    background: #28a745; 
+    color: white; 
+}
+
+.status-offline { 
+    background: #dc3545; 
+    color: white; 
+}
+
+.status-loading { 
+    background: #ffc107; 
+    color: #333; 
+}
+
+/* ============================================ */
+/* RESPONSIVIDADE - Mobile */
+/* ============================================ */
+@media (max-width: 600px) { 
+    .form-row { 
+        flex-direction: column; 
+    }
+    
+    .clausulas-grid { 
+        grid-template-columns: 1fr; 
+    }
+    
+    .busca { 
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+    
+    .busca .form-group { 
+        flex: 1 1 auto; 
+    }
+    
+    .botoes button { 
+        width: 100%; 
+        justify-content: center; 
+    }
+    
+    .modal-content { 
+        width: 95%; 
+        padding: 15px; 
+    }
+    
+    .tabela-dados { 
+        font-size: 0.8rem; 
+    }
+    
+    .tabela-dados th, 
+    .tabela-dados td { 
+        padding: 6px 8px; 
+    }
+    
+    h1 { 
+        font-size: 1.3rem; 
+    }
+    
+    h2 { 
+        font-size: 1rem; 
+    }
+    
+    .container { 
+        padding: 15px; 
+    }
+}
+
+/* ============================================ */
+/* RESPONSIVIDADE - Tablet */
+/* ============================================ */
+@media (max-width: 768px) { 
+    .form-group { 
+        flex: 1 1 150px; 
+        min-width: 140px; 
+    }
+    
+    .clausulas-grid { 
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+    }
+}
+
+/* ============================================ */
+/* RESPONSIVIDADE - Desktop Grande */
+/* ============================================ */
+@media (min-width: 1400px) { 
+    .container { 
+        max-width: 1300px; 
+    }
+    
+    .form-group { 
+        flex: 1 1 250px; 
+    }
+}
