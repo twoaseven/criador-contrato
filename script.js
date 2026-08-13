@@ -2,8 +2,8 @@
 // 1. CONFIGURAÇÃO SUPABASE
 // ============================================================
 // 🔑 SUBSTITUA PELOS SEUS DADOS DO SUPABASE:
-const SUPABASE_URL = 'https://seu-projeto.supabase.co';
-const SUPABASE_ANON_KEY = 'sua-chave-anon-publica';
+const SUPABASE_URL = 'https://vauujvbdjjycgfphtgug.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhdXVqdmJkamp5Y2dmcGh0Z3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NzQ1NTUsImV4cCI6MjEwMjE1MDU1NX0.aJQiCqY6YDFy5ylsdAvnJ5XBoYY1U1CeqZHBXjc_IGY';
 
 let supabase = null;
 let dbStatus = 'offline';
