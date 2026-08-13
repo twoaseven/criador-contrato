@@ -534,3 +534,29 @@ footer span {
         flex: 1 1 250px; 
     }
 }
+/* Estilo do Botão de Voltar */
+.nav-container {
+    padding: 20px;
+    background-color: #f4f4f9;
+    border-bottom: 1px solid #ddd;
+}
+
+.btn-voltar {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #333; /* Cor escura profissional */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+/* Estilo do Botão de Voltar */
+.nav-container {
+    padding: 20px;
+    background-color: #f4f4f9;
+    border-bottom: 1px solid #ddd;
+}
+.btn-voltar:hover {
+    background-color: #555; /* Efeito ao passar o mouse */
+}
