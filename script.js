@@ -5,7 +5,7 @@
 const SUPABASE_URL = 'https://vauujvbdjjycgfphtgug.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhdXVqdmJkamp5Y2dmcGh0Z3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NzQ1NTUsImV4cCI6MjEwMjE1MDU1NX0.aJQiCqY6YDFy5ylsdAvnJ5XBoYY1U1CeqZHBXjc_IGY';
 
-let supabase = null;
+let supabaseClient = null;
 let dbStatus = 'offline';
 let CLAUSULAS_PADRAO = [
     { id: 'c1', descricao: 'Reajuste pelo IG-M', texto: 'O valor do aluguel será reajustado anualmente pelo índice IG-M, calculado pro-rata die.' },
@@ -126,7 +126,7 @@ async function initSupabase() {
             throw new Error('Supabase SDK não carregado');
         }
         
-        supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseClient = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         const { data, error } = await supabase.from('locadores').select('count', { count: 'exact', head: true });
         
