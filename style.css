@@ -555,7 +555,8 @@ footer span {
 .nav-container {
     padding: 20px;
     background-color: #f4f4f9;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 5px solid #ddd;
+    margin-bottom: 20px
 }
 .btn-voltar:hover {
     background-color: #555; /* Efeito ao passar o mouse */
