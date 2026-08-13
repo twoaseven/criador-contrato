@@ -534,12 +534,6 @@ footer span {
         flex: 1 1 250px; 
     }
 }
-/* Estilo do Botão de Voltar */
-.nav-container {
-    padding: 20px;
-    background-color: #f4f4f9;
-    border-bottom: 1px solid #ddd;
-}
 
 .btn-voltar {
     display: inline-block;
@@ -548,6 +542,7 @@ footer span {
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
+    margin-bottom: 20px
     font-weight: bold;
     transition: background 0.3s ease;
 }
