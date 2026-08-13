@@ -806,3 +806,90 @@ function gerarPDF() {
     gerarPrevia();
     window.print();
 }
+
+// Array global para armazenar as cláusulas adicionadas
+let listaClausulasAdicionais = [];
+
+// Função acionada pelo botão "Adicionar Cláusula"
+function adicionarClausula() {
+    const inputDesc = document.getElementById('novaClausulaDesc');
+    const inputTexto = document.getElementById('novaClausulaTexto');
+
+    const titulo = inputDesc.value.trim();
+    const texto = inputTexto.value.trim();
+
+    // Validação técnica estrita
+    if (!titulo || !texto) {
+        alert("Preencha tanto a descrição resumida quanto o texto completo da cláusula.");
+        return;
+    }
+
+    // Cria o objeto da nova cláusula
+    const novaClausula = {
+        id: 'clausula_' + Date.now(),
+        titulo: titulo,
+        texto: texto,
+        ativa: true // Começa marcada por padrão
+    };
+
+    // Adiciona ao array
+    listaClausulasAdicionais.push(novaClausula);
+
+    // Limpa os campos de digitação
+    inputDesc.value = '';
+    inputTexto.value = '';
+
+    // Atualiza a interface visual (DOM)
+    renderizarClausulas();
+}
+
+// Função responsável por renderizar os checkboxes no contêiner HTML
+function renderizarClausulas() {
+    const container = document.getElementById('clausulasContainer');
+    
+    if (!container) {
+        console.error("Elemento 'clausulasContainer' não encontrado no DOM.");
+        return;
+    }
+
+    // Limpa o contêiner antes de reconstruir para evitar duplicações
+    container.innerHTML = '';
+
+    if (listaClausulasAdicionais.length === 0) {
+        container.innerHTML = '<p style="color: #777; font-style: italic;">Nenhuma cláusula adicional cadastrada.</p>';
+        return;
+    }
+
+    // Reconstrói a lista iterando sobre o array
+    listaClausulasAdicionais.forEach((clausula) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'clausula-card-item'; // Ajuste a classe CSS se necessário
+        itemDiv.style.cssText = 'background: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 4px;';
+
+        itemDiv.innerHTML = `
+            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="${clausula.id}" ${clausula.ativa ? 'checked' : ''} onchange="toggleClausula('${clausula.id}')" style="margin-top: 4px;">
+                <div>
+                    <strong style="color: #333;">${clausula.titulo}</strong>
+                    <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #555; line-height: 1.3;">${clausula.texto}</p>
+                </div>
+            </label>
+        `;
+
+        container.appendChild(itemDiv);
+    });
+}
+
+// Atualiza o estado da cláusula quando o usuário marca/desmarca o checkbox
+function toggleClausula(id) {
+    const checkbox = document.getElementById(id);
+    const clausula = listaClausulasAdicionais.find(c => c.id === id);
+    if (clausula && checkbox) {
+        clausula.ativa = checkbox.checked;
+    }
+}
+
+// Opcional: Chamar renderizarClausulas() no carregamento da página para inicializar o estado vazio
+document.addEventListener('DOMContentLoaded', () => {
+    renderizarClausulas();
+});
