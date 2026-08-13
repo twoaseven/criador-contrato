@@ -91,6 +91,12 @@ input, select, textarea {
     font-family: inherit; 
 }
 
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
 textarea { 
     resize: vertical; 
     min-height: 60px; 
@@ -146,68 +152,7 @@ textarea {
     width: auto; 
     margin-right: 5px; 
     margin-top: 3px; 
-}
-
-.botoes { 
-    margin: 20px 0 10px; 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 12px; 
-}
-
-.botoes button { 
-    padding: 10px 24px; 
-    border: none; 
-    border-radius: 6px; 
-    font-weight: 600; 
-    font-size: 1rem; 
-    cursor: pointer; 
-    transition: 0.2s; 
-}
-
-.btn-prev { 
-    background: var(--accent); 
-    color: white; 
-}
-
-.btn-prev:hover { 
-    background: var(--accent-hover); 
-}
-
-.btn-pdf { 
-    background: #28a745; 
-    color: white; 
-}
-
-.btn-pdf:hover { 
-    background: #1e7e34; 
-}
-
-.btn-salvar { 
-    background: #6c757d; 
-    color: white; 
-}
-
-.btn-salvar:hover { 
-    background: #5a6268; 
-}
-
-.btn-buscar { 
-    background: #17a2b8; 
-    color: white; 
-}
-
-.btn-buscar:hover { 
-    background: #117a8b; 
-}
-
-.btn-add-clausula { 
-    background: #6f42c1; 
-    color: white; 
-}
-
-.btn-add-clausula:hover { 
-    background: #5530a0; 
+    cursor: pointer;
 }
 
 .btn-remove-clausula { 
@@ -218,37 +163,11 @@ textarea {
     border-radius: 4px; 
     cursor: pointer; 
     font-size: 0.8rem; 
+    margin-left: auto;
 }
 
 .btn-remove-clausula:hover { 
     background: #c82333; 
-}
-
-.btn-gerenciar { 
-    background: #fd7e14; 
-    color: white; 
-}
-
-.btn-gerenciar:hover { 
-    background: #e66a0d; 
-}
-
-.btn-excluir { 
-    background: #dc3545; 
-    color: white; 
-}
-
-.btn-excluir:hover { 
-    background: #c82333; 
-}
-
-.btn-sync { 
-    background: #20c997; 
-    color: white; 
-}
-
-.btn-sync:hover { 
-    background: #1ba87e; 
 }
 
 .previa { 
@@ -404,32 +323,18 @@ footer span {
     background: rgba(59, 130, 246, 0.05); 
 }
 
-.badge { 
-    display: inline-block; 
-    padding: 3px 8px; 
-    border-radius: 4px; 
-    font-size: 0.8rem; 
-    font-weight: 600; 
+.tabela-dados .btn-excluir {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
 }
 
-.badge-success { 
-    background: #28a745; 
-    color: white; 
-}
-
-.badge-info { 
-    background: #17a2b8; 
-    color: white; 
-}
-
-.badge-warning { 
-    background: #ffc107; 
-    color: #333; 
-}
-
-.badge-danger { 
-    background: #dc3545; 
-    color: white; 
+.tabela-dados .btn-excluir:hover {
+    background: #c82333;
 }
 
 .status-db { 
@@ -455,8 +360,103 @@ footer span {
     color: #333; 
 }
 
+/* BOTÕES */
+.botoes, .acoes-container { 
+    margin: 20px 0 10px; 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 12px; 
+    justify-content: center;
+}
+
+.botoes button, .btn-acao { 
+    padding: 10px 24px; 
+    border: none; 
+    border-radius: 6px; 
+    font-weight: 600; 
+    font-size: 1rem; 
+    cursor: pointer; 
+    transition: 0.2s; 
+}
+
+.btn-prev { 
+    background: var(--accent); 
+    color: white; 
+}
+.btn-prev:hover { 
+    background: var(--accent-hover); 
+}
+
+.btn-pdf { 
+    background: #28a745; 
+    color: white; 
+}
+.btn-pdf:hover { 
+    background: #1e7e34; 
+}
+
+.btn-salvar { 
+    background: #6c757d; 
+    color: white; 
+}
+.btn-salvar:hover { 
+    background: #5a6268; 
+}
+
+.btn-buscar { 
+    background: #17a2b8; 
+    color: white; 
+}
+.btn-buscar:hover { 
+    background: #117a8b; 
+}
+
+.btn-add-clausula { 
+    background: #6f42c1; 
+    color: white; 
+}
+.btn-add-clausula:hover { 
+    background: #5530a0; 
+}
+
+.btn-gerenciar { 
+    background: #fd7e14; 
+    color: white; 
+}
+.btn-gerenciar:hover { 
+    background: #e66a0d; 
+}
+
+.btn-sync { 
+    background: #20c997; 
+    color: white; 
+}
+.btn-sync:hover { 
+    background: #1ba87e; 
+}
+
+.btn-voltar {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #dc3545;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-voltar:hover {
+    background: #c82333;
+}
+
+.nav-container {
+    padding: 10px 0;
+    margin-bottom: 20px;
+}
+
 /* ============================================ */
-/* RESPONSIVIDADE - Mobile */
+/* RESPONSIVIDADE */
 /* ============================================ */
 @media (max-width: 600px) { 
     .form-row { 
@@ -476,7 +476,7 @@ footer span {
         flex: 1 1 auto; 
     }
      
-    .botoes button { 
+    .botoes button, .btn-acao { 
         width: 100%; 
         justify-content: center; 
     }
@@ -508,9 +508,6 @@ footer span {
     }
 }
 
-/* ============================================ */
-/* RESPONSIVIDADE - Tablet */
-/* ============================================ */
 @media (max-width: 768px) { 
     .form-group { 
         flex: 1 1 150px; 
@@ -522,9 +519,6 @@ footer span {
     }
 }
 
-/* ============================================ */
-/* RESPONSIVIDADE - Desktop Grande */
-/* ============================================ */
 @media (min-width: 1400px) { 
     .container { 
         max-width: 1300px; 
@@ -533,50 +527,4 @@ footer span {
     .form-group { 
         flex: 1 1 250px; 
     }
-}
-
-.btn-voltar {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #dc3545; /* Cor escura profissional */
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    margin-bottom: 20px
-    font-weight: bold;
-    transition: background 0.3s ease;
-}
-/* Estilo do Botão de Voltar */
-.nav-container {
-    padding: 20px;
-    background-color: #f4f4f9;
-    border-bottom: 5px solid #ddd;
-    margin-bottom: 20px
-}
-.btn-voltar:hover {
-    background-color: #555; /* Efeito ao passar o mouse */
-}
-
-.btn-acao {
-    padding: 12px 24px;
-    margin: 0 10px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: opacity 0.3s;
-}
-
-.btn-salvar {
-    background-color: #28a745; /* Verde */
-    color: white;
-}
-
-.btn-pdf {
-    background-color: #007bff; /* Azul */
-    color: white;
-}
-
-.btn-acao:hover {
-    opacity: 0.8;
 }
