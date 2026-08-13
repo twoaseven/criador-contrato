@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Contratos - Gestão</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .card-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .card-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .badge.active {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .badge.pending {
+            background-color: rgba(148, 163, 184, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            display: block;
+            text-align: center;
+            background-color: var(--accent);
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn.disabled {
+            background-color: var(--border);
+            color: var(--text-secondary);
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Painel de Contratos</h1>
+        <p>Central de Operações e Geração de Documentos</p>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- Módulo 1: Aluguel (Ativo agora) -->
+        <div class="card">
+            <div class="card-content">
+                <span class="badge active">Operacional</span>
+                <h3>Contrato de Aluguel</h3>
+                <p>Gerenciamento de locatários, fiadores, cláusulas customizadas e emissão de PDF residencial.</p>
+            </div>
+            <!-- Mude o link para o seu arquivo de aluguel quando criar, ex: aluguel.html ou mantenha se for na mesma página -->
+            <a href="aluguel.html" class="btn">Acessar Sistema</a>
+        </div>
+
+        <!-- Módulo 2: Veículos (Futuro) -->
+        <div class="card">
+            <div class="card-content">
+                <span class="badge pending">Em Breve</span>
+                <h3>Contrato de Veículos</h3>
+                <p>Compra, venda e locação de automóveis com dados de RENAVAM, placa e tabela FIPE.</p>
+            </div>
+            <a href="#" class="btn disabled">Em Desenvolvimento</a>
+        </div>
+
+        <!-- Módulo 3: Prestação de Serviços (Futuro) -->
+        <div class="card">
+            <div class="card-content">
+                <span class="badge pending">Em Breve</span>
+                <h3>Prestação de Serviços</h3>
+                <p>Escopos de projetos, prazos de entrega, multas rescisórias e termos de aceite profissional.</p>
+            </div>
+            <a href="#" class="btn disabled">Em Desenvolvimento</a>
+        </div>
+    </div>
+
+</body>
+</html>
