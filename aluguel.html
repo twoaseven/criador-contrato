@@ -12,12 +12,10 @@
         <span id="statusDB" class="status-db status-loading">⏳ Conectando...</span>
     </h1>
     
-    <!-- Botão de Voltar -->
     <div class="nav-container">
         <a href="index.html" class="btn-voltar">← Voltar para o Menu</a>
     </div>
 
-    <!-- INFORMAÇÕES DO CONTRATO -->
     <div class="info-box">
         <strong>📋 INFORMAÇÕES IMPORTANTES:</strong><br>
         • Este contrato segue as normas da <strong>Lei do Inquilinato (Lei nº 8.245/91)</strong><br>
@@ -25,15 +23,13 @@
         • O documento deverá ser <strong>autenticado em cartório</strong> para ter validade jurídica plena
     </div>
 
-    <!-- BANCO DE DADOS NA NUVEM -->
-    <div class="info-box" style="background: #e8f5e9; border-color: #4caf50;">
+    <div class="info-box" style="background: #e8f5e9; border-color: #4caf50; color: #1a5e2a;">
         <strong>☁️ BANCO DE DADOS NA NUVEM:</strong><br>
         • Todos os dados são armazenados no <strong>Supabase</strong> (PostgreSQL)<br>
         • Acesse de qualquer dispositivo com sua conta<br>
         • Dados sincronizados automaticamente
     </div>
 
-    <!-- NÚMERO DO CONTRATO E PRAZO -->
     <div class="form-row">
         <div class="form-group" style="flex: 0 1 250px;">
             <label>Número do Contrato <span class="campo-obrigatorio">*</span></label>
@@ -53,7 +49,6 @@
         </div>
     </div>
 
-    <!-- ÁREA DE BUSCA -->
     <div class="busca">
         <div class="form-group">
             <label>Buscar por CPF</label>
@@ -66,13 +61,9 @@
         <span style="margin-left:auto;font-size:0.9rem;color:#28a745;" id="msgBusca"></span>
     </div>
 
-    <!-- FORMULÁRIO -->
     <form id="formContrato" onsubmit="return false;">
-        
-        <!-- 1. QUALIFICAÇÃO DAS PARTES -->
         <h2>📍 1. Qualificação das Partes</h2>
         
-        <!-- LOCADOR -->
         <h3>LOCADOR (Proprietário)</h3>
         <div class="form-row">
             <div class="form-group">
@@ -124,7 +115,6 @@
             </div>
         </div>
 
-        <!-- LOCATÁRIO -->
         <h3>LOCATÁRIO (Inquilino)</h3>
         <div class="form-row">
             <div class="form-group">
@@ -176,7 +166,6 @@
             </div>
         </div>
 
-        <!-- FIADOR -->
         <h3>FIADOR (Garantia - Art. 37 da Lei 8.245/91)</h3>
         <div class="secao-destaque">
             <strong>⚠️ ATENÇÃO:</strong> Se o fiador for casado, é obrigatória a outorga conjugal (assinatura do cônjuge).
@@ -231,7 +220,6 @@
             </div>
         </div>
 
-        <!-- CÔNJUGE DO FIADOR -->
         <h4>Cônjuge do Fiador (para Outorga Conjugal)</h4>
         <div class="form-row">
             <div class="form-group">
@@ -248,7 +236,6 @@
             </div>
         </div>
 
-        <!-- 2. OBJETO DO CONTRATO -->
         <h2>🏠 2. Objeto do Contrato</h2>
         <div class="form-row">
             <div class="form-group" style="flex: 1 1 100%;">
@@ -316,7 +303,6 @@
             </div>
         </div>
 
-        <!-- 3. PRAZO DA LOCAÇÃO -->
         <h2>📅 3. Prazo da Locação</h2>
         <div class="form-row">
             <div class="form-group">
@@ -336,7 +322,6 @@
             </div>
         </div>
 
-        <!-- 4. VALOR, FORMA DE PAGAMENTO E REAJUSTE -->
         <h2>💰 4. Valor, Forma de Pagamento e Reajuste</h2>
         <div class="form-row">
             <div class="form-group">
@@ -382,7 +367,6 @@
             </div>
         </div>
 
-        <!-- 5. ENCARGOS E TRIBUTOS -->
         <h2>📋 5. Encargos e Tributos</h2>
         <div class="secao-destaque">
             <strong>📌 Art. 22, VII da Lei 8.245/91:</strong> O seguro incêndio é obrigatório.
@@ -436,7 +420,6 @@
             </div>
         </div>
 
-        <!-- 6. GARANTIAS LOCATÍCIAS -->
         <h2>🔒 6. Garantias Locatícias (Art. 37 da Lei 8.245/91)</h2>
         <div class="form-row">
             <div class="form-group" style="flex: 1 1 100%;">
@@ -464,7 +447,6 @@
             </div>
         </div>
 
-        <!-- 7. MULTAS E RESCISÃO ANTECIPADA -->
         <h2>⚖️ 7. Multas e Rescisão Antecipada</h2>
         <div class="form-row">
             <div class="form-group">
@@ -485,7 +467,6 @@
             </div>
         </div>
 
-        <!-- 8. VISTORIA DO IMÓVEL -->
         <h2>📸 8. Vistoria do Imóvel</h2>
         <div class="secao-destaque">
             <strong>⚠️ OBRIGATÓRIO:</strong> O Laudo de Vistoria Inicial com fotos e descrições detalhadas deve ser anexado a este contrato.
@@ -510,10 +491,8 @@
             </div>
         </div>
 
-        <!-- CLÁUSULAS ADICIONAIS -->
         <h2>📝 Cláusulas Adicionais</h2>
         
-        <!-- CADASTRO DE NOVA CLÁUSULA -->
         <div class="cadastro-clausula">
             <h3 style="margin-top: 0; border-left: none; padding-left: 0;">➕ Cadastrar Nova Cláusula</h3>
             <div class="form-row">
@@ -531,7 +510,6 @@
             <button type="button" class="btn-add-clausula" onclick="adicionarClausula()">➕ Adicionar Cláusula</button>
         </div>
 
-        <!-- LISTA DE CLÁUSULAS DISPONÍVEIS -->
         <h3>📋 Cláusulas Disponíveis (marque as desejadas)</h3>
         <div id="clausulasContainer" class="clausulas-grid">
             <!-- preenchido via JavaScript -->
@@ -563,24 +541,20 @@
 
     <!-- BOTÕES DE AÇÃO -->
     <div class="acoes-container" style="text-align: center; margin: 20px 0;">
-        <!-- Botão de Salvar -->
         <button onclick="salvarTodosDados()" class="btn-acao btn-salvar">💾 Salvar no Banco de Dados</button>
-        
-        <!-- Botão de Gerar PDF/Imprimir -->
-        <button onclick="gerarPDF()" class="btn-acao btn-pdf">📄 Gerar PDF / Imprimir</button>
-        
-        <!-- Feedback visual -->
-        <p id="msgSalvoFooter" style="margin-top: 10px; font-weight: bold;"></p>
+        <button onclick="gerarPrevia()" class="btn-acao btn-prev">👁️ Visualizar Prévia</button>
+        <button onclick="gerarPDF()" class="btn-acao btn-pdf">📄 Gerar PDF</button>
+        <p id="msgSalvoFooter" style="margin-top: 10px; font-weight: bold; color: #28a745;"></p>
     </div>
 
-    <!-- RODAPÉ -->
     <footer>
         <span>Desenvolvido por TWO A SEVEN - Digital Solutions / Todos os direitos reservados - <span id="anoFooter"></span></span>
     </footer>
 </div>
 
-<!-- SDK do Supabase e Script Principal posicionados no final para garantir integridade do DOM -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
