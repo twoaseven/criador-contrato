@@ -1,12 +1,13 @@
 // ============================================================
 // 1. CONFIGURAÇÃO SUPABASE
 // ============================================================
-// 🔑 SUBSTITUA PELOS SEUS DADOS DO SUPABASE:
+// 🔑 SUAS CHAVES DO SUPABASE:
 const SUPABASE_URL = 'https://vauujvbdjjycgfphtgug.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhdXVqdmJkamp5Y2dmcGh0Z3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NzQ1NTUsImV4cCI6MjEwMjE1MDU1NX0.aJQiCqY6YDFy5ylsdAvnJ5XBoYY1U1CeqZHBXjc_IGY';
 
 let supabaseClient = null;
 let dbStatus = 'offline';
+
 let CLAUSULAS_PADRAO = [
     { id: 'c1', descricao: 'Reajuste pelo IG-M', texto: 'O valor do aluguel será reajustado anualmente pelo índice IG-M, calculado pro-rata die.' },
     { id: 'c2', descricao: 'Reajuste pelo IPCA', texto: 'O valor do aluguel será reajustado anualmente pelo índice IPCA (IBGE), calculado pro-rata die.' },
@@ -19,6 +20,7 @@ let CLAUSULAS_PADRAO = [
 ];
 
 let CLAUSULAS = [...CLAUSULAS_PADRAO];
+let clausulasAdicionais = [];
 
 // ============================================================
 // 2. FUNÇÕES DE MÁSCARA
@@ -109,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
         el.addEventListener('input', function(e) { aplicarMascara(e, 'telefone'); });
     });
 
-    document.querySelectorAll('#imovelValor, #cauçãoValor').forEach(el => {
+    document.querySelectorAll('#imovelValor, #caucaoValor').forEach(el => {
         el.addEventListener('input', function(e) { aplicarMascara(e, 'valor'); });
     });
 
@@ -128,7 +130,8 @@ async function initSupabase() {
         
         supabaseClient = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        const { data, error } = await supabase.from('locadores').select('count', { count: 'exact', head: true });
+        // Testar conexão
+        const { data, error } = await supabaseClient.from('locadores').select('count', { count: 'exact', head: true });
         
         if (error && error.code === 'PGRST301') {
             usarModoOffline();
@@ -140,6 +143,7 @@ async function initSupabase() {
         document.getElementById('statusDB').textContent = '✅ Conectado';
         
         await carregarDadosIniciais();
+        mostrarMensagem('✅ Conectado ao Supabase!', 'success');
         
     } catch (error) {
         console.error('Erro ao conectar Supabase:', error);
@@ -147,6 +151,7 @@ async function initSupabase() {
         document.getElementById('statusDB').className = 'status-db status-offline';
         document.getElementById('statusDB').textContent = '❌ Offline';
         usarModoOffline();
+        mostrarMensagem('❌ Modo offline - dados salvos localmente', 'error');
     }
 }
 
@@ -158,6 +163,15 @@ function usarModoOffline() {
     if (!dados.imoveis) dados.imoveis = [];
     if (!dados.clausulas) dados.clausulas = CLAUSULAS_PADRAO;
     localStorage.setItem('contratos_db_offline', JSON.stringify(dados));
+}
+
+function mostrarMensagem(msg, tipo) {
+    const el = document.getElementById('msgBusca') || document.getElementById('msgSalvoFooter');
+    if (el) {
+        el.textContent = msg;
+        el.style.color = tipo === 'success' ? '#28a745' : '#dc3545';
+        setTimeout(() => { el.textContent = ''; }, 5000);
+    }
 }
 
 // ============================================================
@@ -236,7 +250,7 @@ function getDadosFormulario() {
         },
         garantia: {
             modalidade: document.getElementById('garantiaModalidade').value,
-            cauçãoValor: document.getElementById('cauçãoValor').value.trim(),
+            cauçãoValor: document.getElementById('caucaoValor').value.trim(),
             seguradora: document.getElementById('seguroSeguradora').value.trim(),
             apolice: document.getElementById('seguroApolice').value.trim()
         },
@@ -264,7 +278,7 @@ async function buscarPorCpf() {
     }
     const cpfLimpo = removerMascara(cpf);
     
-    if (dbStatus === 'online') {
+    if (dbStatus === 'online' && supabaseClient) {
         await buscarPorCpfOnline(cpfLimpo);
     } else {
         buscarPorCpfOffline(cpfLimpo);
@@ -273,10 +287,10 @@ async function buscarPorCpf() {
 
 async function buscarPorCpfOnline(cpfLimpo) {
     try {
-        document.getElementById('msgSalvo').textContent = '⏳ Buscando...';
+        mostrarMensagem('⏳ Buscando...', 'info');
         let encontrado = false;
         
-        const { data: locador } = await supabase
+        const { data: locador } = await supabaseClient
             .from('locadores')
             .select('*')
             .eq('cpf', cpfLimpo)
@@ -285,10 +299,10 @@ async function buscarPorCpfOnline(cpfLimpo) {
         if (locador) {
             preencherLocador(locador);
             encontrado = true;
-            document.getElementById('msgSalvo').textContent = '✓ Locador encontrado!';
+            mostrarMensagem('✓ Locador encontrado!', 'success');
         }
         
-        const { data: locatario } = await supabase
+        const { data: locatario } = await supabaseClient
             .from('locatarios')
             .select('*')
             .eq('cpf', cpfLimpo)
@@ -297,10 +311,10 @@ async function buscarPorCpfOnline(cpfLimpo) {
         if (locatario) {
             preencherLocatario(locatario);
             encontrado = true;
-            document.getElementById('msgSalvo').textContent = '✓ Locatário encontrado!';
+            mostrarMensagem('✓ Locatário encontrado!', 'success');
         }
         
-        const { data: fiador } = await supabase
+        const { data: fiador } = await supabaseClient
             .from('fiadores')
             .select('*')
             .eq('cpf', cpfLimpo)
@@ -309,19 +323,17 @@ async function buscarPorCpfOnline(cpfLimpo) {
         if (fiador) {
             preencherFiador(fiador);
             encontrado = true;
-            document.getElementById('msgSalvo').textContent = '✓ Fiador encontrado!';
+            mostrarMensagem('✓ Fiador encontrado!', 'success');
         }
         
         if (!encontrado) {
-            document.getElementById('msgSalvo').textContent = '❌ Nenhum cadastro encontrado';
+            mostrarMensagem('❌ Nenhum cadastro encontrado', 'error');
             alert('Nenhum cadastro encontrado para este CPF.');
         }
         
-        setTimeout(() => document.getElementById('msgSalvo').textContent = '', 3000);
-        
     } catch (error) {
         console.error('Erro na busca:', error);
-        document.getElementById('msgSalvo').textContent = '❌ Erro na busca';
+        mostrarMensagem('❌ Erro na busca', 'error');
     }
 }
 
@@ -404,7 +416,7 @@ function preencherFiador(dados) {
 // 8. SALVAR DADOS
 // ============================================================
 async function salvarTodosDados() {
-    if (dbStatus === 'online') {
+    if (dbStatus === 'online' && supabaseClient) {
         await salvarDadosOnline();
     } else {
         salvarDadosOffline();
@@ -413,7 +425,7 @@ async function salvarTodosDados() {
 
 async function salvarDadosOnline() {
     try {
-        document.getElementById('msgSalvo').textContent = '⏳ Salvando...';
+        mostrarMensagem('⏳ Salvando...', 'info');
         const dados = getDadosFormulario();
         let salvos = 0;
         
@@ -431,7 +443,7 @@ async function salvarDadosOnline() {
                 email: dados.locador.email
             };
             
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('locadores')
                 .upsert(locadorData, { onConflict: 'cpf' });
                 
@@ -452,7 +464,7 @@ async function salvarDadosOnline() {
                 email: dados.locatario.email
             };
             
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('locatarios')
                 .upsert(locatarioData, { onConflict: 'cpf' });
                 
@@ -476,7 +488,7 @@ async function salvarDadosOnline() {
                 conjuge_rg: dados.fiador.conjugeRg
             };
             
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('fiadores')
                 .upsert(fiadorData, { onConflict: 'cpf' });
                 
@@ -498,19 +510,18 @@ async function salvarDadosOnline() {
                 caracteristicas: dados.imovel.caracteristicas
             };
             
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('imoveis')
                 .upsert(imovelData, { onConflict: 'endereco' });
                 
             if (!error) salvos++;
         }
         
-        document.getElementById('msgSalvo').textContent = `✓ ${salvos} registros salvos no Supabase!`;
-        setTimeout(() => document.getElementById('msgSalvo').textContent = '', 3000);
+        mostrarMensagem(`✓ ${salvos} registros salvos no Supabase!`, 'success');
         
     } catch (error) {
         console.error('Erro ao salvar:', error);
-        document.getElementById('msgSalvo').textContent = '❌ Erro ao salvar';
+        mostrarMensagem('❌ Erro ao salvar: ' + error.message, 'error');
         alert('Erro ao salvar no Supabase: ' + error.message);
     }
 }
@@ -601,12 +612,114 @@ function salvarDadosOffline() {
     }
     
     localStorage.setItem('contratos_db_offline', JSON.stringify(db));
-    document.getElementById('msgSalvo').textContent = '✓ Dados salvos localmente (offline)!';
-    setTimeout(() => document.getElementById('msgSalvo').textContent = '', 3000);
+    mostrarMensagem('✓ Dados salvos localmente (offline)!', 'success');
 }
 
 // ============================================================
-// 9. FORMATAR DADOS
+// 9. CLÁUSULAS
+// ============================================================
+function carregarClausulas() {
+    const container = document.getElementById('clausulasContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const todasClausulas = [...CLAUSULAS, ...clausulasAdicionais];
+    const ordenadas = todasClausulas.sort((a, b) => a.descricao.localeCompare(b.descricao));
+    
+    ordenadas.forEach(c => {
+        const label = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = c.id;
+        cb.id = 'claus_' + c.id;
+        label.appendChild(cb);
+        
+        const texto = document.createElement('span');
+        texto.textContent = ' ' + c.descricao;
+        label.appendChild(texto);
+        
+        // Botão remover apenas para cláusulas adicionais
+        if (clausulasAdicionais.some(ad => ad.id === c.id)) {
+            const btnRemover = document.createElement('button');
+            btnRemover.type = 'button';
+            btnRemover.className = 'btn-remove-clausula';
+            btnRemover.textContent = '✕';
+            btnRemover.style.marginLeft = 'auto';
+            btnRemover.onclick = function(e) {
+                e.stopPropagation();
+                removerClausula(c.id);
+            };
+            label.appendChild(btnRemover);
+        }
+        
+        container.appendChild(label);
+    });
+}
+
+function getClausulasMarcadas() {
+    const checkboxes = document.querySelectorAll('#clausulasContainer input[type="checkbox"]:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+    const todas = [...CLAUSULAS, ...clausulasAdicionais];
+    return todas.filter(c => ids.includes(c.id));
+}
+
+function adicionarClausula() {
+    const desc = document.getElementById('novaClausulaDesc').value.trim();
+    const texto = document.getElementById('novaClausulaTexto').value.trim();
+    
+    if (!desc || !texto) {
+        alert('Preencha a descrição e o texto da cláusula.');
+        return;
+    }
+    
+    const todas = [...CLAUSULAS, ...clausulasAdicionais];
+    if (todas.some(c => c.descricao.toLowerCase() === desc.toLowerCase())) {
+        alert('Já existe uma cláusula com esta descrição.');
+        return;
+    }
+    
+    const novoId = 'c' + Date.now();
+    const novaClausula = { id: novoId, descricao: desc, texto: texto };
+    
+    // Salvar no Supabase se online
+    if (dbStatus === 'online' && supabaseClient) {
+        supabaseClient
+            .from('clausulas')
+            .insert({ descricao: desc, texto: texto, is_padrao: false })
+            .then(({ error }) => {
+                if (error) console.error('Erro ao salvar cláusula:', error);
+            });
+    }
+    
+    clausulasAdicionais.push(novaClausula);
+    document.getElementById('novaClausulaDesc').value = '';
+    document.getElementById('novaClausulaTexto').value = '';
+    
+    carregarClausulas();
+    mostrarMensagem('✓ Cláusula adicionada com sucesso!', 'success');
+}
+
+function removerClausula(id) {
+    if (confirm('Tem certeza que deseja remover esta cláusula?')) {
+        clausulasAdicionais = clausulasAdicionais.filter(c => c.id !== id);
+        
+        if (dbStatus === 'online' && supabaseClient) {
+            supabaseClient
+                .from('clausulas')
+                .delete()
+                .eq('id', id)
+                .then(({ error }) => {
+                    if (error) console.error('Erro ao remover cláusula:', error);
+                });
+        }
+        
+        carregarClausulas();
+        mostrarMensagem('✓ Cláusula removida!', 'success');
+    }
+}
+
+// ============================================================
+// 10. FORMATAR DADOS
 // ============================================================
 function formatarData(dataStr) {
     if (!dataStr) return 'a definir';
@@ -650,7 +763,7 @@ function valorPorExtenso(valor) {
 }
 
 // ============================================================
-// 10. MONTAR CONTRATO
+// 11. MONTAR CONTRATO
 // ============================================================
 function montarContrato(dados, clausulas) {
     const l = dados.locador;
@@ -722,174 +835,512 @@ function montarContrato(dados, clausulas) {
         texto += '\n';
     }
 
-    texto += '2. OBJETO DO CONTRATO E PRAZO\n\n';
-    texto += `O LOCADOR cede em locação ao LOCATÁRIO o imóvel situado em ${i.endereco || 'NÃO INFORMADO'}, registrado sob o nº ${i.registro || 'N/A'}, do tipo ${i.tipo || 'residencial'}, com destinação ${i.destinacao}.\n`;
-    texto += `O prazo da locação é de ${prazo} (${prazoExtenso}) meses, com início em ${inicioFormatado} e término em ${fimFormatado}.\n\n`;
+    texto += '='.repeat(80) + '\n\n';
+    texto += '2. OBJETO DO CONTRATO\n\n';
+    texto += `Endereço do Imóvel: ${i.endereco || 'NÃO INFORMADO'}\n`;
+    if (i.registro) texto += `Registro no Cartório de Imóveis: ${i.registro}\n`;
+    if (i.tipo) texto += `Tipo: ${i.tipo}\n`;
+    if (i.destinacao) texto += `Destinação: ${i.destinacao}\n`;
+    if (i.quartos) texto += `Quartos: ${i.quartos}\n`;
+    if (i.banheiros) texto += `Banheiros: ${i.banheiros}\n`;
+    if (i.vagas) texto += `Vagas de Garagem: ${i.vagas}\n`;
+    if (i.metragem) texto += `Metragem Total: ${i.metragem} m²\n`;
+    if (i.areaPrivativa) texto += `Área Privativa: ${i.areaPrivativa} m²\n`;
+    if (i.areaComum) texto += `Área Comum: ${i.areaComum} m²\n`;
+    if (i.caracteristicas) texto += `Características: ${i.caracteristicas}\n\n`;
+    texto += 'O imóvel destina-se exclusivamente ao uso ' + (i.destinacao ? i.destinacao.toLowerCase() : 'residencial') + '.\n\n';
 
-    texto += '3. VALOR DA LOCAÇÃO E FORMA DE PAGAMENTO\n\n';
-    texto += `O aluguel mensal é de R$ ${i.valor || '0,00'} (${valorExtenso}), a ser pago até o dia ${i.vencimento || '10'} de cada mês, por meio de ${i.pagamento || 'transferência bancária'}.\n\n`;
+    texto += '='.repeat(80) + '\n\n';
+    texto += '3. PRAZO DA LOCAÇÃO\n\n';
+    texto += `Data de Início: ${inicioFormatado}\n`;
+    texto += `Data de Término: ${fimFormatado}\n`;
+    texto += `Prazo: ${prazo} (${prazoExtenso}) meses\n`;
+    texto += `Renovação: ${i.renovacao === 'sim' ? 'Automática' : 'Dependerá de termo aditivo'}\n\n`;
 
-    texto += '4. ENCARGOS E TRIBUTOS\n\n';
-    texto += `IPTU: ${e.iptu}\nCondomínio: ${e.condominio}\nÁgua: ${e.agua}\nLuz: ${e.luz}\nGás: ${e.gas}\nSeguro Incêndio: ${e.seguro}\n\n`;
+    texto += '='.repeat(80) + '\n\n';
+    texto += '4. VALOR, FORMA DE PAGAMENTO E REAJUSTE\n\n';
+    texto += `Valor do Aluguel: R$ ${i.valor || '0,00'} (${valorExtenso})\n`;
+    texto += `Dia de Vencimento: Dia ${i.vencimento || '5'} de cada mês\n`;
+    texto += `Forma de Pagamento: ${i.pagamento || 'PIX'}\n`;
+    texto += `Índice de Reajuste: ${i.indice || 'IPCA'}\n`;
+    texto += `Periodicidade do Reajuste: A cada ${i.periodicidade || '12'} meses\n\n`;
 
-    texto += '5. GARANTIA LOCATÍCIA\n\n';
-    texto += `A modalidade de garantia é: ${g.modalidade}.\n`;
-    if (g.modalidade === 'Caução') {
-        texto += `Valor da caução: R$ ${g.cauçãoValor || '0,00'}.\n`;
-    } else if (g.modalidade === 'Seguro Fiança') {
-        texto += `Seguradora: ${g.seguradora || 'N/A'}, Apólice: ${g.apolice || 'N/A'}.\n`;
+    texto += '='.repeat(80) + '\n\n';
+    texto += '5. ENCARGOS E TRIBUTOS\n\n';
+    texto += `IPTU: ${e.iptu || 'Locador'}\n`;
+    texto += `Condomínio: ${e.condominio || 'Locatário'}\n`;
+    texto += `Água: ${e.agua || 'Locatário'}\n`;
+    texto += `Luz: ${e.luz || 'Locatário'}\n`;
+    texto += `Gás: ${e.gas || 'Locatário'}\n`;
+    texto += `Seguro Incêndio: ${e.seguro || 'Locador'}\n\n`;
+
+    texto += '='.repeat(80) + '\n\n';
+    texto += '6. GARANTIAS LOCATÍCIAS\n\n';
+    texto += `Modalidade: ${g.modalidade || 'Fiança'}\n`;
+    if (g.modalidade === 'Caução' && g.cauçãoValor) {
+        texto += `Valor da Caução: R$ ${g.cauçãoValor}\n`;
     }
-    texto += '\n';
+    if (g.modalidade === 'Seguro Fiança') {
+        if (g.seguradora) texto += `Seguradora: ${g.seguradora}\n`;
+        if (g.apolice) texto += `Apólice nº: ${g.apolice}\n`;
+    }\n\n`;
 
-    texto += '6. CLÁUSULAS ESPECIAIS E GERAIS\n\n';
-    clausulas.forEach((c, index) => {
-        texto += `Cláusula ${index + 1}ª (${c.descricao}): ${c.texto}\n\n`;
-    });
+    texto += '='.repeat(80) + '\n\n';
+    texto += '7. MULTAS E RESCISÃO\n\n';
+    texto += `Multa por Atraso: ${m.atraso || '2'}%\n`;
+    texto += `Juros de Mora: ${m.juros || '1'}% ao mês\n`;
+    texto += `Multa Rescisória: ${m.rescisoria || '3'} meses\n\n`;
 
-    texto += '7. MULTAS E PENALIDADES\n\n';
-    texto += `Em caso de atraso no pagamento, incidirá multa de ${m.atraso}% e juros de mora de ${m.juros}% ao mês.\n`;
-    texto += `A multa rescisória por infração contratual será proporcional ao período restante do contrato, correspondente a ${m.rescisoria} meses de aluguel.\n\n`;
+    texto += '='.repeat(80) + '\n\n';
+    texto += '8. VISTORIA\n\n';
+    texto += 'O Laudo de Vistoria Inicial é parte integrante deste contrato.\n';
+    if (v.data) texto += `Data da Vistoria: ${formatarData(v.data)}\n`;
+    texto += `Laudo: ${v.laudo === 'sim' ? 'Será anexado' : 'Será realizado posteriormente'}\n`;
+    if (v.observacoes) texto += `Observações: ${v.observacoes}\n\n`;
 
-    texto += '8. FORO\n\n';
-    texto += `Fica eleito o foro da comarca de ${foro} para dirimir quaisquer dúvidas oriundas deste contrato.\n\n`;
-    texto += `E, por estarem justos e contratados, assinam o presente instrumento em duas vias de igual teor.\n\n\n`;
+    texto += '='.repeat(80) + '\n\n';
+    
+    if (clausulas.length > 0) {
+        texto += 'CLÁUSULAS ADICIONAIS:\n\n';
+        clausulas.forEach((c, idx) => {
+            texto += `Cláusula ${idx + 1}: ${c.descricao}\n`;
+            texto += `${c.texto}\n\n`;
+        });
+        texto += '='.repeat(80) + '\n\n';
+    }
+
+    texto += 'Estando assim justos e contratados, firmam o presente instrumento em 2 (duas) vias.\n\n';
     texto += `${foro}, ${dataElab}\n\n`;
-    texto += `_________________________________________\nLOCADOR: ${l.nome || '__________'}\n\n`;
-    texto += `_________________________________________\nLOCATÁRIO: ${lt.nome || '__________'}\n\n`;
+    texto += '___________________________________________\n';
+    texto += 'Assinatura do LOCADOR\n\n';
+    texto += '___________________________________________\n';
+    texto += 'Assinatura do LOCATÁRIO\n\n';
     if (f && f.nome) {
-        texto += `_________________________________________\nFIADOR: ${f.nome || '__________'}\n\n`;
+        texto += '___________________________________________\n';
+        texto += 'Assinatura do FIADOR\n\n';
     }
+    texto += '___________________________________________\n';
+    texto += '1ª Testemunha\n\n';
+    texto += '___________________________________________\n';
+    texto += '2ª Testemunha\n\n';
+    texto += '='.repeat(80) + '\n';
+    texto += 'Documento elaborado em conformidade com a Lei nº 8.245/91.\n';
 
     return texto;
 }
 
 // ============================================================
-// 11. INTERFACE, PRÉVIA E EXPORTAÇÃO
+// 12. GERAR PRÉVIA
 // ============================================================
-function carregarClausulas() {
-    const container = document.getElementById('listaClausulas');
-    if (!container) return;
-    container.innerHTML = '';
-    CLAUSULAS.forEach((c) => {
-        const div = document.createElement('div');
-        div.className = 'clausula-item';
-        div.innerHTML = `
-            <label>
-                <input type="checkbox" checked value="${c.id}" />
-                <strong>${c.descricao}</strong>: ${c.texto}
-            </label>
-        `;
-        container.appendChild(div);
-    });
+function gerarPrevia() {
+    const dados = getDadosFormulario();
+    const clausulas = getClausulasMarcadas();
+    const texto = montarContrato(dados, clausulas);
+    const previaDiv = document.getElementById('previa');
+    previaDiv.textContent = texto;
+    previaDiv.classList.add('visivel');
+    previaDiv.scrollIntoView({ behavior: 'smooth' });
+    mostrarMensagem('✓ Prévia gerada com sucesso!', 'success');
+}
+
+// ============================================================
+// 13. GERAR PDF
+// ============================================================
+function gerarPDF() {
+    const loading = document.getElementById('loading');
+    loading.classList.add('ativo');
+    loading.textContent = '⏳ Gerando PDF... Aguarde...';
+
+    setTimeout(function() {
+        try {
+            if (typeof pdfMake === 'undefined') {
+                throw new Error('Biblioteca pdfMake não carregada.');
+            }
+
+            const dados = getDadosFormulario();
+            const clausulas = getClausulasMarcadas();
+
+            if (!dados.locador.nome || !dados.locador.cpf) {
+                alert('⚠️ Preencha Nome e CPF do Locador.');
+                loading.classList.remove('ativo');
+                return;
+            }
+
+            if (!dados.locatario.nome || !dados.locatario.cpf) {
+                alert('⚠️ Preencha Nome e CPF do Locatário.');
+                loading.classList.remove('ativo');
+                return;
+            }
+
+            if (!dados.numContrato) {
+                alert('⚠️ Informe o Número do Contrato.');
+                loading.classList.remove('ativo');
+                return;
+            }
+
+            if (!dados.imovel.endereco) {
+                alert('⚠️ Informe o Endereço do Imóvel.');
+                loading.classList.remove('ativo');
+                return;
+            }
+
+            const textoContrato = montarContrato(dados, clausulas);
+
+            function criarLinhas(texto) {
+                return texto.split('\n').map(line => ({ 
+                    text: line, 
+                    fontSize: 10,
+                    alignment: 'justify'
+                }));
+            }
+
+            const cabecalhoVia = (titulo, nome, cpf) => {
+                return `VIA DO ${titulo.toUpperCase()}\n${nome} - CPF: ${cpf}\n\n`;
+            };
+
+            const viaLocador = cabecalhoVia('locador', dados.locador.nome, dados.locador.cpf) + textoContrato;
+            const viaLocatario = cabecalhoVia('locatário', dados.locatario.nome, dados.locatario.cpf) + textoContrato;
+
+            const docDefinition = {
+                pageSize: 'A4',
+                pageMargins: [40, 40, 40, 40],
+                content: [
+                    { stack: criarLinhas(viaLocador), style: 'body' },
+                    { text: '', pageBreak: 'after' },
+                    { stack: criarLinhas(viaLocatario), style: 'body' }
+                ],
+                styles: {
+                    body: {
+                        fontSize: 10,
+                        lineHeight: 1.5,
+                        alignment: 'justify'
+                    }
+                },
+                defaultStyle: {
+                    alignment: 'justify'
+                },
+                footer: function(currentPage, pageCount) {
+                    return {
+                        text: `Redigido por TWO A SEVEN - Digital Solutions | Página ${currentPage} de ${pageCount}`,
+                        alignment: 'center',
+                        fontSize: 8,
+                        margin: [0, 0, 0, 15]
+                    };
+                }
+            };
+
+            const pdfDoc = pdfMake.createPdf(docDefinition);
+            const nomeArquivo = `Contrato_${dados.numContrato.replace(/\//g, '_')}.pdf`;
+            pdfDoc.download(nomeArquivo);
+            
+            loading.classList.remove('ativo');
+            mostrarMensagem('✅ PDF gerado com sucesso!', 'success');
+
+        } catch (error) {
+            console.error('Erro detalhado:', error);
+            alert('❌ Erro ao gerar PDF: ' + error.message);
+            loading.classList.remove('ativo');
+        }
+    }, 300);
+}
+
+// ============================================================
+// 14. GERENCIADOR
+// ============================================================
+async function abrirGerenciador() {
+    const modal = document.getElementById('modalGerenciador');
+    modal.classList.add('ativo');
+    
+    if (dbStatus === 'online' && supabaseClient) {
+        await atualizarGerenciadorOnline();
+    } else {
+        atualizarGerenciadorOffline();
+    }
+}
+
+function fecharGerenciador() {
+    document.getElementById('modalGerenciador').classList.remove('ativo');
+}
+
+async function atualizarGerenciadorOnline() {
+    try {
+        let html = '';
+        
+        const { data: locadores } = await supabaseClient.from('locadores').select('*').order('id');
+        html += `<h3>👤 Locadores (${locadores?.length || 0})</h3>`;
+        if (locadores && locadores.length > 0) {
+            html += `<table class="tabela-dados"><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Ações</th></tr>`;
+            locadores.forEach(l => {
+                html += `<tr><td>${l.nome}</td><td>${l.cpf}</td><td>${l.telefone || '-'}</td>
+                    <td><button class="btn-excluir" onclick="excluirRegistroOnline('locadores', ${l.id})">✕</button></td></tr>`;
+            });
+            html += `</table>`;
+        } else {
+            html += `<p>Nenhum locador cadastrado.</p>`;
+        }
+        
+        const { data: locatarios } = await supabaseClient.from('locatarios').select('*').order('id');
+        html += `<h3>👤 Locatários (${locatarios?.length || 0})</h3>`;
+        if (locatarios && locatarios.length > 0) {
+            html += `<table class="tabela-dados"><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Ações</th></tr>`;
+            locatarios.forEach(l => {
+                html += `<tr><td>${l.nome}</td><td>${l.cpf}</td><td>${l.telefone || '-'}</td>
+                    <td><button class="btn-excluir" onclick="excluirRegistroOnline('locatarios', ${l.id})">✕</button></td></tr>`;
+            });
+            html += `</table>`;
+        } else {
+            html += `<p>Nenhum locatário cadastrado.</p>`;
+        }
+        
+        const { data: fiadores } = await supabaseClient.from('fiadores').select('*').order('id');
+        html += `<h3>👤 Fiadores (${fiadores?.length || 0})</h3>`;
+        if (fiadores && fiadores.length > 0) {
+            html += `<table class="tabela-dados"><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Ações</th></tr>`;
+            fiadores.forEach(f => {
+                html += `<tr><td>${f.nome}</td><td>${f.cpf}</td><td>${f.telefone || '-'}</td>
+                    <td><button class="btn-excluir" onclick="excluirRegistroOnline('fiadores', ${f.id})">✕</button></td></tr>`;
+            });
+            html += `</table>`;
+        } else {
+            html += `<p>Nenhum fiador cadastrado.</p>`;
+        }
+        
+        const { data: imoveis } = await supabaseClient.from('imoveis').select('*').order('id');
+        html += `<h3>🏠 Imóveis (${imoveis?.length || 0})</h3>`;
+        if (imoveis && imoveis.length > 0) {
+            html += `<table class="tabela-dados"><tr><th>Endereço</th><th>Tipo</th><th>Ações</th></tr>`;
+            imoveis.forEach(i => {
+                html += `<tr><td>${i.endereco}</td><td>${i.tipo || '-'}</td>
+                    <td><button class="btn-excluir" onclick="excluirRegistroOnline('imoveis', ${i.id})">✕</button></td></tr>`;
+            });
+            html += `</table>`;
+        } else {
+            html += `<p>Nenhum imóvel cadastrado.</p>`;
+        }
+        
+        document.getElementById('conteudoGerenciador').innerHTML = html;
+        
+    } catch (error) {
+        console.error('Erro ao carregar gerenciador:', error);
+        document.getElementById('conteudoGerenciador').innerHTML = '<p>❌ Erro ao carregar dados</p>';
+    }
+}
+
+function atualizarGerenciadorOffline() {
+    const db = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
+    let html = '';
+    
+    html += `<h3>👤 Locadores (${db.locadores?.length || 0})</h3>`;
+    if (db.locadores && db.locadores.length > 0) {
+        html += `<table class="tabela-dados"><tr><th>Nome</th><th>CPF</th><th>Telefone</th></tr>`;
+        db.locadores.forEach(l => {
+            html += `<tr><td>${l.nome}</td><td>${l.cpf}</td><td>${l.telefone || '-'}</td></tr>`;
+        });
+        html += `</table>`;
+    } else {
+        html += `<p>Nenhum locador cadastrado.</p>`;
+    }
+    
+    document.getElementById('conteudoGerenciador').innerHTML = html;
+}
+
+async function excluirRegistroOnline(tabela, id) {
+    if (confirm('Tem certeza que deseja excluir este registro?')) {
+        try {
+            const { error } = await supabaseClient
+                .from(tabela)
+                .delete()
+                .eq('id', id);
+                
+            if (error) throw error;
+            await atualizarGerenciadorOnline();
+            mostrarMensagem('✓ Registro excluído!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir:', error);
+            alert('Erro ao excluir registro.');
+        }
+    }
+}
+
+// ============================================================
+// 15. EXPORTAÇÃO E IMPORTAÇÃO
+// ============================================================
+function exportarDados() {
+    if (dbStatus === 'online' && supabaseClient) {
+        exportarDadosOnline();
+    } else {
+        exportarDadosOffline();
+    }
+}
+
+async function exportarDadosOnline() {
+    try {
+        const [locadores, locatarios, fiadores, imoveis, clausulas] = await Promise.all([
+            supabaseClient.from('locadores').select('*'),
+            supabaseClient.from('locatarios').select('*'),
+            supabaseClient.from('fiadores').select('*'),
+            supabaseClient.from('imoveis').select('*'),
+            supabaseClient.from('clausulas').select('*')
+        ]);
+        
+        const dados = {
+            locadores: locadores.data || [],
+            locatarios: locatarios.data || [],
+            fiadores: fiadores.data || [],
+            imoveis: imoveis.data || [],
+            clausulas: clausulas.data || [],
+            exportado_em: new Date().toISOString()
+        };
+        
+        const json = JSON.stringify(dados, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `contratos_supabase_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        mostrarMensagem('✅ Dados exportados!', 'success');
+    } catch (error) {
+        console.error('Erro ao exportar:', error);
+        alert('Erro ao exportar dados.');
+    }
+}
+
+function exportarDadosOffline() {
+    const dados = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
+    const json = JSON.stringify(dados, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `contratos_offline_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importarDados() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async function(event) {
+            try {
+                const data = JSON.parse(event.target.result);
+                
+                if (!data.locadores && !data.locatarios && !data.fiadores && !data.imoveis) {
+                    alert('Arquivo inválido.');
+                    return;
+                }
+                
+                if (dbStatus === 'online' && supabaseClient) {
+                    for (const item of data.locadores || []) {
+                        await supabaseClient.from('locadores').upsert(item, { onConflict: 'cpf' });
+                    }
+                    for (const item of data.locatarios || []) {
+                        await supabaseClient.from('locatarios').upsert(item, { onConflict: 'cpf' });
+                    }
+                    for (const item of data.fiadores || []) {
+                        await supabaseClient.from('fiadores').upsert(item, { onConflict: 'cpf' });
+                    }
+                    for (const item of data.imoveis || []) {
+                        await supabaseClient.from('imoveis').upsert(item, { onConflict: 'endereco' });
+                    }
+                    mostrarMensagem('✅ Dados importados com sucesso!', 'success');
+                    await atualizarGerenciadorOnline();
+                } else {
+                    localStorage.setItem('contratos_db_offline', JSON.stringify(data));
+                    mostrarMensagem('✅ Dados importados localmente!', 'success');
+                }
+            } catch (error) {
+                alert('Erro ao importar dados: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+async function limparTodosDados() {
+    if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODOS os dados cadastrados. Continuar?')) return;
+    if (!confirm('Confirme novamente: Deseja realmente apagar todos os dados?')) return;
+    
+    if (dbStatus === 'online' && supabaseClient) {
+        try {
+            await supabaseClient.from('locadores').delete().neq('id', 0);
+            await supabaseClient.from('locatarios').delete().neq('id', 0);
+            await supabaseClient.from('fiadores').delete().neq('id', 0);
+            await supabaseClient.from('imoveis').delete().neq('id', 0);
+            await supabaseClient.from('clausulas').delete().neq('id', 0);
+            
+            mostrarMensagem('🗑️ Todos os dados foram removidos!', 'success');
+            await atualizarGerenciadorOnline();
+        } catch (error) {
+            console.error('Erro ao limpar dados:', error);
+            alert('Erro ao limpar dados.');
+        }
+    } else {
+        localStorage.removeItem('contratos_db_offline');
+        mostrarMensagem('🗑️ Dados locais removidos!', 'success');
+        atualizarGerenciadorOffline();
+    }
+}
+
+// ============================================================
+// 16. SINCronizar
+// ============================================================
+async function sincronizarDados() {
+    if (dbStatus !== 'online' || !supabaseClient) {
+        alert('⚠️ Modo offline. Conecte-se ao Supabase para sincronizar.');
+        return;
+    }
+    
+    try {
+        mostrarMensagem('🔄 Sincronizando...', 'info');
+        await carregarDadosIniciais();
+        mostrarMensagem('✅ Dados sincronizados!', 'success');
+    } catch (error) {
+        console.error('Erro na sincronização:', error);
+        mostrarMensagem('❌ Erro na sincronização', 'error');
+    }
 }
 
 async function carregarDadosIniciais() {
-    // Espaço reservado para carregar dados em lote do Supabase se necessário
-}
-
-function gerarPrevia() {
-    const dados = getDadosFormulario();
-    const clausulasSelecionadas = [];
-    document.querySelectorAll('#listaClausulas input[type="checkbox"]:checked').forEach(cb => {
-        const cl = CLAUSULAS.find(c => c.id === cb.value);
-        if (cl) clausulasSelecionadas.push(cl);
-    });
-    
-    const textoContrato = montarContrato(dados, clausulasSelecionadas);
-    const preverEl = document.getElementById('previewContrato');
-    if (preverEl) {
-        preverEl.textContent = textoContrato;
+    try {
+        const { data: clausulas } = await supabaseClient
+            .from('clausulas')
+            .select('*')
+            .order('id');
+            
+        if (clausulas && clausulas.length > 0) {
+            clausulasAdicionais = clausulas.map(c => ({
+                id: String(c.id),
+                descricao: c.descricao,
+                texto: c.texto
+            }));
+            carregarClausulas();
+        }
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error);
     }
 }
 
-function gerarPDF() {
-    gerarPrevia();
-    window.print();
-}
-
-// Array global para armazenar as cláusulas adicionadas
-let listaClausulasAdicionais = [];
-
-// Função acionada pelo botão "Adicionar Cláusula"
-function adicionarClausula() {
-    const inputDesc = document.getElementById('novaClausulaDesc');
-    const inputTexto = document.getElementById('novaClausulaTexto');
-
-    const titulo = inputDesc.value.trim();
-    const texto = inputTexto.value.trim();
-
-    // Validação técnica estrita
-    if (!titulo || !texto) {
-        alert("Preencha tanto a descrição resumida quanto o texto completo da cláusula.");
-        return;
-    }
-
-    // Cria o objeto da nova cláusula
-    const novaClausula = {
-        id: 'clausula_' + Date.now(),
-        titulo: titulo,
-        texto: texto,
-        ativa: true // Começa marcada por padrão
-    };
-
-    // Adiciona ao array
-    listaClausulasAdicionais.push(novaClausula);
-
-    // Limpa os campos de digitação
-    inputDesc.value = '';
-    inputTexto.value = '';
-
-    // Atualiza a interface visual (DOM)
-    renderizarClausulas();
-}
-
-// Função responsável por renderizar os checkboxes no contêiner HTML
-function renderizarClausulas() {
-    const container = document.getElementById('clausulasContainer');
-    
-    if (!container) {
-        console.error("Elemento 'clausulasContainer' não encontrado no DOM.");
-        return;
-    }
-
-    // Limpa o contêiner antes de reconstruir para evitar duplicações
-    container.innerHTML = '';
-
-    if (listaClausulasAdicionais.length === 0) {
-        container.innerHTML = '<p style="color: #777; font-style: italic;">Nenhuma cláusula adicional cadastrada.</p>';
-        return;
-    }
-
-    // Reconstrói a lista iterando sobre o array
-    listaClausulasAdicionais.forEach((clausula) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'clausula-card-item'; // Ajuste a classe CSS se necessário
-        itemDiv.style.cssText = 'background: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 4px;';
-
-        itemDiv.innerHTML = `
-            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
-                <input type="checkbox" id="${clausula.id}" ${clausula.ativa ? 'checked' : ''} onchange="toggleClausula('${clausula.id}')" style="margin-top: 4px;">
-                <div>
-                    <strong style="color: #333;">${clausula.titulo}</strong>
-                    <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #555; line-height: 1.3;">${clausula.texto}</p>
-                </div>
-            </label>
-        `;
-
-        container.appendChild(itemDiv);
-    });
-}
-
-// Atualiza o estado da cláusula quando o usuário marca/desmarca o checkbox
-function toggleClausula(id) {
-    const checkbox = document.getElementById(id);
-    const clausula = listaClausulasAdicionais.find(c => c.id === id);
-    if (clausula && checkbox) {
-        clausula.ativa = checkbox.checked;
-    }
-}
-
-// Opcional: Chamar renderizarClausulas() no carregamento da página para inicializar o estado vazio
-document.addEventListener('DOMContentLoaded', () => {
-    renderizarClausulas();
-});
+// ============================================================
+// 17. EXPOR FUNÇÕES GLOBAIS
+// ============================================================
+window.gerarPrevia = gerarPrevia;
+window.gerarPDF = gerarPDF;
+window.buscarPorCpf = buscarPorCpf;
+window.salvarTodosDados = salvarTodosDados;
+window.adicionarClausula = adicionarClausula;
+window.removerClausula = removerClausula;
+window.abrirGerenciador = abrirGerenciador;
+window.fecharGerenciador = fecharGerenciador;
+window.excluirRegistroOnline = excluirRegistroOnline;
+window.limparTodosDados = limparTodosDados;
+window.exportarDados = exportarDados;
+window.importarDados = importarDados;
+window.sincronizarDados = sincronizarDados;
