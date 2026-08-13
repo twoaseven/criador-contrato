@@ -1,3 +1,14 @@
+:root {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --border: #334155;
+    --input-bg: #0f172a;
+}
+
 * { 
     box-sizing: border-box; 
     margin: 0; 
@@ -6,42 +17,45 @@
 
 body { 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    background: #f4f7fc; 
+    background-color: var(--bg-color);
+    color: var(--text-primary);
     padding: 20px; 
+    min-height: 100vh;
 }
 
 .container { 
     max-width: 1200px; 
     margin: 0 auto; 
-    background: white; 
+    background-color: var(--card-bg); 
     padding: 25px; 
     border-radius: 12px; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+    border: 1px solid var(--border);
 }
 
 h1 { 
-    color: #1a2a3a; 
-    border-bottom: 3px solid #2a7de1; 
+    color: var(--text-primary); 
+    border-bottom: 3px solid var(--accent); 
     padding-bottom: 10px; 
     margin-bottom: 25px; 
 }
 
 h2 { 
-    color: #1a2a3a; 
+    color: var(--text-primary); 
     margin: 25px 0 15px; 
     font-size: 1.2rem; 
-    border-left: 4px solid #2a7de1; 
+    border-left: 4px solid var(--accent); 
     padding-left: 10px; 
 }
 
 h3 { 
-    color: #1a2a3a; 
+    color: var(--text-primary); 
     margin: 15px 0 10px; 
     font-size: 1.1rem; 
 }
 
 h4 { 
-    color: #1a2a3a; 
+    color: var(--text-primary); 
     margin: 10px 0 8px; 
     font-size: 1rem; 
 }
@@ -63,13 +77,15 @@ label {
     font-weight: 600; 
     font-size: 0.9rem; 
     margin-bottom: 4px; 
-    color: #333; 
+    color: var(--text-secondary); 
 }
 
 input, select, textarea { 
     width: 100%; 
     padding: 8px 10px; 
-    border: 1px solid #ccc; 
+    background-color: var(--input-bg);
+    border: 1px solid var(--border); 
+    color: var(--text-primary);
     border-radius: 6px; 
     font-size: 0.95rem; 
     font-family: inherit; 
@@ -81,7 +97,7 @@ textarea {
 }
 
 .busca { 
-    background: #eef3fa; 
+    background: rgba(255, 255, 255, 0.03); 
     padding: 15px; 
     border-radius: 8px; 
     margin-bottom: 20px; 
@@ -89,6 +105,7 @@ textarea {
     align-items: flex-end; 
     gap: 15px; 
     flex-wrap: wrap; 
+    border: 1px solid var(--border);
 }
 
 .busca .form-group { 
@@ -99,10 +116,10 @@ textarea {
     display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
     gap: 8px 15px; 
-    background: #f9fafc; 
+    background: rgba(15, 23, 42, 0.6); 
     padding: 15px; 
     border-radius: 8px; 
-    border: 1px solid #dde2e8; 
+    border: 1px solid var(--border); 
     margin-bottom: 15px; 
     max-height: 400px; 
     overflow-y: auto; 
@@ -116,11 +133,13 @@ textarea {
     font-size: 0.95rem; 
     cursor: pointer; 
     padding: 5px; 
+    color: var(--text-secondary);
 }
 
 .clausulas-grid label:hover { 
-    background: #e8edf5; 
+    background: rgba(59, 130, 246, 0.1); 
     border-radius: 4px; 
+    color: var(--text-primary);
 }
 
 .clausulas-grid input[type="checkbox"] { 
@@ -147,12 +166,12 @@ textarea {
 }
 
 .btn-prev { 
-    background: #2a7de1; 
+    background: var(--accent); 
     color: white; 
 }
 
 .btn-prev:hover { 
-    background: #1a5db5; 
+    background: var(--accent-hover); 
 }
 
 .btn-pdf { 
@@ -234,8 +253,8 @@ textarea {
 
 .previa { 
     margin-top: 25px; 
-    background: #fafafa; 
-    border: 1px solid #ddd; 
+    background: rgba(15, 23, 42, 0.8); 
+    border: 1px solid var(--border); 
     border-radius: 8px; 
     padding: 20px; 
     white-space: pre-wrap; 
@@ -245,6 +264,7 @@ textarea {
     overflow-y: auto; 
     display: none; 
     line-height: 1.6; 
+    color: var(--text-primary);
 }
 
 .previa.visivel { 
@@ -255,8 +275,8 @@ footer {
     margin-top: 40px; 
     text-align: left; 
     font-size: 0.85rem; 
-    color: #555; 
-    border-top: 1px solid #ddd; 
+    color: var(--text-secondary); 
+    border-top: 1px solid var(--border); 
     padding-top: 15px; 
 }
 
@@ -269,22 +289,23 @@ footer span {
 }
 
 .info-box { 
-    background: #fff3cd; 
+    background: rgba(255, 193, 7, 0.1); 
     border: 1px solid #ffc107; 
     padding: 12px; 
     border-radius: 6px; 
     margin-bottom: 15px; 
+    color: #ffda6a; 
 }
 
 .info-box strong { 
-    color: #856404; 
+    color: #ffc107; 
 }
 
 .loading { 
     display: none; 
     text-align: center; 
     padding: 10px; 
-    color: #2a7de1; 
+    color: var(--accent); 
     font-weight: bold; 
 }
 
@@ -293,15 +314,18 @@ footer span {
 }
 
 .secao-destaque { 
-    background: #f8f9fa; 
-    border-left: 4px solid #2a7de1; 
+    background: rgba(255, 255, 255, 0.03); 
+    border-left: 4px solid var(--accent); 
     padding: 10px 15px; 
     margin: 10px 0; 
     border-radius: 4px; 
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 }
 
 .cadastro-clausula { 
-    background: #f8f9fa; 
+    background: rgba(255, 255, 255, 0.03); 
     padding: 15px; 
     border-radius: 8px; 
     border: 2px dashed #6f42c1; 
@@ -319,7 +343,7 @@ footer span {
     left: 0; 
     width: 100%; 
     height: 100%; 
-    background: rgba(0,0,0,0.5); 
+    background: rgba(0,0,0,0.7); 
     z-index: 1000; 
     justify-content: center; 
     align-items: center; 
@@ -330,28 +354,31 @@ footer span {
 }
 
 .modal-content { 
-    background: white; 
+    background: var(--card-bg); 
     padding: 25px; 
     border-radius: 12px; 
     max-width: 800px; 
     width: 90%; 
     max-height: 80vh; 
     overflow-y: auto; 
+    border: 1px solid var(--border);
+    color: var(--text-primary);
 }
 
 .modal-content h2 { 
     margin-top: 0; 
+    color: var(--text-primary);
 }
 
 .modal-close { 
     float: right; 
     cursor: pointer; 
     font-size: 1.5rem; 
-    color: #999; 
+    color: var(--text-secondary); 
 }
 
 .modal-close:hover { 
-    color: #333; 
+    color: var(--text-primary); 
 }
 
 .tabela-dados { 
@@ -361,7 +388,7 @@ footer span {
 }
 
 .tabela-dados th { 
-    background: #2a7de1; 
+    background: var(--accent); 
     color: white; 
     padding: 10px; 
     text-align: left; 
@@ -369,11 +396,12 @@ footer span {
 
 .tabela-dados td { 
     padding: 10px; 
-    border-bottom: 1px solid #ddd; 
+    border-bottom: 1px solid var(--border); 
+    color: var(--text-primary);
 }
 
 .tabela-dados tr:hover { 
-    background: #f5f5f5; 
+    background: rgba(59, 130, 246, 0.05); 
 }
 
 .badge { 
@@ -434,47 +462,47 @@ footer span {
     .form-row { 
         flex-direction: column; 
     }
-    
+     
     .clausulas-grid { 
         grid-template-columns: 1fr; 
     }
-    
+     
     .busca { 
         flex-direction: column; 
         align-items: stretch; 
     }
-    
+     
     .busca .form-group { 
         flex: 1 1 auto; 
     }
-    
+     
     .botoes button { 
         width: 100%; 
         justify-content: center; 
     }
-    
+     
     .modal-content { 
         width: 95%; 
         padding: 15px; 
     }
-    
+     
     .tabela-dados { 
         font-size: 0.8rem; 
     }
-    
+     
     .tabela-dados th, 
     .tabela-dados td { 
         padding: 6px 8px; 
     }
-    
+     
     h1 { 
         font-size: 1.3rem; 
     }
-    
+     
     h2 { 
         font-size: 1rem; 
     }
-    
+     
     .container { 
         padding: 15px; 
     }
@@ -488,7 +516,7 @@ footer span {
         flex: 1 1 150px; 
         min-width: 140px; 
     }
-    
+     
     .clausulas-grid { 
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
     }
@@ -501,7 +529,7 @@ footer span {
     .container { 
         max-width: 1300px; 
     }
-    
+     
     .form-group { 
         flex: 1 1 250px; 
     }
