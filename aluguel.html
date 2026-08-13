@@ -15,6 +15,12 @@
 <div class="nav-container">
     <a href="index.html" class="btn-voltar">← Voltar para o Menu</a>
 </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 2. Carrega o seu script por último, quando os elementos da tela já existem -->
+    <script src="script.js"></script>
+    
     <!-- INFORMAÇÕES DO CONTRATO -->
     <div class="info-box">
         <strong>📋 INFORMAÇÕES IMPORTANTES:</strong><br>
@@ -559,8 +565,7 @@
             <div id="conteudoGerenciador">
                 <p>Carregando dados...</p>
             </div>
-        </div>
-    </div>
+            </div>
 
     <div class="acoes-container" style="text-align: center; margin: 20px 0;">
     <!-- Botão de Salvar -->
@@ -571,6 +576,11 @@
     
     <!-- Feedback visual -->
     <p id="msgSalvo" style="margin-top: 10px; font-weight: bold;"></p>
+
+        <!-- Botão de Voltar -->
+    <div class="nav-container">
+    <a href="index.html" class="btn-voltar">← Voltar para o Menu</a>
+</div>
 </div>
 
     <!-- RODAPÉ -->
@@ -578,7 +588,5 @@
         <span>Desenvolvido por TWO A SEVEN - Digital Solutions / Todos os direitos reservados - <span id="anoFooter"></span></span>
     </footer>
 </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
 </body>
 </html>
