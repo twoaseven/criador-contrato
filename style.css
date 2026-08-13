@@ -544,7 +544,7 @@ footer span {
 .btn-voltar {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #333; /* Cor escura profissional */
+    background-color: #dc3545; /* Cor escura profissional */
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
