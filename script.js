@@ -1063,10 +1063,10 @@ async function sincronizarDados() {
         await carregarClausulasDoSupabase();
         mostrarMensagem('✅ Dados sincronizados!', 'success');
     } catch (error) {
-        mostrarMensagem('❌ Erro na sincronização', 'error');
+        mostrarMensagem('❌ Erro na sincronização', 'error')
     }
+  }
 }
-
 // ============================================================
 // EXPOR FUNÇÕES GLOBAIS
 // ============================================================
