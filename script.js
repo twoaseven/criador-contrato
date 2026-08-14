@@ -114,11 +114,11 @@ async function initSupabase() {
     statusDB.className = 'status-db status-loading';
 
     try {
-        if (typeof supabaseJs === 'undefined') {
+        if (typeof supabase === 'undefined') {
             throw new Error('SDK do Supabase não carregado');
         }
 
-        supabaseClient = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('📡 Cliente Supabase criado');
 
         // Testar conexão
