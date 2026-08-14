@@ -1,7 +1,6 @@
 // ============================================================
 // 1. CONFIGURAÇÃO SUPABASE
 // ============================================================
-// 🔑 SUAS CHAVES DO SUPABASE:
 const SUPABASE_URL = 'https://gyhsyvthfyvvcrvupqev.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5aHN5dnRoZnl2dmNydnVwcWV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NTc3OTMsImV4cCI6MjEwMjIzMzc5M30.kdi06B-HGANbdTC5B6VjdqczXevYeUZTjWL9Wan-Ff0';
 
@@ -82,6 +81,15 @@ function removerMascara(valor) {
     return valor.replace(/\D/g, '');
 }
 
+function mostrarMensagem(msg, tipo) {
+    const el = document.getElementById('msgBusca') || document.getElementById('msgSalvoFooter');
+    if (el) {
+        el.textContent = msg;
+        el.style.color = tipo === 'success' ? '#28a745' : tipo === 'error' ? '#dc3545' : '#ffc107';
+        setTimeout(() => { el.textContent = ''; }, 5000);
+    }
+}
+
 // ============================================================
 // 3. INICIALIZAÇÃO
 // ============================================================
@@ -115,14 +123,16 @@ document.addEventListener('DOMContentLoaded', function() {
         el.addEventListener('input', function(e) { aplicarMascara(e, 'valor'); });
     });
 
-    carregarClausulas();
+    // Carregar cláusulas do Supabase primeiro, depois inicializar
     initSupabase();
 });
 
 // ============================================================
-// 4. SUPABASE - CONEXÃO
+// 4. SUPABASE - CONEXÃO E CARREGAMENTO DE CLÁUSULAS
 // ============================================================
 async function initSupabase() {
+    const statusDB = document.getElementById('statusDB');
+    
     try {
         if (typeof supabaseJs === 'undefined') {
             throw new Error('Supabase SDK não carregado');
@@ -130,52 +140,190 @@ async function initSupabase() {
         
         supabaseClient = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // Testar conexão
-        const { data, error } = await supabaseClient.from('locadores').select('count', { count: 'exact', head: true });
+        // Tentar carregar cláusulas primeiro
+        const { data: clausulasData, error: clausulasError } = await supabaseClient
+            .from('clausulas')
+            .select('*')
+            .order('id');
         
-        if (error && error.code === 'PGRST301') {
-            usarModoOffline();
-            return;
+        if (clausulasError) {
+            console.warn('Erro ao carregar cláusulas:', clausulasError);
+            // Se não encontrar, usar as padrão
+            CLAUSULAS = [...CLAUSULAS_PADRAO];
+            carregarClausulas();
+        } else if (clausulasData && clausulasData.length > 0) {
+            // Usar cláusulas do banco
+            CLAUSULAS = clausulasData.map(c => ({
+                id: String(c.id),
+                descricao: c.descricao,
+                texto: c.texto
+            }));
+            carregarClausulas();
+            console.log('✅ Cláusulas carregadas do Supabase:', CLAUSULAS.length);
+        } else {
+            // Nenhuma cláusula no banco, inserir as padrão
+            CLAUSULAS = [...CLAUSULAS_PADRAO];
+            carregarClausulas();
+            
+            // Inserir cláusulas padrão no Supabase
+            for (const c of CLAUSULAS_PADRAO) {
+                await supabaseClient
+                    .from('clausulas')
+                    .insert({ descricao: c.descricao, texto: c.texto, is_padrao: true })
+                    .select();
+            }
+            console.log('✅ Cláusulas padrão inseridas no Supabase');
+        }
+        
+        // Testar conexão com locadores
+        const { error: locError } = await supabaseClient
+            .from('locadores')
+            .select('count', { count: 'exact', head: true });
+        
+        if (locError) {
+            throw new Error('Erro ao acessar locadores: ' + locError.message);
         }
         
         dbStatus = 'online';
-        document.getElementById('statusDB').className = 'status-db status-online';
-        document.getElementById('statusDB').textContent = '✅ Conectado';
-        
-        await carregarDadosIniciais();
+        statusDB.className = 'status-db status-online';
+        statusDB.textContent = '✅ Conectado';
         mostrarMensagem('✅ Conectado ao Supabase!', 'success');
         
     } catch (error) {
         console.error('Erro ao conectar Supabase:', error);
         dbStatus = 'offline';
-        document.getElementById('statusDB').className = 'status-db status-offline';
-        document.getElementById('statusDB').textContent = '❌ Offline';
-        usarModoOffline();
+        statusDB.className = 'status-db status-offline';
+        statusDB.textContent = '❌ Offline';
         mostrarMensagem('❌ Modo offline - dados salvos localmente', 'error');
-    }
-}
-
-function usarModoOffline() {
-    const dados = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
-    if (!dados.locadores) dados.locadores = [];
-    if (!dados.locatarios) dados.locatarios = [];
-    if (!dados.fiadores) dados.fiadores = [];
-    if (!dados.imoveis) dados.imoveis = [];
-    if (!dados.clausulas) dados.clausulas = CLAUSULAS_PADRAO;
-    localStorage.setItem('contratos_db_offline', JSON.stringify(dados));
-}
-
-function mostrarMensagem(msg, tipo) {
-    const el = document.getElementById('msgBusca') || document.getElementById('msgSalvoFooter');
-    if (el) {
-        el.textContent = msg;
-        el.style.color = tipo === 'success' ? '#28a745' : '#dc3545';
-        setTimeout(() => { el.textContent = ''; }, 5000);
+        
+        // Fallback para cláusulas padrão
+        CLAUSULAS = [...CLAUSULAS_PADRAO];
+        carregarClausulas();
     }
 }
 
 // ============================================================
-// 5. FUNÇÕES DO BANCO DE DADOS
+// 5. GERENCIAMENTO DE CLÁUSULAS
+// ============================================================
+function carregarClausulas() {
+    const container = document.getElementById('clausulasContainer');
+    if (!container) {
+        console.error('Elemento clausulasContainer não encontrado');
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    const todasClausulas = [...CLAUSULAS, ...clausulasAdicionais];
+    const ordenadas = todasClausulas.sort((a, b) => a.descricao.localeCompare(b.descricao));
+    
+    if (ordenadas.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">Nenhuma cláusula disponível.</p>';
+        return;
+    }
+    
+    ordenadas.forEach(c => {
+        const label = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = c.id;
+        cb.id = 'claus_' + c.id;
+        // Marcar por padrão as cláusulas padrão
+        if (CLAUSULAS_PADRAO.some(p => p.id === c.id)) {
+            cb.checked = true;
+        }
+        label.appendChild(cb);
+        
+        const texto = document.createElement('span');
+        texto.textContent = ' ' + c.descricao;
+        label.appendChild(texto);
+        
+        // Botão remover apenas para cláusulas adicionais
+        if (clausulasAdicionais.some(ad => ad.id === c.id)) {
+            const btnRemover = document.createElement('button');
+            btnRemover.type = 'button';
+            btnRemover.className = 'btn-remove-clausula';
+            btnRemover.textContent = '✕';
+            btnRemover.style.marginLeft = 'auto';
+            btnRemover.onclick = function(e) {
+                e.stopPropagation();
+                removerClausula(c.id);
+            };
+            label.appendChild(btnRemover);
+        }
+        
+        container.appendChild(label);
+    });
+}
+
+function getClausulasMarcadas() {
+    const checkboxes = document.querySelectorAll('#clausulasContainer input[type="checkbox"]:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+    const todas = [...CLAUSULAS, ...clausulasAdicionais];
+    return todas.filter(c => ids.includes(c.id));
+}
+
+function adicionarClausula() {
+    const desc = document.getElementById('novaClausulaDesc').value.trim();
+    const texto = document.getElementById('novaClausulaTexto').value.trim();
+    
+    if (!desc || !texto) {
+        alert('Preencha a descrição e o texto da cláusula.');
+        return;
+    }
+    
+    const todas = [...CLAUSULAS, ...clausulasAdicionais];
+    if (todas.some(c => c.descricao.toLowerCase() === desc.toLowerCase())) {
+        alert('Já existe uma cláusula com esta descrição.');
+        return;
+    }
+    
+    const novoId = 'c' + Date.now();
+    const novaClausula = { id: novoId, descricao: desc, texto: texto };
+    
+    // Salvar no Supabase se online
+    if (dbStatus === 'online' && supabaseClient) {
+        supabaseClient
+            .from('clausulas')
+            .insert({ descricao: desc, texto: texto, is_padrao: false })
+            .then(({ data, error }) => {
+                if (error) {
+                    console.error('Erro ao salvar cláusula:', error);
+                } else {
+                    console.log('✅ Cláusula salva no Supabase');
+                }
+            });
+    }
+    
+    clausulasAdicionais.push(novaClausula);
+    document.getElementById('novaClausulaDesc').value = '';
+    document.getElementById('novaClausulaTexto').value = '';
+    
+    carregarClausulas();
+    mostrarMensagem('✓ Cláusula adicionada com sucesso!', 'success');
+}
+
+function removerClausula(id) {
+    if (confirm('Tem certeza que deseja remover esta cláusula?')) {
+        clausulasAdicionais = clausulasAdicionais.filter(c => c.id !== id);
+        
+        if (dbStatus === 'online' && supabaseClient) {
+            supabaseClient
+                .from('clausulas')
+                .delete()
+                .eq('id', id)
+                .then(({ error }) => {
+                    if (error) console.error('Erro ao remover cláusula:', error);
+                });
+        }
+        
+        carregarClausulas();
+        mostrarMensagem('✓ Cláusula removida!', 'success');
+    }
+}
+
+// ============================================================
+// 6. FUNÇÕES DO BANCO DE DADOS (RESTO DO CÓDIGO)
 // ============================================================
 function getDadosFormulario() {
     return {
@@ -268,7 +416,51 @@ function getDadosFormulario() {
 }
 
 // ============================================================
-// 6. BUSCAR POR CPF
+// 7. FUNÇÕES DE FORMATAÇÃO (RESTO DO CÓDIGO)
+// ============================================================
+function formatarData(dataStr) {
+    if (!dataStr) return 'a definir';
+    const partes = dataStr.split('-');
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function numeroPorExtenso(num) {
+    const numeros = ['zero', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez',
+                    'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte',
+                    'vinte e um', 'vinte e dois', 'vinte e três', 'vinte e quatro', 'vinte e cinco', 'vinte e seis',
+                    'vinte e sete', 'vinte e oito', 'vinte e nove', 'trinta', 'trinta e um', 'trinta e dois',
+                    'trinta e três', 'trinta e quatro', 'trinta e cinco', 'trinta e seis', 'trinta e sete',
+                    'trinta e oito', 'trinta e nove', 'quarenta', 'quarenta e um', 'quarenta e dois', 'quarenta e três',
+                    'quarenta e quatro', 'quarenta e cinco', 'quarenta e seis', 'quarenta e sete', 'quarenta e oito',
+                    'quarenta e nove', 'cinquenta', 'cinquenta e um', 'cinquenta e dois', 'cinquenta e três',
+                    'cinquenta e quatro', 'cinquenta e cinco', 'cinquenta e seis', 'cinquenta e sete',
+                    'cinquenta e oito', 'cinquenta e nove', 'sessenta'];
+    return numeros[num] || num;
+}
+
+function getNomeMes(num) {
+    const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    return meses[num - 1] || '';
+}
+
+function valorPorExtenso(valor) {
+    if (!valor) return 'não informado';
+    const partes = valor.split(',');
+    const reais = parseInt(partes[0]) || 0;
+    const centavos = parseInt(partes[1]) || 0;
+    let extenso = '';
+    if (reais === 1) extenso = 'um real';
+    else if (reais > 1) extenso = numeroPorExtenso(reais) + ' reais';
+    if (centavos > 0) {
+        if (extenso) extenso += ' e ';
+        if (centavos === 1) extenso += 'um centavo';
+        else extenso += numeroPorExtenso(centavos) + ' centavos';
+    }
+    return extenso || 'zero reais';
+}
+
+// ============================================================
+// 8. BUSCAR POR CPF
 // ============================================================
 async function buscarPorCpf() {
     const cpf = document.getElementById('buscaCpf').value.trim();
@@ -365,7 +557,7 @@ function buscarPorCpfOffline(cpfLimpo) {
 }
 
 // ============================================================
-// 7. PREENCHER CAMPOS
+// 9. PREENCHER CAMPOS
 // ============================================================
 function preencherLocador(dados) {
     document.getElementById('locadorNome').value = dados.nome || '';
@@ -413,7 +605,7 @@ function preencherFiador(dados) {
 }
 
 // ============================================================
-// 8. SALVAR DADOS
+// 10. SALVAR DADOS
 // ============================================================
 async function salvarTodosDados() {
     if (dbStatus === 'online' && supabaseClient) {
@@ -616,154 +808,7 @@ function salvarDadosOffline() {
 }
 
 // ============================================================
-// 9. CLÁUSULAS
-// ============================================================
-function carregarClausulas() {
-    const container = document.getElementById('clausulasContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    
-    const todasClausulas = [...CLAUSULAS, ...clausulasAdicionais];
-    const ordenadas = todasClausulas.sort((a, b) => a.descricao.localeCompare(b.descricao));
-    
-    ordenadas.forEach(c => {
-        const label = document.createElement('label');
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.value = c.id;
-        cb.id = 'claus_' + c.id;
-        label.appendChild(cb);
-        
-        const texto = document.createElement('span');
-        texto.textContent = ' ' + c.descricao;
-        label.appendChild(texto);
-        
-        // Botão remover apenas para cláusulas adicionais
-        if (clausulasAdicionais.some(ad => ad.id === c.id)) {
-            const btnRemover = document.createElement('button');
-            btnRemover.type = 'button';
-            btnRemover.className = 'btn-remove-clausula';
-            btnRemover.textContent = '✕';
-            btnRemover.style.marginLeft = 'auto';
-            btnRemover.onclick = function(e) {
-                e.stopPropagation();
-                removerClausula(c.id);
-            };
-            label.appendChild(btnRemover);
-        }
-        
-        container.appendChild(label);
-    });
-}
-
-function getClausulasMarcadas() {
-    const checkboxes = document.querySelectorAll('#clausulasContainer input[type="checkbox"]:checked');
-    const ids = Array.from(checkboxes).map(cb => cb.value);
-    const todas = [...CLAUSULAS, ...clausulasAdicionais];
-    return todas.filter(c => ids.includes(c.id));
-}
-
-function adicionarClausula() {
-    const desc = document.getElementById('novaClausulaDesc').value.trim();
-    const texto = document.getElementById('novaClausulaTexto').value.trim();
-    
-    if (!desc || !texto) {
-        alert('Preencha a descrição e o texto da cláusula.');
-        return;
-    }
-    
-    const todas = [...CLAUSULAS, ...clausulasAdicionais];
-    if (todas.some(c => c.descricao.toLowerCase() === desc.toLowerCase())) {
-        alert('Já existe uma cláusula com esta descrição.');
-        return;
-    }
-    
-    const novoId = 'c' + Date.now();
-    const novaClausula = { id: novoId, descricao: desc, texto: texto };
-    
-    // Salvar no Supabase se online
-    if (dbStatus === 'online' && supabaseClient) {
-        supabaseClient
-            .from('clausulas')
-            .insert({ descricao: desc, texto: texto, is_padrao: false })
-            .then(({ error }) => {
-                if (error) console.error('Erro ao salvar cláusula:', error);
-            });
-    }
-    
-    clausulasAdicionais.push(novaClausula);
-    document.getElementById('novaClausulaDesc').value = '';
-    document.getElementById('novaClausulaTexto').value = '';
-    
-    carregarClausulas();
-    mostrarMensagem('✓ Cláusula adicionada com sucesso!', 'success');
-}
-
-function removerClausula(id) {
-    if (confirm('Tem certeza que deseja remover esta cláusula?')) {
-        clausulasAdicionais = clausulasAdicionais.filter(c => c.id !== id);
-        
-        if (dbStatus === 'online' && supabaseClient) {
-            supabaseClient
-                .from('clausulas')
-                .delete()
-                .eq('id', id)
-                .then(({ error }) => {
-                    if (error) console.error('Erro ao remover cláusula:', error);
-                });
-        }
-        
-        carregarClausulas();
-        mostrarMensagem('✓ Cláusula removida!', 'success');
-    }
-}
-
-// ============================================================
-// 10. FORMATAR DADOS
-// ============================================================
-function formatarData(dataStr) {
-    if (!dataStr) return 'a definir';
-    const partes = dataStr.split('-');
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
-function numeroPorExtenso(num) {
-    const numeros = ['zero', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez',
-                    'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte',
-                    'vinte e um', 'vinte e dois', 'vinte e três', 'vinte e quatro', 'vinte e cinco', 'vinte e seis',
-                    'vinte e sete', 'vinte e oito', 'vinte e nove', 'trinta', 'trinta e um', 'trinta e dois',
-                    'trinta e três', 'trinta e quatro', 'trinta e cinco', 'trinta e seis', 'trinta e sete',
-                    'trinta e oito', 'trinta e nove', 'quarenta', 'quarenta e um', 'quarenta e dois', 'quarenta e três',
-                    'quarenta e quatro', 'quarenta e cinco', 'quarenta e seis', 'quarenta e sete', 'quarenta e oito',
-                    'quarenta e nove', 'cinquenta', 'cinquenta e um', 'cinquenta e dois', 'cinquenta e três',
-                    'cinquenta e quatro', 'cinquenta e cinco', 'cinquenta e seis', 'cinquenta e sete',
-                    'cinquenta e oito', 'cinquenta e nove', 'sessenta'];
-    return numeros[num] || num;
-}
-
-function getNomeMes(num) {
-    const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-    return meses[num - 1] || '';
-}
-
-function valorPorExtenso(valor) {
-    if (!valor) return 'não informado';
-    const partes = valor.split(',');
-    const reais = parseInt(partes[0]) || 0;
-    const centavos = parseInt(partes[1]) || 0;
-    let extenso = '';
-    if (reais === 1) extenso = 'um real';
-    else if (reais > 1) extenso = numeroPorExtenso(reais) + ' reais';
-    if (centavos > 0) {
-        if (extenso) extenso += ' e ';
-        if (centavos === 1) extenso += 'um centavo';
-        else extenso += numeroPorExtenso(centavos) + ' centavos';
-    }
-    return extenso || 'zero reais';
-}
-
-// ============================================================
-// 11. MONTAR CONTRATO
+// 11. GERAR PRÉVIA E PDF
 // ============================================================
 function montarContrato(dados, clausulas) {
     const l = dados.locador;
@@ -929,9 +974,6 @@ function montarContrato(dados, clausulas) {
     return texto;
 }
 
-// ============================================================
-// 12. GERAR PRÉVIA
-// ============================================================
 function gerarPrevia() {
     const dados = getDadosFormulario();
     const clausulas = getClausulasMarcadas();
@@ -943,9 +985,6 @@ function gerarPrevia() {
     mostrarMensagem('✓ Prévia gerada com sucesso!', 'success');
 }
 
-// ============================================================
-// 13. GERAR PDF
-// ============================================================
 function gerarPDF() {
     const loading = document.getElementById('loading');
     loading.classList.add('ativo');
@@ -1045,7 +1084,7 @@ function gerarPDF() {
 }
 
 // ============================================================
-// 14. GERENCIADOR
+// 12. GERENCIADOR
 // ============================================================
 async function abrirGerenciador() {
     const modal = document.getElementById('modalGerenciador');
@@ -1163,7 +1202,7 @@ async function excluirRegistroOnline(tabela, id) {
 }
 
 // ============================================================
-// 15. EXPORTAÇÃO E IMPORTAÇÃO
+// 13. EXPORTAÇÃO E IMPORTAÇÃO
 // ============================================================
 function exportarDados() {
     if (dbStatus === 'online' && supabaseClient) {
@@ -1289,9 +1328,6 @@ async function limparTodosDados() {
     }
 }
 
-// ============================================================
-// 16. SINCronizar
-// ============================================================
 async function sincronizarDados() {
     if (dbStatus !== 'online' || !supabaseClient) {
         alert('⚠️ Modo offline. Conecte-se ao Supabase para sincronizar.');
@@ -1300,7 +1336,7 @@ async function sincronizarDados() {
     
     try {
         mostrarMensagem('🔄 Sincronizando...', 'info');
-        await carregarDadosIniciais();
+        await carregarClausulasDoSupabase();
         mostrarMensagem('✅ Dados sincronizados!', 'success');
     } catch (error) {
         console.error('Erro na sincronização:', error);
@@ -1308,15 +1344,17 @@ async function sincronizarDados() {
     }
 }
 
-async function carregarDadosIniciais() {
+async function carregarClausulasDoSupabase() {
     try {
-        const { data: clausulas } = await supabaseClient
+        const { data: clausulasData, error } = await supabaseClient
             .from('clausulas')
             .select('*')
             .order('id');
             
-        if (clausulas && clausulas.length > 0) {
-            clausulasAdicionais = clausulas.map(c => ({
+        if (error) throw error;
+        
+        if (clausulasData && clausulasData.length > 0) {
+            CLAUSULAS = clausulasData.map(c => ({
                 id: String(c.id),
                 descricao: c.descricao,
                 texto: c.texto
@@ -1324,12 +1362,12 @@ async function carregarDadosIniciais() {
             carregarClausulas();
         }
     } catch (error) {
-        console.error('Erro ao carregar dados:', error);
+        console.error('Erro ao carregar cláusulas do Supabase:', error);
     }
 }
 
 // ============================================================
-// 17. EXPOR FUNÇÕES GLOBAIS
+// 14. EXPOR FUNÇÕES GLOBAIS
 // ============================================================
 window.gerarPrevia = gerarPrevia;
 window.gerarPDF = gerarPDF;
@@ -1344,3 +1382,6 @@ window.limparTodosDados = limparTodosDados;
 window.exportarDados = exportarDados;
 window.importarDados = importarDados;
 window.sincronizarDados = sincronizarDados;
+
+console.log('✅ script.js carregado com sucesso!');
+console.log('📋 Cláusulas disponíveis:', CLAUSULAS.length);
