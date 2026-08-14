@@ -2,8 +2,8 @@
 // 1. CONFIGURAÇÃO SUPABASE
 // ============================================================
 // 🔑 SUAS CHAVES DO SUPABASE:
-const SUPABASE_URL = 'https://vauujvbdjjycgfphtgug.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhdXVqdmJkamp5Y2dmcGh0Z3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NzQ1NTUsImV4cCI6MjEwMjE1MDU1NX0.aJQiCqY6YDFy5ylsdAvnJ5XBoYY1U1CeqZHBXjc_IGY';
+const SUPABASE_URL = 'https://gyhsyvthfyvvcrvupqev.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5aHN5dnRoZnl2dmNydnVwcWV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NTc3OTMsImV4cCI6MjEwMjIzMzc5M30.kdi06B-HGANbdTC5B6VjdqczXevYeUZTjWL9Wan-Ff0';
 
 let supabaseClient = null;
 let dbStatus = 'offline';
