@@ -1068,58 +1068,53 @@ async function sincronizarDados() {
     }
   }
 function renderizarClausulasNoHTML(listaPadrao, listaAdicionais) {
-    // Aqui você coloca o código que desenha os checkboxes na tela
-    // Exemplo simples para testar se a função está funcionando:
+
     console.log("Função de renderizar foi chamada!");
     console.log("Padrões:", listaPadrao);
     console.log("Adicionais:", listaAdicionais);
+
+    
 function renderizarClausulasNoHTML(listaPadrao, listaAdicionais) {
-    // 1. Descobrir onde colocar as cláusulas no HTML
-    // (Substitua 'listaClausulas' pelo ID exato que tem na sua div no HTML)
-    const container = document.getElementById('listaClausulas'); 
+    // 1. Encontrar a div correta no HTML (agora com o ID certo!)
+    const container = document.getElementById('clausulascontainer'); 
     
     if (!container) {
-        console.error("ERRO: Não achei a div com id='listaClausulas' no HTML!");
+        console.error("ERRO: Não achei a div com id='clausulascontainer' no HTML!");
         return;
     }
 
-    // 2. Limpar o que tiver lá dentro para não duplicar
+    // 2. Limpar a div para não duplicar as cláusulas se recarregar
     container.innerHTML = '';
 
-    // 3. Juntar as duas listas (cláusulas padrão vêm primeiro)
+    // 3. Juntar as duas listas
     const todasClausulas = [...listaPadrao, ...listaAdicionais];
 
-    // 4. Percorrer cada cláusula e criar um checkbox no HTML
+    // 4. Criar os checkboxes
     todasClausulas.forEach(clausula => {
-        // Cria a div que vai envolver o checkbox
+        // Cria a div
         const div = document.createElement('div');
-        div.className = 'clausula-item';
+        div.className = 'clausula-item'; // Você pode ajustar essa classe no CSS se quiser
 
-        // Cria o input (checkbox)
+        // Cria o checkbox
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = `clausula_${clausula.id}`;
         checkbox.value = clausula.id;
 
-        // Cria a label (o texto que o usuário vai ver)
+        // Cria a label com o texto da cláusula
         const label = document.createElement('label');
         label.htmlFor = `clausula_${clausula.id}`;
-        label.textContent = clausula.descricao; // Pega a descrição
+        label.textContent = clausula.descricao; 
 
-        // Coloca o checkbox e a label dentro da div
+        // Junta tudo
         div.appendChild(checkbox);
         div.appendChild(label);
-
-        // Coloca a div dentro do container principal
         container.appendChild(div);
     });
 
     console.log(`✅ ${todasClausulas.length} cláusulas renderizadas na tela!`);
 }
-    // Se você tiver uma div no HTML com id="listaClausulas", por exemplo:
-    // const container = document.getElementById('listaClausulas');
-    // container.innerHTML = ''; // Limpa antes de desenhar
-    // ... lógica de loop para criar os inputs ...
+    
 }
 // ============================================================
 // EXPOR FUNÇÕES GLOBAIS
