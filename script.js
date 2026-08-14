@@ -662,7 +662,7 @@ const { data, error } = await supabase.from('imoveis').upsert(dados.imovel, { on
         salvarDadosOffline();
     }
 }
-
+}
 function salvarDadosOffline() {
     const dados = getDadosFormulario();
     let db = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
