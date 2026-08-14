@@ -558,9 +558,34 @@ function getDadosFormulario() {
 async function salvarTodosDados() {
     if (dbStatus === 'online' && supabaseClient) {
         try {
-            mostrarMensagem('⏳ Salvando...', 'info');
-            const dados = getDadosFormulario();
-            let salvos = 0;
+            // ... código anterior ...
+mostrarMensagem('📦 Salvando...', 'info');
+const dados = getDadosFormulario(); // <--- A VALIDAÇÃO TEM QUE VIR DEPOIS DESSA LINHA
+let salvos = 0;
+
+// --- INICIO DA VALIDAÇÃO ---
+// Verifica se o objeto 'imovel' existe e se o valor está vazio
+if (dados.imovel && (dados.imovel.valor === '' || dados.imovel.valor === null || dados.imovel.valor === undefined)) {
+    alert("O campo Valor do Imóvel é obrigatório. Por favor, digite 0 (zero) caso não se aplique.");
+    return; // PARA A EXECUÇÃO AQUI
+}
+
+// Se tiver mais campos numéricos dentro de 'imovel':
+if (dados.imovel && (dados.imovel.iptu === '' || dados.imovel.iptu === null)) {
+    alert("O campo IPTU é obrigatório. Digite 0 caso não se aplique.");
+    return; // PARA A EXECUÇÃO AQUI
+}
+// --- FIM DA VALIDAÇÃO ---
+
+
+const { data, error } = await supabase.from('imoveis').upsert(dados.imovel, { onConflict: 'endereco' });
+            if (error) {
+    console.error("Erro ao salvar imóvel:", error);
+    alert("Ocorreu um erro ao salvar o imóvel: " + error.message);
+    return; // Isso impede que o código tente salvar o locador/contrato se o imóvel falhou
+}
+
+// ... O RESTO DO CÓDIGO PARA SALVAR LOCADOR (a partir da linha 582) ...
 
             if (dados.locador.nome && dados.locador.cpf) {
                 const { error } = await supabaseClient.from('locadores').upsert({
