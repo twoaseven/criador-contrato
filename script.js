@@ -1084,3 +1084,6 @@ window.importarDados = importarDados;
 window.sincronizarDados = sincronizarDados;
 
 console.log('✅ script.js carregado com sucesso!');
+}
+}
+    
