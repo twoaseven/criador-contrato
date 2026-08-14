@@ -112,45 +112,30 @@ async function initSupabase() {
     const statusDB = document.getElementById('statusDB');
     statusDB.textContent = '⏳ Conectando...';
     statusDB.className = 'status-db status-loading';
-
-    try {
-        if (typeof supabase === 'undefined') {
-            throw new Error('SDK do Supabase não carregado');
-        }
-
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('📡 Cliente Supabase criado');
-
-        // Testar conexão
-        const { error: testError } = await supabaseClient
-            .from('clausulas')
-            .select('count', { count: 'exact', head: true });
-
-        if (testError) {
-            throw new Error('Erro ao testar conexão: ' + testError.message);
-        }
-
-        console.log('✅ Conexão OK');
-
-        // Carregar cláusulas
-        await carregarClausulasDoSupabase();
-
-        dbStatus = 'online';
-        statusDB.textContent = '✅ Conectado';
-        statusDB.className = 'status-db status-online';
-        mostrarMensagem('✅ Conectado ao Supabase!', 'success');
-
-    } catch (error) {
-        console.error('❌ Erro:', error);
-        dbStatus = 'offline';
-        statusDB.textContent = '❌ Offline';
-        statusDB.className = 'status-db status-offline';
-        mostrarMensagem('❌ Erro: ' + error.message, 'error');
-        usarClausulasFallback();
-        carregarClausulas();
+    
+// Test conexão
+try {
+    if (typeof supabase === 'undefined') {
+        throw new Error('SDK do Supabase não carregado');
     }
+    
+    // Cria o cliente
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ Cliente Supabase criado');
+    
+    // Testa a conexão com uma consulta simples
+    const { data: testData, error: testError } = await supabaseClient
+        .from('clausulas')
+        .select('count', { count: 'exact', head: true });
+    
+    console.log('✅ Conexão com Supabase OK!');
+    
+} catch (error) {
+    console.error('❌ Erro:', error.message);
+    // Se der erro, usa fallback
+    usarClausulasFallback();
+    carregarClausulas();
 }
-
 // ============================================================
 // 5. CARREGAR CLÁUSULAS DO SUPABASE
 // ============================================================
