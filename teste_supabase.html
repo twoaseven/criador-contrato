@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Conexão Supabase</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #0f172a; color: #fff; }
+        .status { padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .success { background: #1a5e2a; border: 1px solid #28a745; }
+        .error { background: #5e1a1a; border: 1px solid #dc3545; }
+        .loading { background: #5e4a1a; border: 1px solid #ffc107; }
+        pre { background: #1e293b; padding: 15px; border-radius: 8px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔌 Teste de Conexão Supabase</h1>
+    <div id="status" class="status loading">⏳ Testando conexão...</div>
+    <div id="dados"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+        // ============================================================
+        // SUAS CHAVES DO SUPABASE
+        // ============================================================
+        const SUPABASE_URL = 'https://vauujvbdjjycgfphtgug.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhdXVqdmJkamp5Y2dmcGh0Z3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NzQ1NTUsImV4cCI6MjEwMjE1MDU1NX0.aJQiCqY6YDFy5ylsdAvnJ5XBoYY1U1CeqZHBXjc_IGY';
+
+        const statusDiv = document.getElementById('status');
+        const dadosDiv = document.getElementById('dados');
+
+        async function testarConexao() {
+            try {
+                statusDiv.textContent = '⏳ Conectando ao Supabase...';
+                statusDiv.className = 'status loading';
+
+                // Criar cliente
+                const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // Testar conexão - tentar buscar cláusulas
+                const { data: clausulas, error: clausulasError } = await supabase
+                    .from('clausulas')
+                    .select('*')
+                    .order('id');
+
+                if (clausulasError) {
+                    throw new Error('Erro ao buscar cláusulas: ' + clausulasError.message);
+                }
+
+                statusDiv.textContent = '✅ Conectado com sucesso!';
+                statusDiv.className = 'status success';
+
+                // Mostrar dados
+                let html = '<h2>📋 Cláusulas encontradas:</h2>';
+                if (clausulas && clausulas.length > 0) {
+                    html += `<p>Total de cláusulas: <strong>${clausulas.length}</strong></p>`;
+                    html += '<pre>' + JSON.stringify(clausulas, null, 2) + '</pre>';
+                } else {
+                    html += '<p>⚠️ Nenhuma cláusula encontrada. As cláusulas padrão não foram inseridas.</p>';
+                }
+
+                // Testar outras tabelas
+                const tabelas = ['locadores', 'locatarios', 'fiadores', 'imoveis', 'contratos'];
+                html += '<h2>📊 Status das tabelas:</h2><ul>';
+                for (const tabela of tabelas) {
+                    const { count, error } = await supabase
+                        .from(tabela)
+                        .select('*', { count: 'exact', head: true });
+                    
+                    if (error) {
+                        html += `<li>❌ ${tabela}: Erro - ${error.message}</li>`;
+                    } else {
+                        html += `<li>✅ ${tabela}: ${count} registros</li>`;
+                    }
+                }
+                html += '</ul>';
+
+                dadosDiv.innerHTML = html;
+
+            } catch (error) {
+                statusDiv.textContent = '❌ Erro na conexão: ' + error.message;
+                statusDiv.className = 'status error';
+                dadosDiv.innerHTML = `<pre>${error.stack || error.message}</pre>`;
+            }
+        }
+
+        testarConexao();
+    </script>
+</body>
+</html>
