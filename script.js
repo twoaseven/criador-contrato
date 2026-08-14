@@ -1070,6 +1070,8 @@ async function sincronizarDados() {
 // ============================================================
 // EXPOR FUNÇÕES GLOBAIS
 // ============================================================
+
+
 window.gerarPrevia = gerarPrevia;
 window.gerarPDF = gerarPDF;
 window.buscarPorCpf = buscarPorCpf;
