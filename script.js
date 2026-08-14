@@ -1066,7 +1066,6 @@ async function sincronizarDados() {
         mostrarMensagem('❌ Erro na sincronização', 'error')
     }
   }
-}
 // ============================================================
 // EXPOR FUNÇÕES GLOBAIS
 // ============================================================
