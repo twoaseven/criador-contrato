@@ -582,7 +582,7 @@ const { data, error } = await supabase.from('imoveis').upsert(dados.imovel, { on
             if (error) {
     console.error("Erro ao salvar imóvel:", error);
     alert("Ocorreu um erro ao salvar o imóvel: " + error.message);
-    return; // Isso impede que o código tente salvar o locador/contrato se o imóvel falhou
+    return;
 }
 
 // ... O RESTO DO CÓDIGO PARA SALVAR LOCADOR (a partir da linha 582) ...
@@ -662,7 +662,7 @@ const { data, error } = await supabase.from('imoveis').upsert(dados.imovel, { on
         salvarDadosOffline();
     }
 }
-}
+    
 function salvarDadosOffline() {
     const dados = getDadosFormulario();
     let db = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
