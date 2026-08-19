@@ -10,7 +10,9 @@
         .success { background: #1a5e2a; border: 1px solid #28a745; }
         .error { background: #5e1a1a; border: 1px solid #dc3545; }
         .loading { background: #5e4a1a; border: 1px solid #ffc107; }
-        pre { background: #1e293b; padding: 15px; border-radius: 8px; overflow: auto; }
+        pre { background: #1e293b; padding: 15px; border-radius: 8px; overflow: auto; max-height: 400px; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 5px 0; }
     </style>
 </head>
 <body>
@@ -21,7 +23,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script>
         // ============================================================
-        // SUAS CHAVES DO SUPABASE
+        // MESMA URL DO script.js - UNIFICADA
         // ============================================================
         const SUPABASE_URL = 'https://vauujvbdjjycgfphtgug.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhdXVqdmJkamp5Y2dmcGh0Z3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NzQ1NTUsImV4cCI6MjEwMjE1MDU1NX0.aJQiCqY6YDFy5ylsdAvnJ5XBoYY1U1CeqZHBXjc_IGY';
@@ -35,7 +37,7 @@
                 statusDiv.className = 'status loading';
 
                 // Criar cliente
-                const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 
                 // Testar conexão - tentar buscar cláusulas
                 const { data: clausulas, error: clausulasError } = await supabase
@@ -56,11 +58,11 @@
                     html += `<p>Total de cláusulas: <strong>${clausulas.length}</strong></p>`;
                     html += '<pre>' + JSON.stringify(clausulas, null, 2) + '</pre>';
                 } else {
-                    html += '<p>⚠️ Nenhuma cláusula encontrada. As cláusulas padrão não foram inseridas.</p>';
+                    html += '<p>⚠️ Nenhuma cláusula encontrada.</p>';
                 }
 
                 // Testar outras tabelas
-                const tabelas = ['locadores', 'locatarios', 'fiadores', 'imoveis', 'contratos'];
+                const tabelas = ['locadores', 'locatarios', 'fiadores', 'imoveis'];
                 html += '<h2>📊 Status das tabelas:</h2><ul>';
                 for (const tabela of tabelas) {
                     const { count, error } = await supabase
@@ -74,6 +76,25 @@
                     }
                 }
                 html += '</ul>';
+
+                // Testar inserção de cláusula padrão se necessário
+                if (!clausulas || clausulas.length === 0) {
+                    html += '<h2>📝 Inserindo cláusulas padrão...</h2>';
+                    const lista = [
+                        { descricao: 'Reajuste pelo IG-M', texto: 'O valor do aluguel será reajustado anualmente pelo índice IG-M.', is_padrao: true },
+                        { descricao: 'Reajuste pelo IPCA', texto: 'O valor do aluguel será reajustado anualmente pelo índice IPCA.', is_padrao: true },
+                        { descricao: 'Benfeitorias e Reformas', texto: 'O locatário poderá realizar benfeitorias úteis e voluptuárias.', is_padrao: true },
+                        { descricao: 'Sublocação Proibida', texto: 'É vedada a sublocação total ou parcial do imóvel.', is_padrao: true },
+                        { descricao: 'Visitação para Venda', texto: 'O locador poderá visitar o imóvel para fins de venda.', is_padrao: true },
+                        { descricao: 'Responsabilidade por Danos', texto: 'O locatário é responsável por todos os danos.', is_padrao: true },
+                        { descricao: 'Renovação Antecipada', texto: 'A renovação poderá ser solicitada com antecedência.', is_padrao: true },
+                        { descricao: 'Silêncio e Tolerância', texto: 'A tolerância não constituirá novação ou renúncia.', is_padrao: true }
+                    ];
+                    for (const c of lista) {
+                        await supabase.from('clausulas').insert(c);
+                    }
+                    html += '<p>✅ Cláusulas padrão inseridas! Recarregue a página para ver.</p>';
+                }
 
                 dadosDiv.innerHTML = html;
 
