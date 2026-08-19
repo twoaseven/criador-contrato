@@ -3,8 +3,8 @@
 // ============================================================
 // ATENÇÃO: Use a mesma URL em todos os arquivos!
 // A URL correta é a do seu projeto Supabase
-const SUPABASE_URL = 'https://vauujvbdjjycgfphtgug.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhdXVqdmJkamp5Y2dmcGh0Z3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NzQ1NTUsImV4cCI6MjEwMjE1MDU1NX0.aJQiCqY6YDFy5ylsdAvnJ5XBoYY1U1CeqZHBXjc_IGY';
+const SUPABASE_URL = 'https://uzsujdqyutzennhcjkyn.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6c3VqZHF5dXR6ZW5uaGNqa3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxMDcwNjAsImV4cCI6MjEwMjY4MzA2MH0.LSsLFovpMNcdhQkBu4qwLo9r_pU9xdITT32M01qI9QY';
 
 let supabaseClient = null;
 let dbStatus = 'offline';
