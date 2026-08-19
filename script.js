@@ -1,8 +1,10 @@
 // ============================================================
-// 1. CONFIGURAÇÃO SUPABASE
+// 1. CONFIGURAÇÃO SUPABASE - URL UNIFICADA
 // ============================================================
-const SUPABASE_URL = 'https://gyhsyvthfyvvcrvupqev.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5aHN5dnRoZnl2dmNydnVwcWV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NTc3OTMsImV4cCI6MjEwMjIzMzc5M30.kdi06B-HGANbdTC5B6VjdqczXevYeUZTjWL9Wan-Ff0';
+// ATENÇÃO: Use a mesma URL em todos os arquivos!
+// A URL correta é a do seu projeto Supabase
+const SUPABASE_URL = 'https://vauujvbdjjycgfphtgug.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhdXVqdmJkamp5Y2dmcGh0Z3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NzQ1NTUsImV4cCI6MjEwMjE1MDU1NX0.aJQiCqY6YDFy5ylsdAvnJ5XBoYY1U1CeqZHBXjc_IGY';
 
 let supabaseClient = null;
 let dbStatus = 'offline';
@@ -69,7 +71,7 @@ function mostrarMensagem(msg, tipo) {
     if (el) {
         el.textContent = msg;
         el.style.color = tipo === 'success' ? '#28a745' : tipo === 'error' ? '#dc3545' : '#ffc107';
-        setTimeout(() => el.textContent = '', 5000);
+        setTimeout(() => { if (el) el.textContent = ''; }, 5000);
     }
 }
 
@@ -77,19 +79,23 @@ function mostrarMensagem(msg, tipo) {
 // 3. INICIALIZAÇÃO
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('anoFooter').textContent = new Date().getFullYear();
+    const anoFooter = document.getElementById('anoFooter');
+    if (anoFooter) anoFooter.textContent = new Date().getFullYear();
 
-    if (!document.getElementById('dataElaboracao').value) {
+    const dataElab = document.getElementById('dataElaboracao');
+    if (dataElab && !dataElab.value) {
         const hoje = new Date().toISOString().split('T')[0];
-        document.getElementById('dataElaboracao').value = hoje;
+        dataElab.value = hoje;
     }
 
-    if (!document.getElementById('numContrato').value) {
+    const numContrato = document.getElementById('numContrato');
+    if (numContrato && !numContrato.value) {
         const ano = new Date().getFullYear();
         const num = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        document.getElementById('numContrato').value = `${ano}/${num}`;
+        numContrato.value = `${ano}/${num}`;
     }
 
+    // Aplicar máscaras
     document.querySelectorAll('#locadorCpf, #locatarioCpf, #fiadorCpf, #fiadorConjugeCpf, #buscaCpf')
         .forEach(el => el.addEventListener('input', function(e) { aplicarMascara(e, 'cpf'); }));
 
@@ -106,41 +112,63 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================================
-// 4. CONEXÃO SUPABASE E CARREGAMENTO DE CLÁUSULAS
+// 4. CONEXÃO SUPABASE
 // ============================================================
 async function initSupabase() {
     const statusDB = document.getElementById('statusDB');
-    statusDB.textContent = '⏳ Conectando...';
-    statusDB.className = 'status-db status-loading';
-    
-// Test conexão
-try {
-    if (typeof supabase === 'undefined') {
-        throw new Error('SDK do Supabase não carregado');
+    if (statusDB) {
+        statusDB.textContent = '⏳ Conectando...';
+        statusDB.className = 'status-db status-loading';
     }
     
-    // Cria o cliente
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('✅ Cliente Supabase criado');
-    
-    // Testa a conexão com uma consulta simples
-    const { data: testData, error: testError } = await supabaseClient
-        .from('clausulas')
-        .select('count', { count: 'exact', head: true });
-    
-    console.log('✅ Conexão com Supabase OK!');
-    
-} catch (error) {
-    console.error('❌ Erro:', error.message);
-    // Se der erro, usa fallback
-    usarClausulasFallback();
-    carregarClausulas();
+    try {
+        if (typeof supabase === 'undefined') {
+            throw new Error('SDK do Supabase não carregado');
+        }
+        
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Cliente Supabase criado');
+        
+        // Testar conexão
+        const { error: testError } = await supabaseClient
+            .from('clausulas')
+            .select('count', { count: 'exact', head: true });
+        
+        if (testError) {
+            console.warn('⚠️ Erro ao testar conexão:', testError);
+            throw testError;
+        }
+        
+        dbStatus = 'online';
+        if (statusDB) {
+            statusDB.textContent = '✅ Online';
+            statusDB.className = 'status-db status-online';
+        }
+        console.log('✅ Conexão com Supabase OK!');
+        
+        await carregarClausulasDoSupabase();
+        
+    } catch (error) {
+        console.error('❌ Erro na conexão:', error.message);
+        dbStatus = 'offline';
+        if (statusDB) {
+            statusDB.textContent = '⚠️ Offline (modo local)';
+            statusDB.className = 'status-db status-offline';
+        }
+        usarClausulasFallback();
+        carregarClausulas();
+    }
 }
+
 // ============================================================
 // 5. CARREGAR CLÁUSULAS DO SUPABASE
 // ============================================================
 async function carregarClausulasDoSupabase() {
     try {
+        if (!supabaseClient) {
+            throw new Error('Cliente Supabase não inicializado');
+        }
+        
         const { data, error } = await supabaseClient
             .from('clausulas')
             .select('*')
@@ -158,15 +186,12 @@ async function carregarClausulasDoSupabase() {
             clausulasAdicionais = adicionais.map(c => ({ id: String(c.id), descricao: c.descricao, texto: c.texto }));
 
             console.log(`✅ ${CLAUSULAS.length} padrão, ${clausulasAdicionais.length} adicionais`);
-            renderizarClausulasNoHTML(CLAUSULAS, clausulasAdicionais); 
+            carregarClausulas();
         } else {
             console.log('⚠️ Nenhuma cláusula encontrada. Inserindo padrão...');
             await inserirClausulasPadrao();
-            await carregarClausulasDoSupabase(); // recarregar
-            return;
+            await carregarClausulasDoSupabase();
         }
-
-        carregarClausulas();
 
     } catch (error) {
         console.error('❌ Erro ao carregar cláusulas:', error);
@@ -197,14 +222,14 @@ async function inserirClausulasPadrao() {
 
 function usarClausulasFallback() {
     CLAUSULAS = [
-        { id: 'fb1', descricao: 'Reajuste pelo IG-M (FALLBACK)', texto: 'O valor do aluguel será reajustado anualmente pelo índice IG-M.' },
-        { id: 'fb2', descricao: 'Reajuste pelo IPCA (FALLBACK)', texto: 'O valor do aluguel será reajustado anualmente pelo índice IPCA.' },
-        { id: 'fb3', descricao: 'Benfeitorias e Reformas (FALLBACK)', texto: 'O locatário poderá realizar benfeitorias úteis e voluptuárias.' },
-        { id: 'fb4', descricao: 'Sublocação Proibida (FALLBACK)', texto: 'É vedada a sublocação total ou parcial do imóvel.' },
-        { id: 'fb5', descricao: 'Visitação para Venda (FALLBACK)', texto: 'O locador poderá visitar o imóvel para fins de venda.' },
-        { id: 'fb6', descricao: 'Responsabilidade por Danos (FALLBACK)', texto: 'O locatário é responsável por todos os danos.' },
-        { id: 'fb7', descricao: 'Renovação Antecipada (FALLBACK)', texto: 'A renovação poderá ser solicitada com antecedência.' },
-        { id: 'fb8', descricao: 'Silêncio e Tolerância (FALLBACK)', texto: 'A tolerância não constituirá novação ou renúncia.' }
+        { id: 'fb1', descricao: 'Reajuste pelo IG-M', texto: 'O valor do aluguel será reajustado anualmente pelo índice IG-M.' },
+        { id: 'fb2', descricao: 'Reajuste pelo IPCA', texto: 'O valor do aluguel será reajustado anualmente pelo índice IPCA.' },
+        { id: 'fb3', descricao: 'Benfeitorias e Reformas', texto: 'O locatário poderá realizar benfeitorias úteis e voluptuárias.' },
+        { id: 'fb4', descricao: 'Sublocação Proibida', texto: 'É vedada a sublocação total ou parcial do imóvel.' },
+        { id: 'fb5', descricao: 'Visitação para Venda', texto: 'O locador poderá visitar o imóvel para fins de venda.' },
+        { id: 'fb6', descricao: 'Responsabilidade por Danos', texto: 'O locatário é responsável por todos os danos.' },
+        { id: 'fb7', descricao: 'Renovação Antecipada', texto: 'A renovação poderá ser solicitada com antecedência.' },
+        { id: 'fb8', descricao: 'Silêncio e Tolerância', texto: 'A tolerância não constituirá novação ou renúncia.' }
     ];
     clausulasAdicionais = [];
     console.log('⚠️ Usando cláusulas de fallback');
@@ -244,13 +269,12 @@ function carregarClausulas() {
         cb.type = 'checkbox';
         cb.value = c.id;
         cb.id = 'claus_' + c.id;
-        // marcar as padrão (is_padrao) - se o id for curto ou se for da lista fallback, marcar
-        if (c.id.startsWith('c') && c.id.length <= 3) {
+        
+        // Marcar cláusulas padrão (fallback ou do banco)
+        if (c.id.startsWith('fb') || (c.id.length <= 3 && c.id.startsWith('c'))) {
             cb.checked = true;
         }
-        if (c.id.startsWith('fb')) {
-            cb.checked = true; // fallback também marcado
-        }
+        
         label.appendChild(cb);
 
         const span = document.createElement('span');
@@ -263,7 +287,6 @@ function carregarClausulas() {
             btn.type = 'button';
             btn.className = 'btn-remove-clausula';
             btn.textContent = '✕';
-            btn.style.marginLeft = 'auto';
             btn.onclick = function(e) {
                 e.stopPropagation();
                 removerClausula(c.id);
@@ -277,7 +300,7 @@ function carregarClausulas() {
 }
 
 // ============================================================
-// 7. FUNÇÕES DE CLÁUSULAS (adicionar, remover, pegar marcadas)
+// 7. FUNÇÕES DE CLÁUSULAS
 // ============================================================
 function getClausulasMarcadas() {
     const checkboxes = document.querySelectorAll('#clausulasContainer input[type="checkbox"]:checked');
@@ -312,7 +335,6 @@ function adicionarClausula() {
                     alert('Erro ao salvar cláusula no Supabase.');
                 } else {
                     if (data && data[0]) {
-                        // atualiza o id com o do banco
                         const idx = clausulasAdicionais.findIndex(c => c.id === novoId);
                         if (idx !== -1) {
                             clausulasAdicionais[idx].id = String(data[0].id);
@@ -351,7 +373,10 @@ function removerClausula(id) {
 // 8. BUSCAR POR CPF
 // ============================================================
 async function buscarPorCpf() {
-    const cpf = document.getElementById('buscaCpf').value.trim();
+    const cpfInput = document.getElementById('buscaCpf');
+    if (!cpfInput) return;
+    
+    const cpf = cpfInput.value.trim();
     if (!cpf) {
         alert('Digite um CPF para buscar.');
         return;
@@ -419,136 +444,166 @@ async function buscarPorCpf() {
 }
 
 // ============================================================
-// 9. PREENCHER CAMPOS (LOCADOR, LOCATÁRIO, FIADOR)
+// 9. PREENCHER CAMPOS
 // ============================================================
 function preencherLocador(dados) {
-    document.getElementById('locadorNome').value = dados.nome || '';
-    document.getElementById('locadorCpf').value = dados.cpf || '';
-    document.getElementById('locadorRg').value = dados.rg || '';
-    document.getElementById('locadorNacionalidade').value = dados.nacionalidade || '';
-    document.getElementById('locadorProfissao').value = dados.profissao || '';
-    document.getElementById('locadorEnd').value = dados.endereco || '';
-    document.getElementById('locadorTel').value = dados.telefone || '';
-    document.getElementById('locadorEmail').value = dados.email || '';
-    if (dados.estado_civil) document.getElementById('locadorEstadoCivil').value = dados.estado_civil;
+    const map = {
+        'locadorNome': 'nome',
+        'locadorCpf': 'cpf',
+        'locadorRg': 'rg',
+        'locadorNacionalidade': 'nacionalidade',
+        'locadorProfissao': 'profissao',
+        'locadorEnd': 'endereco',
+        'locadorTel': 'telefone',
+        'locadorEmail': 'email'
+    };
+    for (const [id, key] of Object.entries(map)) {
+        const el = document.getElementById(id);
+        if (el) el.value = dados[key] || '';
+    }
+    const ec = document.getElementById('locadorEstadoCivil');
+    if (ec && dados.estado_civil) ec.value = dados.estado_civil;
 }
 
 function preencherLocatario(dados) {
-    document.getElementById('locatarioNome').value = dados.nome || '';
-    document.getElementById('locatarioCpf').value = dados.cpf || '';
-    document.getElementById('locatarioRg').value = dados.rg || '';
-    document.getElementById('locatarioNacionalidade').value = dados.nacionalidade || '';
-    document.getElementById('locatarioProfissao').value = dados.profissao || '';
-    document.getElementById('locatarioEnd').value = dados.endereco || '';
-    document.getElementById('locatarioTel').value = dados.telefone || '';
-    document.getElementById('locatarioEmail').value = dados.email || '';
-    if (dados.estado_civil) document.getElementById('locatarioEstadoCivil').value = dados.estado_civil;
+    const map = {
+        'locatarioNome': 'nome',
+        'locatarioCpf': 'cpf',
+        'locatarioRg': 'rg',
+        'locatarioNacionalidade': 'nacionalidade',
+        'locatarioProfissao': 'profissao',
+        'locatarioEnd': 'endereco',
+        'locatarioTel': 'telefone',
+        'locatarioEmail': 'email'
+    };
+    for (const [id, key] of Object.entries(map)) {
+        const el = document.getElementById(id);
+        if (el) el.value = dados[key] || '';
+    }
+    const ec = document.getElementById('locatarioEstadoCivil');
+    if (ec && dados.estado_civil) ec.value = dados.estado_civil;
 }
 
 function preencherFiador(dados) {
-    document.getElementById('fiadorNome').value = dados.nome || '';
-    document.getElementById('fiadorCpf').value = dados.cpf || '';
-    document.getElementById('fiadorRg').value = dados.rg || '';
-    document.getElementById('fiadorNacionalidade').value = dados.nacionalidade || '';
-    document.getElementById('fiadorProfissao').value = dados.profissao || '';
-    document.getElementById('fiadorEnd').value = dados.endereco || '';
-    document.getElementById('fiadorTel').value = dados.telefone || '';
-    document.getElementById('fiadorEmail').value = dados.email || '';
-    if (dados.estado_civil) document.getElementById('fiadorEstadoCivil').value = dados.estado_civil;
-    document.getElementById('fiadorConjugeNome').value = dados.conjuge_nome || '';
-    document.getElementById('fiadorConjugeCpf').value = dados.conjuge_cpf || '';
-    document.getElementById('fiadorConjugeRg').value = dados.conjuge_rg || '';
+    const map = {
+        'fiadorNome': 'nome',
+        'fiadorCpf': 'cpf',
+        'fiadorRg': 'rg',
+        'fiadorNacionalidade': 'nacionalidade',
+        'fiadorProfissao': 'profissao',
+        'fiadorEnd': 'endereco',
+        'fiadorTel': 'telefone',
+        'fiadorEmail': 'email',
+        'fiadorConjugeNome': 'conjuge_nome',
+        'fiadorConjugeCpf': 'conjuge_cpf',
+        'fiadorConjugeRg': 'conjuge_rg'
+    };
+    for (const [id, key] of Object.entries(map)) {
+        const el = document.getElementById(id);
+        if (el) el.value = dados[key] || '';
+    }
+    const ec = document.getElementById('fiadorEstadoCivil');
+    if (ec && dados.estado_civil) ec.value = dados.estado_civil;
 }
 
 // ============================================================
 // 10. OBTER DADOS DO FORMULÁRIO
 // ============================================================
 function getDadosFormulario() {
+    const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+    };
+    const getSelect = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : '';
+    };
+    
     return {
-        numContrato: document.getElementById('numContrato').value.trim(),
-        dataElaboracao: document.getElementById('dataElaboracao').value,
-        prazoContrato: document.getElementById('prazoContrato').value || '12',
-        foroCidade: document.getElementById('foroCidade').value.trim() || 'São Paulo',
+        numContrato: getVal('numContrato'),
+        dataElaboracao: getVal('dataElaboracao'),
+        prazoContrato: getVal('prazoContrato') || '12',
+        foroCidade: getVal('foroCidade') || 'São Paulo',
         locador: {
-            nome: document.getElementById('locadorNome').value.trim(),
-            nacionalidade: document.getElementById('locadorNacionalidade').value.trim() || 'brasileiro',
-            estadoCivil: document.getElementById('locadorEstadoCivil').value || 'solteiro',
-            profissao: document.getElementById('locadorProfissao').value.trim() || 'não informada',
-            rg: document.getElementById('locadorRg').value.trim() || 'não informado',
-            cpf: document.getElementById('locadorCpf').value.trim(),
-            endereco: document.getElementById('locadorEnd').value.trim() || 'não informado',
-            telefone: document.getElementById('locadorTel').value.trim() || 'não informado',
-            email: document.getElementById('locadorEmail').value.trim() || 'não informado'
+            nome: getVal('locadorNome'),
+            nacionalidade: getVal('locadorNacionalidade') || 'brasileiro',
+            estadoCivil: getSelect('locadorEstadoCivil') || 'solteiro',
+            profissao: getVal('locadorProfissao') || 'não informada',
+            rg: getVal('locadorRg') || 'não informado',
+            cpf: getVal('locadorCpf'),
+            endereco: getVal('locadorEnd') || 'não informado',
+            telefone: getVal('locadorTel') || 'não informado',
+            email: getVal('locadorEmail') || 'não informado'
         },
         locatario: {
-            nome: document.getElementById('locatarioNome').value.trim(),
-            nacionalidade: document.getElementById('locatarioNacionalidade').value.trim() || 'brasileiro',
-            estadoCivil: document.getElementById('locatarioEstadoCivil').value || 'solteiro',
-            profissao: document.getElementById('locatarioProfissao').value.trim() || 'não informada',
-            rg: document.getElementById('locatarioRg').value.trim() || 'não informado',
-            cpf: document.getElementById('locatarioCpf').value.trim(),
-            endereco: document.getElementById('locatarioEnd').value.trim() || 'não informado',
-            telefone: document.getElementById('locatarioTel').value.trim() || 'não informado',
-            email: document.getElementById('locatarioEmail').value.trim() || 'não informado'
+            nome: getVal('locatarioNome'),
+            nacionalidade: getVal('locatarioNacionalidade') || 'brasileiro',
+            estadoCivil: getSelect('locatarioEstadoCivil') || 'solteiro',
+            profissao: getVal('locatarioProfissao') || 'não informada',
+            rg: getVal('locatarioRg') || 'não informado',
+            cpf: getVal('locatarioCpf'),
+            endereco: getVal('locatarioEnd') || 'não informado',
+            telefone: getVal('locatarioTel') || 'não informado',
+            email: getVal('locatarioEmail') || 'não informado'
         },
         fiador: {
-            nome: document.getElementById('fiadorNome').value.trim(),
-            nacionalidade: document.getElementById('fiadorNacionalidade').value.trim() || 'brasileiro',
-            estadoCivil: document.getElementById('fiadorEstadoCivil').value || 'solteiro',
-            profissao: document.getElementById('fiadorProfissao').value.trim() || 'não informada',
-            rg: document.getElementById('fiadorRg').value.trim() || 'não informado',
-            cpf: document.getElementById('fiadorCpf').value.trim() || 'não informado',
-            endereco: document.getElementById('fiadorEnd').value.trim() || 'não informado',
-            telefone: document.getElementById('fiadorTel').value.trim() || 'não informado',
-            email: document.getElementById('fiadorEmail').value.trim() || 'não informado',
-            conjugeNome: document.getElementById('fiadorConjugeNome').value.trim(),
-            conjugeCpf: document.getElementById('fiadorConjugeCpf').value.trim(),
-            conjugeRg: document.getElementById('fiadorConjugeRg').value.trim()
+            nome: getVal('fiadorNome'),
+            nacionalidade: getVal('fiadorNacionalidade') || 'brasileiro',
+            estadoCivil: getSelect('fiadorEstadoCivil') || 'solteiro',
+            profissao: getVal('fiadorProfissao') || 'não informada',
+            rg: getVal('fiadorRg') || 'não informado',
+            cpf: getVal('fiadorCpf') || 'não informado',
+            endereco: getVal('fiadorEnd') || 'não informado',
+            telefone: getVal('fiadorTel') || 'não informado',
+            email: getVal('fiadorEmail') || 'não informado',
+            conjugeNome: getVal('fiadorConjugeNome'),
+            conjugeCpf: getVal('fiadorConjugeCpf'),
+            conjugeRg: getVal('fiadorConjugeRg')
         },
         imovel: {
-            endereco: document.getElementById('imovelEnd').value.trim(),
-            registro: document.getElementById('imovelRegistro').value.trim(),
-            tipo: document.getElementById('imovelTipo').value,
-            destinacao: document.getElementById('imovelDestinacao').value || 'Residencial',
-            quartos: document.getElementById('imovelQuartos').value,
-            banheiros: document.getElementById('imovelBanheiros').value,
-            vagas: document.getElementById('imovelVagas').value,
-            metragem: document.getElementById('imovelMetragem').value,
-            areaPrivativa: document.getElementById('imovelAreaPrivativa').value,
-            areaComum: document.getElementById('imovelAreaComum').value,
-            caracteristicas: document.getElementById('imovelCaracteristicas').value.trim(),
-            inicio: document.getElementById('imovelInicio').value,
-            fim: document.getElementById('imovelFim').value,
-            renovacao: document.getElementById('imovelRenovacao').value,
-            valor: document.getElementById('imovelValor').value.trim(),
-            vencimento: document.getElementById('imovelVencimento').value,
-            pagamento: document.getElementById('imovelPagamento').value,
-            indice: document.getElementById('imovelIndice').value,
-            periodicidade: document.getElementById('imovelPeriodicidade').value
+            endereco: getVal('imovelEnd'),
+            registro: getVal('imovelRegistro'),
+            tipo: getSelect('imovelTipo'),
+            destinacao: getSelect('imovelDestinacao') || 'Residencial',
+            quartos: getVal('imovelQuartos'),
+            banheiros: getVal('imovelBanheiros'),
+            vagas: getVal('imovelVagas'),
+            metragem: getVal('imovelMetragem'),
+            areaPrivativa: getVal('imovelAreaPrivativa'),
+            areaComum: getVal('imovelAreaComum'),
+            caracteristicas: getVal('imovelCaracteristicas'),
+            inicio: getVal('imovelInicio'),
+            fim: getVal('imovelFim'),
+            renovacao: getSelect('imovelRenovacao'),
+            valor: getVal('imovelValor'),
+            vencimento: getSelect('imovelVencimento'),
+            pagamento: getSelect('imovelPagamento'),
+            indice: getSelect('imovelIndice'),
+            periodicidade: getSelect('imovelPeriodicidade')
         },
         encargos: {
-            iptu: document.getElementById('iptuResponsavel').value,
-            condominio: document.getElementById('condominioResponsavel').value,
-            agua: document.getElementById('aguaResponsavel').value,
-            luz: document.getElementById('luzResponsavel').value,
-            gas: document.getElementById('gasResponsavel').value,
-            seguro: document.getElementById('seguroResponsavel').value
+            iptu: getSelect('iptuResponsavel'),
+            condominio: getSelect('condominioResponsavel'),
+            agua: getSelect('aguaResponsavel'),
+            luz: getSelect('luzResponsavel'),
+            gas: getSelect('gasResponsavel'),
+            seguro: getSelect('seguroResponsavel')
         },
         garantia: {
-            modalidade: document.getElementById('garantiaModalidade').value,
-            cauçãoValor: document.getElementById('caucaoValor').value.trim(),
-            seguradora: document.getElementById('seguroSeguradora').value.trim(),
-            apolice: document.getElementById('seguroApolice').value.trim()
+            modalidade: getSelect('garantiaModalidade'),
+            cauçãoValor: getVal('caucaoValor'),
+            seguradora: getVal('seguroSeguradora'),
+            apolice: getVal('seguroApolice')
         },
         multas: {
-            atraso: document.getElementById('multaAtraso').value,
-            juros: document.getElementById('jurosMora').value,
-            rescisoria: document.getElementById('multaRescisoria').value
+            atraso: getVal('multaAtraso') || '2',
+            juros: getVal('jurosMora') || '1',
+            rescisoria: getSelect('multaRescisoria') || '3'
         },
         vistoria: {
-            observacoes: document.getElementById('vistoriaObservacoes').value.trim(),
-            data: document.getElementById('vistoriaData').value,
-            laudo: document.getElementById('vistoriaLaudo').value
+            observacoes: getVal('vistoriaObservacoes'),
+            data: getVal('vistoriaData'),
+            laudo: getSelect('vistoriaLaudo')
         }
     };
 }
@@ -557,37 +612,25 @@ function getDadosFormulario() {
 // 11. SALVAR DADOS
 // ============================================================
 async function salvarTodosDados() {
+    const dados = getDadosFormulario();
+    
+    // Validações
+    if (!dados.imovel.valor || dados.imovel.valor === '') {
+        alert("O campo Valor do Imóvel é obrigatório. Por favor, preencha com um valor.");
+        return;
+    }
+    
+    if (!dados.imovel.endereco) {
+        alert("O campo Endereço do Imóvel é obrigatório.");
+        return;
+    }
+
     if (dbStatus === 'online' && supabaseClient) {
         try {
-            // ... código anterior ...
-mostrarMensagem('📦 Salvando...', 'info');
-const dados = getDadosFormulario(); // <--- A VALIDAÇÃO TEM QUE VIR DEPOIS DESSA LINHA
-let salvos = 0;
+            mostrarMensagem('📦 Salvando...', 'info');
+            let salvos = 0;
 
-// --- INICIO DA VALIDAÇÃO ---
-// Verifica se o objeto 'imovel' existe e se o valor está vazio
-if (dados.imovel && (dados.imovel.valor === '' || dados.imovel.valor === null || dados.imovel.valor === undefined)) {
-    alert("O campo Valor do Imóvel é obrigatório. Por favor, digite 0 (zero) caso não se aplique.");
-    return; // PARA A EXECUÇÃO AQUI
-}
-
-// Se tiver mais campos numéricos dentro de 'imovel':
-if (dados.imovel && (dados.imovel.iptu === '' || dados.imovel.iptu === null)) {
-    alert("O campo IPTU é obrigatório. Digite 0 caso não se aplique.");
-    return; // PARA A EXECUÇÃO AQUI
-}
-// --- FIM DA VALIDAÇÃO ---
-
-
-const { data, error } = await supabase.from('imoveis').upsert(dados.imovel, { onConflict: 'endereco' });
-            if (error) {
-    console.error("Erro ao salvar imóvel:", error);
-    alert("Ocorreu um erro ao salvar o imóvel: " + error.message);
-    return;
-}
-
-// ... O RESTO DO CÓDIGO PARA SALVAR LOCADOR (a partir da linha 582) ...
-
+            // Salvar locador
             if (dados.locador.nome && dados.locador.cpf) {
                 const { error } = await supabaseClient.from('locadores').upsert({
                     nome: dados.locador.nome,
@@ -603,6 +646,7 @@ const { data, error } = await supabase.from('imoveis').upsert(dados.imovel, { on
                 if (!error) salvos++;
             }
 
+            // Salvar locatario
             if (dados.locatario.nome && dados.locatario.cpf) {
                 const { error } = await supabaseClient.from('locatarios').upsert({
                     nome: dados.locatario.nome,
@@ -618,6 +662,7 @@ const { data, error } = await supabase.from('imoveis').upsert(dados.imovel, { on
                 if (!error) salvos++;
             }
 
+            // Salvar fiador
             if (dados.fiador.nome && dados.fiador.cpf) {
                 const { error } = await supabaseClient.from('fiadores').upsert({
                     nome: dados.fiador.nome,
@@ -636,6 +681,7 @@ const { data, error } = await supabase.from('imoveis').upsert(dados.imovel, { on
                 if (!error) salvos++;
             }
 
+            // Salvar imóvel
             if (dados.imovel.endereco) {
                 const { error } = await supabaseClient.from('imoveis').upsert({
                     endereco: dados.imovel.endereco,
@@ -660,12 +706,11 @@ const { data, error } = await supabase.from('imoveis').upsert(dados.imovel, { on
             alert('Erro ao salvar: ' + error.message);
         }
     } else {
-        salvarDadosOffline();
+        salvarDadosOffline(dados);
     }
 }
-    
-function salvarDadosOffline() {
-    const dados = getDadosFormulario();
+
+function salvarDadosOffline(dados) {
     let db = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
     if (!db.locadores) db.locadores = [];
     if (!db.locatarios) db.locatarios = [];
@@ -674,12 +719,77 @@ function salvarDadosOffline() {
 
     if (dados.locador.nome && dados.locador.cpf) {
         const idx = db.locadores.findIndex(l => removerMascara(l.cpf) === removerMascara(dados.locador.cpf));
-        const obj = { nome: dados.locador.nome, cpf: dados.locador.cpf, rg: dados.locador.rg, nacionalidade: dados.locador.nacionalidade, estadoCivil: dados.locador.estadoCivil, profissao: dados.locador.profissao, endereco: dados.locador.endereco, telefone: dados.locador.telefone, email: dados.locador.email };
+        const obj = { 
+            nome: dados.locador.nome, 
+            cpf: dados.locador.cpf, 
+            rg: dados.locador.rg, 
+            nacionalidade: dados.locador.nacionalidade, 
+            estadoCivil: dados.locador.estadoCivil, 
+            profissao: dados.locador.profissao, 
+            endereco: dados.locador.endereco, 
+            telefone: dados.locador.telefone, 
+            email: dados.locador.email 
+        };
         if (idx >= 0) db.locadores[idx] = obj;
         else db.locadores.push(obj);
     }
 
-    // (similar para locatario, fiador, imovel - resumido)
+    if (dados.locatario.nome && dados.locatario.cpf) {
+        const idx = db.locatarios.findIndex(l => removerMascara(l.cpf) === removerMascara(dados.locatario.cpf));
+        const obj = { 
+            nome: dados.locatario.nome, 
+            cpf: dados.locatario.cpf, 
+            rg: dados.locatario.rg, 
+            nacionalidade: dados.locatario.nacionalidade, 
+            estadoCivil: dados.locatario.estadoCivil, 
+            profissao: dados.locatario.profissao, 
+            endereco: dados.locatario.endereco, 
+            telefone: dados.locatario.telefone, 
+            email: dados.locatario.email 
+        };
+        if (idx >= 0) db.locatarios[idx] = obj;
+        else db.locatarios.push(obj);
+    }
+
+    if (dados.fiador.nome && dados.fiador.cpf) {
+        const idx = db.fiadores.findIndex(f => removerMascara(f.cpf) === removerMascara(dados.fiador.cpf));
+        const obj = { 
+            nome: dados.fiador.nome, 
+            cpf: dados.fiador.cpf, 
+            rg: dados.fiador.rg, 
+            nacionalidade: dados.fiador.nacionalidade, 
+            estadoCivil: dados.fiador.estadoCivil, 
+            profissao: dados.fiador.profissao, 
+            endereco: dados.fiador.endereco, 
+            telefone: dados.fiador.telefone, 
+            email: dados.fiador.email,
+            conjuge_nome: dados.fiador.conjugeNome,
+            conjuge_cpf: dados.fiador.conjugeCpf,
+            conjuge_rg: dados.fiador.conjugeRg
+        };
+        if (idx >= 0) db.fiadores[idx] = obj;
+        else db.fiadores.push(obj);
+    }
+
+    if (dados.imovel.endereco) {
+        const idx = db.imoveis.findIndex(i => i.endereco === dados.imovel.endereco);
+        const obj = { 
+            endereco: dados.imovel.endereco,
+            registro: dados.imovel.registro,
+            tipo: dados.imovel.tipo,
+            destinacao: dados.imovel.destinacao,
+            quartos: dados.imovel.quartos,
+            banheiros: dados.imovel.banheiros,
+            vagas: dados.imovel.vagas,
+            metragem: dados.imovel.metragem,
+            areaPrivativa: dados.imovel.areaPrivativa,
+            areaComum: dados.imovel.areaComum,
+            caracteristicas: dados.imovel.caracteristicas
+        };
+        if (idx >= 0) db.imoveis[idx] = obj;
+        else db.imoveis.push(obj);
+    }
+
     localStorage.setItem('contratos_db_offline', JSON.stringify(db));
     mostrarMensagem('✓ Dados salvos localmente!', 'success');
 }
@@ -707,11 +817,6 @@ function numeroPorExtenso(num) {
     return numeros[num] || num;
 }
 
-function getNomeMes(num) {
-    const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-    return meses[num-1] || '';
-}
-
 function valorPorExtenso(valor) {
     if (!valor) return 'não informado';
     const partes = valor.split(',');
@@ -732,7 +837,6 @@ function valorPorExtenso(valor) {
 // 13. GERAR PRÉVIA E PDF
 // ============================================================
 function montarContrato(dados, clausulas) {
-    // (função completa com todas as cláusulas - vou resumir para brevidade, mas você deve manter a sua)
     const l = dados.locador;
     const lt = dados.locatario;
     const f = dados.fiador;
@@ -748,7 +852,7 @@ function montarContrato(dados, clausulas) {
     const valorExtenso = valorPorExtenso(i.valor);
     const foro = dados.foroCidade || 'São Paulo';
     const inicioFormatado = i.inicio ? formatarData(i.inicio) : 'a definir';
-    const fimFormatado = i.fim ? formatarData(i.fim) : `${formatarData(i.inicio) || 'a definir'}`;
+    const fimFormatado = i.fim ? formatarData(i.fim) : 'a definir';
 
     let texto = '';
     texto += ' '.repeat(55) + 'CONTRATO DE LOCAÇÃO DE IMÓVEL\n';
@@ -899,16 +1003,17 @@ function gerarPrevia() {
     const clausulas = getClausulasMarcadas();
     const texto = montarContrato(dados, clausulas);
     const previaDiv = document.getElementById('previa');
-    previaDiv.textContent = texto;
-    previaDiv.classList.add('visivel');
-    previaDiv.scrollIntoView({ behavior: 'smooth' });
-    mostrarMensagem('✓ Prévia gerada!', 'success');
+    if (previaDiv) {
+        previaDiv.textContent = texto;
+        previaDiv.classList.add('visivel');
+        previaDiv.scrollIntoView({ behavior: 'smooth' });
+        mostrarMensagem('✓ Prévia gerada!', 'success');
+    }
 }
 
 function gerarPDF() {
     const loading = document.getElementById('loading');
-    loading.classList.add('ativo');
-    loading.textContent = '⏳ Gerando PDF...';
+    if (loading) loading.classList.add('ativo');
 
     setTimeout(() => {
         try {
@@ -920,61 +1025,79 @@ function gerarPDF() {
 
             if (!dados.locador.nome || !dados.locador.cpf) {
                 alert('⚠️ Preencha Nome e CPF do Locador.');
-                loading.classList.remove('ativo');
+                if (loading) loading.classList.remove('ativo');
                 return;
             }
             if (!dados.locatario.nome || !dados.locatario.cpf) {
                 alert('⚠️ Preencha Nome e CPF do Locatário.');
-                loading.classList.remove('ativo');
+                if (loading) loading.classList.remove('ativo');
                 return;
             }
             if (!dados.numContrato) {
                 alert('⚠️ Informe o Número do Contrato.');
-                loading.classList.remove('ativo');
+                if (loading) loading.classList.remove('ativo');
                 return;
             }
             if (!dados.imovel.endereco) {
                 alert('⚠️ Informe o Endereço do Imóvel.');
-                loading.classList.remove('ativo');
+                if (loading) loading.classList.remove('ativo');
                 return;
             }
 
             const textoContrato = montarContrato(dados, clausulas);
-            const cabecalhoVia = (titulo, nome, cpf) => `VIA DO ${titulo.toUpperCase()}\n${nome} - CPF: ${cpf}\n\n`;
-            const viaLocador = cabecalhoVia('locador', dados.locador.nome, dados.locador.cpf) + textoContrato;
-            const viaLocatario = cabecalhoVia('locatário', dados.locatario.nome, dados.locatario.cpf) + textoContrato;
-
+            
             const docDefinition = {
                 pageSize: 'A4',
                 pageMargins: [40, 40, 40, 40],
                 content: [
-                    { stack: textoContrato.split('\n').map(line => ({ text: line, fontSize: 10, alignment: 'justify' })), style: 'body' },
-                    { text: '', pageBreak: 'after' },
-                    { stack: textoContrato.split('\n').map(line => ({ text: line, fontSize: 10, alignment: 'justify' })), style: 'body' }
+                    { 
+                        stack: textoContrato.split('\n').map(line => ({ 
+                            text: line, 
+                            fontSize: 10, 
+                            alignment: 'justify' 
+                        })), 
+                        style: 'body' 
+                    }
                 ],
-                styles: { body: { fontSize: 10, lineHeight: 1.5, alignment: 'justify' } },
+                styles: { 
+                    body: { 
+                        fontSize: 10, 
+                        lineHeight: 1.5, 
+                        alignment: 'justify' 
+                    } 
+                },
                 defaultStyle: { alignment: 'justify' },
                 footer: function(currentPage, pageCount) {
-                    return { text: `Redigido por TWO A SEVEN - Digital Solutions | Página ${currentPage} de ${pageCount}`, alignment: 'center', fontSize: 8, margin: [0,0,0,15] };
+                    return { 
+                        text: `Redigido por TWO A SEVEN - Digital Solutions | Página ${currentPage} de ${pageCount}`, 
+                        alignment: 'center', 
+                        fontSize: 8, 
+                        margin: [0,0,0,15] 
+                    };
                 }
             };
 
             pdfMake.createPdf(docDefinition).download(`Contrato_${dados.numContrato.replace(/\//g,'_')}.pdf`);
-            loading.classList.remove('ativo');
+            if (loading) loading.classList.remove('ativo');
             mostrarMensagem('✅ PDF gerado!', 'success');
         } catch (error) {
             console.error('❌ Erro no PDF:', error);
             alert('❌ Erro ao gerar PDF: ' + error.message);
-            loading.classList.remove('ativo');
+            if (loading) loading.classList.remove('ativo');
         }
     }, 300);
 }
 
 // ============================================================
-// 14. GERENCIADOR (resumido)
+// 14. GERENCIADOR
 // ============================================================
 async function abrirGerenciador() {
-    document.getElementById('modalGerenciador').classList.add('ativo');
+    const modal = document.getElementById('modalGerenciador');
+    if (modal) modal.classList.add('ativo');
+    
+    const conteudo = document.getElementById('conteudoGerenciador');
+    if (!conteudo) return;
+    
     if (dbStatus === 'online' && supabaseClient) {
         try {
             const html = [];
@@ -993,12 +1116,11 @@ async function abrirGerenciador() {
                     html.push('<p>Nenhum registro.</p>');
                 }
             }
-            document.getElementById('conteudoGerenciador').innerHTML = html.join('');
+            conteudo.innerHTML = html.join('');
         } catch (e) {
-            document.getElementById('conteudoGerenciador').innerHTML = '<p>❌ Erro ao carregar dados</p>';
+            conteudo.innerHTML = '<p>❌ Erro ao carregar dados</p>';
         }
     } else {
-        // modo offline
         const db = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
         let html = `<h3>👤 Locadores (${db.locadores?.length||0})</h3>`;
         if (db.locadores?.length) {
@@ -1008,12 +1130,13 @@ async function abrirGerenciador() {
         } else {
             html += '<p>Nenhum locador.</p>';
         }
-        document.getElementById('conteudoGerenciador').innerHTML = html;
+        conteudo.innerHTML = html;
     }
 }
 
 function fecharGerenciador() {
-    document.getElementById('modalGerenciador').classList.remove('ativo');
+    const modal = document.getElementById('modalGerenciador');
+    if (modal) modal.classList.remove('ativo');
 }
 
 async function excluirRegistroOnline(tabela, id) {
@@ -1027,10 +1150,9 @@ async function excluirRegistroOnline(tabela, id) {
 }
 
 // ============================================================
-// 15. EXPORTAÇÃO/IMPORTAÇÃO E LIMPEZA
+// 15. EXPORTAÇÃO, IMPORTAÇÃO E LIMPEZA
 // ============================================================
 function exportarDados() {
-    // (implementar se necessário)
     alert('Função exportar dados em desenvolvimento');
 }
 
@@ -1064,58 +1186,10 @@ async function sincronizarDados() {
         await carregarClausulasDoSupabase();
         mostrarMensagem('✅ Dados sincronizados!', 'success');
     } catch (error) {
-        mostrarMensagem('❌ Erro na sincronização', 'error')
+        mostrarMensagem('❌ Erro na sincronização', 'error');
     }
-  }
-function renderizarClausulasNoHTML(listaPadrao, listaAdicionais) {
-
-    console.log("Função de renderizar foi chamada!");
-    console.log("Padrões:", listaPadrao);
-    console.log("Adicionais:", listaAdicionais);
-
-    
-function renderizarClausulasNoHTML(listaPadrao, listaAdicionais) {
-    // 1. Encontrar a div correta no HTML (agora com o ID certo!)
-    const container = document.getElementById('clausulascontainer'); 
-    
-    if (!container) {
-        console.error("ERRO: Não achei a div com id='clausulascontainer' no HTML!");
-        return;
-    }
-
-    // 2. Limpar a div para não duplicar as cláusulas se recarregar
-    container.innerHTML = '';
-
-    // 3. Juntar as duas listas
-    const todasClausulas = [...listaPadrao, ...listaAdicionais];
-
-    // 4. Criar os checkboxes
-    todasClausulas.forEach(clausula => {
-        // Cria a div
-        const div = document.createElement('div');
-        div.className = 'clausula-item'; // Você pode ajustar essa classe no CSS se quiser
-
-        // Cria o checkbox
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `clausula_${clausula.id}`;
-        checkbox.value = clausula.id;
-
-        // Cria a label com o texto da cláusula
-        const label = document.createElement('label');
-        label.htmlFor = `clausula_${clausula.id}`;
-        label.textContent = clausula.descricao; 
-
-        // Junta tudo
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        container.appendChild(div);
-    });
-
-    console.log(`✅ ${todasClausulas.length} cláusulas renderizadas na tela!`);
 }
-    
-}
+
 // ============================================================
 // EXPOR FUNÇÕES GLOBAIS
 // ============================================================
@@ -1134,5 +1208,3 @@ window.importarDados = importarDados;
 window.sincronizarDados = sincronizarDados;
 
 console.log('✅ script.js carregado com sucesso!');
-}
-
