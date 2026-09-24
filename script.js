@@ -748,7 +748,7 @@ function salvarDadosOffline(dados) {
             email: dados.locatario.email 
         };
         if (idx >= 0) db.locatarios[idx] = obj;
-        else db.locatarios.push(obj);
+        else db.locatari os.push(obj);
     }
 
     if (dados.fiador.nome && dados.fiador.cpf) {
@@ -1017,12 +1017,10 @@ function gerarPDF() {
 
     setTimeout(() => {
         try {
-            if (typeof pdfMake === 'undefined') {
-                throw new Error('Biblioteca pdfMake não carregada.');
-            }
             const dados = getDadosFormulario();
             const clausulas = getClausulasMarcadas();
 
+            // Validações originais mantidas com segurança
             if (!dados.locador.nome || !dados.locador.cpf) {
                 alert('⚠️ Preencha Nome e CPF do Locador.');
                 if (loading) loading.classList.remove('ativo');
@@ -1044,42 +1042,19 @@ function gerarPDF() {
                 return;
             }
 
+            // Garante que o texto da prévia está atualizado com base nos dados e cláusulas
             const textoContrato = montarContrato(dados, clausulas);
-            
-            const docDefinition = {
-                pageSize: 'A4',
-                pageMargins: [40, 40, 40, 40],
-                content: [
-                    { 
-                        stack: textoContrato.split('\n').map(line => ({ 
-                            text: line, 
-                            fontSize: 10, 
-                            alignment: 'justify' 
-                        })), 
-                        style: 'body' 
-                    }
-                ],
-                styles: { 
-                    body: { 
-                        fontSize: 10, 
-                        lineHeight: 1.5, 
-                        alignment: 'justify' 
-                    } 
-                },
-                defaultStyle: { alignment: 'justify' },
-                footer: function(currentPage, pageCount) {
-                    return { 
-                        text: `Redigido por TWO A SEVEN - Digital Solutions | Página ${currentPage} de ${pageCount}`, 
-                        alignment: 'center', 
-                        fontSize: 8, 
-                        margin: [0,0,0,15] 
-                    };
-                }
-            };
+            const elementoPrevia = document.querySelector('.previa');
+            if (elementoPrevia) {
+                elementoPrevia.innerText = textoContrato;
+                elementoPrevia.classList.add('visivel');
+            }
 
-            pdfMake.createPdf(docDefinition).download(`Contrato_${dados.numContrato.replace(/\//g,'_')}.pdf`);
+            // Dispara a impressão/geração respeitando 100% o CSS da prévia (A4, margens e justificado)
+            window.print();
+
             if (loading) loading.classList.remove('ativo');
-            mostrarMensagem('✅ PDF gerado!', 'success');
+            mostrarMensagem('✅ PDF gerado com sucesso!', 'success');
         } catch (error) {
             console.error('❌ Erro no PDF:', error);
             alert('❌ Erro ao gerar PDF: ' + error.message);
