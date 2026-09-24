@@ -1,10 +1,8 @@
 // ============================================================
 // 1. CONFIGURAÇÃO SUPABASE - URL UNIFICADA
 // ============================================================
-// ATENÇÃO: Use a mesma URL em todos os arquivos!
-// A URL correta é a do seu projeto Supabase
 const SUPABASE_URL = 'https://uzsujdqyutzennhcjkyn.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6c3VqZHF5dXR6ZW5uaGNqa3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxMDcwNjAsImV4cCI6MjEwMjY4MzA2MH0.LSsLFovpMNcdhQkBu4qwLo9r_pU9xdITT32M01qI9QY';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6c3VqZHF5dXR6ZW5uaGNqa3luIiwicm9sZSI6InV6c3VqZHF5dXR6ZW5uaGNqa3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxMDcwNjAsImV4cCI6MjEwMjY4MzA2MH0.LSsLFovpMNcdhQkBu4qwLo9r_pU9xdITT32M01qI9QY';
 
 let supabaseClient = null;
 let dbStatus = 'offline';
@@ -270,7 +268,6 @@ function carregarClausulas() {
         cb.value = c.id;
         cb.id = 'claus_' + c.id;
         
-        // Marcar cláusulas padrão (fallback ou do banco)
         if (c.id.startsWith('fb') || (c.id.length <= 3 && c.id.startsWith('c'))) {
             cb.checked = true;
         }
@@ -281,7 +278,6 @@ function carregarClausulas() {
         span.textContent = ' ' + c.descricao;
         label.appendChild(span);
 
-        // Botão remover para adicionais
         if (clausulasAdicionais.some(ad => ad.id === c.id)) {
             const btn = document.createElement('button');
             btn.type = 'button';
@@ -430,7 +426,6 @@ async function buscarPorCpf() {
             mostrarMensagem('❌ Erro na busca', 'error');
         }
     } else {
-        // modo offline
         const dados = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
         let encontrado = false;
         const locador = dados.locadores?.find(l => removerMascara(l.cpf) === cpfLimpo);
@@ -614,7 +609,6 @@ function getDadosFormulario() {
 async function salvarTodosDados() {
     const dados = getDadosFormulario();
     
-    // Validações
     if (!dados.imovel.valor || dados.imovel.valor === '') {
         alert("O campo Valor do Imóvel é obrigatório. Por favor, preencha com um valor.");
         return;
@@ -630,7 +624,6 @@ async function salvarTodosDados() {
             mostrarMensagem('📦 Salvando...', 'info');
             let salvos = 0;
 
-            // Salvar locador
             if (dados.locador.nome && dados.locador.cpf) {
                 const { error } = await supabaseClient.from('locadores').upsert({
                     nome: dados.locador.nome,
@@ -646,7 +639,6 @@ async function salvarTodosDados() {
                 if (!error) salvos++;
             }
 
-            // Salvar locatario
             if (dados.locatario.nome && dados.locatario.cpf) {
                 const { error } = await supabaseClient.from('locatarios').upsert({
                     nome: dados.locatario.nome,
@@ -662,7 +654,6 @@ async function salvarTodosDados() {
                 if (!error) salvos++;
             }
 
-            // Salvar fiador
             if (dados.fiador.nome && dados.fiador.cpf) {
                 const { error } = await supabaseClient.from('fiadores').upsert({
                     nome: dados.fiador.nome,
@@ -681,7 +672,6 @@ async function salvarTodosDados() {
                 if (!error) salvos++;
             }
 
-            // Salvar imóvel
             if (dados.imovel.endereco) {
                 const { error } = await supabaseClient.from('imoveis').upsert({
                     endereco: dados.imovel.endereco,
@@ -748,7 +738,7 @@ function salvarDadosOffline(dados) {
             email: dados.locatario.email 
         };
         if (idx >= 0) db.locatarios[idx] = obj;
-        else db.locatari os.push(obj);
+        else db.locatarios.push(obj);
     }
 
     if (dados.fiador.nome && dados.fiador.cpf) {
@@ -1020,7 +1010,6 @@ function gerarPDF() {
             const dados = getDadosFormulario();
             const clausulas = getClausulasMarcadas();
 
-            // Validações originais mantidas com segurança
             if (!dados.locador.nome || !dados.locador.cpf) {
                 alert('⚠️ Preencha Nome e CPF do Locador.');
                 if (loading) loading.classList.remove('ativo');
@@ -1042,7 +1031,6 @@ function gerarPDF() {
                 return;
             }
 
-            // Garante que o texto da prévia está atualizado com base nos dados e cláusulas
             const textoContrato = montarContrato(dados, clausulas);
             const elementoPrevia = document.querySelector('.previa');
             if (elementoPrevia) {
@@ -1050,7 +1038,6 @@ function gerarPDF() {
                 elementoPrevia.classList.add('visivel');
             }
 
-            // Dispara a impressão/geração respeitando 100% o CSS da prévia (A4, margens e justificado)
             window.print();
 
             if (loading) loading.classList.remove('ativo');
