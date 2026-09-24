@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CONTRATOS DE ALUGUEL COMERCIAL/RESIDENCIAL</title>
+    <title>CONTRATOS DE ALUGUEL - OFICIAL</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,24 +19,23 @@
     <div class="info-box">
         <strong>📋 INFORMAÇÕES IMPORTANTES:</strong><br>
         • Este contrato segue as normas da <strong>Lei do Inquilinato (Lei nº 8.245/91)</strong><br>
-        • Para consulta das partes, acesse: <strong>www.contratos-aluguel.com.br/consulta</strong><br>
-        • O documento deverá ser <strong>autenticado em cartório</strong> para ter validade jurídica plena
+        • O documento possui formatação padrão de ofício e validade jurídica mediante reconhecimento de firma.
     </div>
 
     <div class="form-row">
-        <div class="form-group" style="flex: 0 1 250px;">
+        <div class="form-group">
             <label>Número do Contrato <span class="campo-obrigatorio">*</span></label>
             <input type="text" id="numContrato" placeholder="Ex: 2026/001" required />
         </div>
-        <div class="form-group" style="flex: 0 1 200px;">
+        <div class="form-group">
             <label>Data de Elaboração</label>
             <input type="date" id="dataElaboracao" />
         </div>
-        <div class="form-group" style="flex: 0 1 200px;">
-            <label>Prazo do Contrato (meses) <span class="campo-obrigatorio">*</span></label>
+        <div class="form-group">
+            <label>Prazo (meses) <span class="campo-obrigatorio">*</span></label>
             <input type="number" id="prazoContrato" value="12" min="1" max="60" required />
         </div>
-        <div class="form-group" style="flex: 0 1 200px;">
+        <div class="form-group">
             <label>Foro (Cidade)</label>
             <input type="text" id="foroCidade" placeholder="Ex: São Paulo" />
         </div>
@@ -44,11 +43,11 @@
 
     <div class="busca">
         <div class="form-group">
-            <label>Buscar por CPF</label>
+            <label>Busca Rápida por CPF</label>
             <input type="text" id="buscaCpf" placeholder="000.000.000-00" maxlength="14" />
         </div>
         <button class="btn-buscar" onclick="buscarPorCpf()">🔍 Buscar</button>
-        <button class="btn-salvar" onclick="salvarTodosDados()">💾 Salvar Cadastro</button>
+        <button class="btn-salvar" onclick="salvarTodosDados()">💾 Salvar Cadastros</button>
         <button class="btn-sync" onclick="sincronizarDados()">🔄 Sincronizar</button>
         <button class="btn-gerenciar" onclick="abrirGerenciador()">📋 Gerenciar</button>
         <span style="margin-left:auto;font-size:0.9rem;color:#28a745;" id="msgBusca"></span>
@@ -57,7 +56,16 @@
     <form id="formContrato" onsubmit="return false;">
         <h2>📍 1. Qualificação das Partes</h2>
         
+        <!-- LOCADOR -->
         <h3>LOCADOR (Proprietário)</h3>
+        <div class="form-row">
+            <div class="form-group" style="flex:1 1 100%;">
+                <label>Selecionar Locador Cadastrado</label>
+                <select id="selectLocador" onchange="selecionarLocadorPorDropdown(this.value)">
+                    <option value="">-- Cadastrar Novo ou Digitar Abaixo --</option>
+                </select>
+            </div>
+        </div>
         <div class="form-row">
             <div class="form-group">
                 <label>Nome Completo <span class="campo-obrigatorio">*</span></label>
@@ -108,7 +116,16 @@
             </div>
         </div>
 
+        <!-- LOCATÁRIO -->
         <h3>LOCATÁRIO (Inquilino)</h3>
+        <div class="form-row">
+            <div class="form-group" style="flex:1 1 100%;">
+                <label>Selecionar Locatário Cadastrado</label>
+                <select id="selectLocatario" onchange="selecionarLocatarioPorDropdown(this.value)">
+                    <option value="">-- Cadastrar Novo ou Digitar Abaixo --</option>
+                </select>
+            </div>
+        </div>
         <div class="form-row">
             <div class="form-group">
                 <label>Nome Completo <span class="campo-obrigatorio">*</span></label>
@@ -159,77 +176,97 @@
             </div>
         </div>
 
-        <h3>FIADOR (Garantia - Art. 37 da Lei 8.245/91)</h3>
-        <div class="secao-destaque">
-            <strong>⚠️ ATENÇÃO:</strong> Se o fiador for casado, é obrigatória a outorga conjugal (assinatura do cônjuge).
+        <!-- FIADOR COM OPÇÃO DE ANULAÇÃO -->
+        <h3>FIADOR (Garantia - Art. 37 da Lei 8.245/91) 
+            <label style="display:inline-block; margin-left:15px; font-weight:normal; font-size:0.9rem; color:var(--text-primary); cursor:pointer;">
+                <input type="checkbox" id="fiadorNaoAplica" onchange="toggleFiador(this)" /> Não se aplica ao contrato
+            </label>
+        </h3>
+        <div id="blocoFiadorContainer">
+            <div class="form-row">
+                <div class="form-group" style="flex:1 1 100%;">
+                    <label>Selecionar Fiador Cadastrado</label>
+                    <select id="selectFiador" onchange="selecionarFiadorPorDropdown(this.value)">
+                        <option value="">-- Cadastrar Novo ou Digitar Abaixo --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="fiadorNome" />
+                </div>
+                <div class="form-group">
+                    <label>Nacionalidade</label>
+                    <input type="text" id="fiadorNacionalidade" placeholder="Ex: Brasileiro" />
+                </div>
+                <div class="form-group">
+                    <label>Estado Civil</label>
+                    <select id="fiadorEstadoCivil">
+                        <option value="">Selecione</option>
+                        <option value="Solteiro">Solteiro(a)</option>
+                        <option value="Casado">Casado(a)</option>
+                        <option value="Divorciado">Divorciado(a)</option>
+                        <option value="Viúvo">Viúvo(a)</option>
+                        <option value="União Estável">União Estável</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Profissão</label>
+                    <input type="text" id="fiadorProfissao" />
+                </div>
+                <div class="form-group">
+                    <label>RG</label>
+                    <input type="text" id="fiadorRg" placeholder="00.000.000-0" maxlength="12" />
+                </div>
+                <div class="form-group">
+                    <label>CPF</label>
+                    <input type="text" id="fiadorCpf" placeholder="000.000.000-00" maxlength="14" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Endereço Completo</label>
+                    <input type="text" id="fiadorEnd" />
+                </div>
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="text" id="fiadorTel" placeholder="(00) 00000-0000" maxlength="15" />
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="fiadorEmail" />
+                </div>
+            </div>
+            <h4>Cônjuge do Fiador (para Outorga Conjugal)</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nome do Cônjuge</label>
+                    <input type="text" id="fiadorConjugeNome" />
+                </div>
+                <div class="form-group">
+                    <label>CPF do Cônjuge</label>
+                    <input type="text" id="fiadorConjugeCpf" placeholder="000.000.000-00" maxlength="14" />
+                </div>
+                <div class="form-group">
+                    <label>RG do Cônjuge</label>
+                    <input type="text" id="fiadorConjugeRg" placeholder="00.000.000-0" maxlength="12" />
+                </div>
+            </div>
         </div>
+
+        <!-- IMÓVEL -->
+        <h2>🏠 2. Objeto do Contrato (Imóvel)</h2>
         <div class="form-row">
-            <div class="form-group">
-                <label>Nome Completo</label>
-                <input type="text" id="fiadorNome" />
-            </div>
-            <div class="form-group">
-                <label>Nacionalidade</label>
-                <input type="text" id="fiadorNacionalidade" placeholder="Ex: Brasileiro" />
-            </div>
-            <div class="form-group">
-                <label>Estado Civil</label>
-                <select id="fiadorEstadoCivil">
-                    <option value="">Selecione</option>
-                    <option value="Solteiro">Solteiro(a)</option>
-                    <option value="Casado">Casado(a)</option>
-                    <option value="Divorciado">Divorciado(a)</option>
-                    <option value="Viúvo">Viúvo(a)</option>
-                    <option value="União Estável">União Estável</option>
+            <div class="form-group" style="flex:1 1 100%;">
+                <label>Selecionar Imóvel Cadastrado</label>
+                <select id="selectImovel" onchange="selecionarImovelPorDropdown(this.value)">
+                    <option value="">-- Cadastrar Novo ou Digitar Abaixo --</option>
                 </select>
             </div>
         </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Profissão</label>
-                <input type="text" id="fiadorProfissao" />
-            </div>
-            <div class="form-group">
-                <label>RG</label>
-                <input type="text" id="fiadorRg" placeholder="00.000.000-0" maxlength="12" />
-            </div>
-            <div class="form-group">
-                <label>CPF</label>
-                <input type="text" id="fiadorCpf" placeholder="000.000.000-00" maxlength="14" />
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Endereço Completo</label>
-                <input type="text" id="fiadorEnd" />
-            </div>
-            <div class="form-group">
-                <label>Telefone</label>
-                <input type="text" id="fiadorTel" placeholder="(00) 00000-0000" maxlength="15" />
-            </div>
-            <div class="form-group">
-                <label>E-mail</label>
-                <input type="email" id="fiadorEmail" />
-            </div>
-        </div>
-
-        <h4>Cônjuge do Fiador (para Outorga Conjugal)</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Nome do Cônjuge</label>
-                <input type="text" id="fiadorConjugeNome" />
-            </div>
-            <div class="form-group">
-                <label>CPF do Cônjuge</label>
-                <input type="text" id="fiadorConjugeCpf" placeholder="000.000.000-00" maxlength="14" />
-            </div>
-            <div class="form-group">
-                <label>RG do Cônjuge</label>
-                <input type="text" id="fiadorConjugeRg" placeholder="00.000.000-0" maxlength="12" />
-            </div>
-        </div>
-
-        <h2>🏠 2. Objeto do Contrato</h2>
         <div class="form-row">
             <div class="form-group" style="flex: 1 1 100%;">
                 <label>Endereço Completo do Imóvel <span class="campo-obrigatorio">*</span></label>
@@ -238,7 +275,7 @@
         </div>
         <div class="form-row">
             <div class="form-group">
-                <label>Registro no Cartório de Imóveis</label>
+                <label>Registro no Cartório</label>
                 <input type="text" id="imovelRegistro" placeholder="Ex: Matrícula nº 123.456" />
             </div>
             <div class="form-group">
@@ -247,10 +284,7 @@
                     <option value="">Selecione</option>
                     <option value="Apartamento">Apartamento</option>
                     <option value="Casa">Casa</option>
-                    <option value="Sobrado">Sobrado</option>
-                    <option value="Kitnet">Kitnet</option>
                     <option value="Comercial">Comercial</option>
-                    <option value="Outro">Outro</option>
                 </select>
             </div>
             <div class="form-group">
@@ -261,65 +295,13 @@
                 </select>
             </div>
         </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Número de Quartos</label>
-                <input type="number" id="imovelQuartos" min="0" />
-            </div>
-            <div class="form-group">
-                <label>Número de Banheiros</label>
-                <input type="number" id="imovelBanheiros" min="0" />
-            </div>
-            <div class="form-group">
-                <label>Vagas de Garagem</label>
-                <input type="number" id="imovelVagas" min="0" />
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Metragem Total (m²)</label>
-                <input type="number" id="imovelMetragem" step="0.01" />
-            </div>
-            <div class="form-group">
-                <label>Área Privativa (m²)</label>
-                <input type="number" id="imovelAreaPrivativa" step="0.01" />
-            </div>
-            <div class="form-group">
-                <label>Área Comum (m²)</label>
-                <input type="number" id="imovelAreaComum" step="0.01" />
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group" style="flex: 1 1 100%;">
-                <label>Características e Dependências</label>
-                <textarea id="imovelCaracteristicas" rows="3" placeholder="Ex: Sala ampla, cozinha planejada, área de serviço, varanda gourmet..."></textarea>
-            </div>
-        </div>
 
-        <h2>📅 3. Prazo da Locação</h2>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Data de Início <span class="campo-obrigatorio">*</span></label>
-                <input type="date" id="imovelInicio" required />
-            </div>
-            <div class="form-group">
-                <label>Data de Término</label>
-                <input type="date" id="imovelFim" />
-            </div>
-            <div class="form-group">
-                <label>Renovação Automática</label>
-                <select id="imovelRenovacao">
-                    <option value="sim">Sim, renovação automática por igual período</option>
-                    <option value="nao">Não, depende de termo aditivo</option>
-                </select>
-            </div>
-        </div>
-
-        <h2>💰 4. Valor, Forma de Pagamento e Reajuste</h2>
+        <!-- DEMAIS CAMPOS DE VALORES E CLÁUSULAS -->
+        <h2>💰 3. Valores, Prazos e Condições</h2>
         <div class="form-row">
             <div class="form-group">
                 <label>Valor do Aluguel (R$) <span class="campo-obrigatorio">*</span></label>
-                <input type="text" id="imovelValor" placeholder="0,00" required />
+                <input type="text" id="imovelValor" placeholder="Ex: 1.500,00" required />
             </div>
             <div class="form-group">
                 <label>Dia de Vencimento</label>
@@ -327,227 +309,39 @@
                     <option value="5">Dia 5</option>
                     <option value="10">Dia 10</option>
                     <option value="15">Dia 15</option>
-                    <option value="20">Dia 20</option>
-                    <option value="25">Dia 25</option>
-                    <option value="30">Dia 30</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Forma de Pagamento</label>
-                <select id="imovelPagamento">
-                    <option value="PIX">PIX</option>
-                    <option value="Boleto">Boleto Bancário</option>
-                    <option value="Depósito">Depósito Bancário</option>
-                    <option value="Transferência">Transferência Bancária</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
             <div class="form-group">
                 <label>Índice de Reajuste</label>
                 <select id="imovelIndice">
                     <option value="IPCA">IPCA</option>
                     <option value="IGP-M">IGP-M</option>
-                    <option value="INPC">INPC</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Periodicidade do Reajuste</label>
-                <select id="imovelPeriodicidade">
-                    <option value="12">12 meses (anual)</option>
-                    <option value="6">6 meses</option>
                 </select>
             </div>
         </div>
 
-        <h2>📋 5. Encargos e Tributos</h2>
-        <div class="secao-destaque">
-            <strong>📌 Art. 22, VII da Lei 8.245/91:</strong> O seguro incêndio é obrigatório.
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>IPTU - Responsável</label>
-                <select id="iptuResponsavel">
-                    <option value="Locador">Locador</option>
-                    <option value="Locatário">Locatário</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Taxa de Condomínio - Responsável</label>
-                <select id="condominioResponsavel">
-                    <option value="Locatário">Locatário</option>
-                    <option value="Locador">Locador</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Água - Responsável</label>
-                <select id="aguaResponsavel">
-                    <option value="Locatário">Locatário</option>
-                    <option value="Locador">Locador</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Luz - Responsável</label>
-                <select id="luzResponsavel">
-                    <option value="Locatário">Locatário</option>
-                    <option value="Locador">Locador</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Gás - Responsável</label>
-                <select id="gasResponsavel">
-                    <option value="Locatário">Locatário</option>
-                    <option value="Locador">Locador</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Seguro Incêndio (Obrigatório)</label>
-                <select id="seguroResponsavel">
-                    <option value="Locador">Locador</option>
-                    <option value="Locatário">Locatário</option>
-                </select>
-            </div>
+        <h2>📜 4. Cláusulas Adicionais</h2>
+        <div class="clausulas-grid" id="clausulasContainer">
+            <!-- Renderizado dinamicamente -->
         </div>
 
-        <h2>🔒 6. Garantias Locatícias (Art. 37 da Lei 8.245/91)</h2>
-        <div class="form-row">
-            <div class="form-group" style="flex: 1 1 100%;">
-                <label>Modalidade de Garantia</label>
-                <select id="garantiaModalidade">
-                    <option value="Fiador">Fiança (Fiador)</option>
-                    <option value="Caução">Caução (até 3 meses de aluguel)</option>
-                    <option value="Seguro Fiança">Seguro Fiança</option>
-                    <option value="Cessão Fiduciária">Cessão Fiduciária de Quotas</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Valor da Caução (se aplicável - R$)</label>
-                <input type="text" id="caucaoValor" placeholder="0,00" />
-            </div>
-            <div class="form-group">
-                <label>Seguro Fiança - Seguradora</label>
-                <input type="text" id="seguroSeguradora" placeholder="Nome da Seguradora" />
-            </div>
-            <div class="form-group">
-                <label>Seguro Fiança - Apólice nº</label>
-                <input type="text" id="seguroApolice" />
-            </div>
+        <div class="botoes">
+            <button type="button" class="btn-prev" onclick="gerarPrevia()">Visualizar Contrato</button>
+            <button type="button" class="btn-pdf" onclick="gerarPDF()">Imprimir / Gerar PDF Oficial</button>
         </div>
 
-        <h2>⚖️ 7. Multas e Rescisão Antecipada</h2>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Multa por Atraso (%)</label>
-                <input type="number" id="multaAtraso" value="2" step="0.1" min="0" max="10" />
-            </div>
-            <div class="form-group">
-                <label>Juros de Mora (% ao mês)</label>
-                <input type="number" id="jurosMora" value="1" step="0.1" min="0" max="3" />
-            </div>
-            <div class="form-group">
-                <label>Multa Rescisória (meses)</label>
-                <select id="multaRescisoria">
-                    <option value="3">3 meses</option>
-                    <option value="2">2 meses</option>
-                    <option value="1">1 mês</option>
-                </select>
-            </div>
-        </div>
-
-        <h2>📸 8. Vistoria do Imóvel</h2>
-        <div class="secao-destaque">
-            <strong>⚠️ OBRIGATÓRIO:</strong> O Laudo de Vistoria Inicial com fotos e descrições detalhadas deve ser anexado a este contrato.
-        </div>
-        <div class="form-row">
-            <div class="form-group" style="flex: 1 1 100%;">
-                <label>Observações da Vistoria Inicial</label>
-                <textarea id="vistoriaObservacoes" rows="3" placeholder="Descreva o estado atual do imóvel, pintura, pisos, instalações elétricas e hidráulicas..."></textarea>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Data da Vistoria Inicial</label>
-                <input type="date" id="vistoriaData" />
-            </div>
-            <div class="form-group">
-                <label>Laudo de Vistoria Anexo</label>
-                <select id="vistoriaLaudo">
-                    <option value="sim">Sim, será anexado</option>
-                    <option value="nao">Não, será realizado posteriormente</option>
-                </select>
-            </div>
-        </div>
-
-        <h2>📝 Cláusulas Adicionais</h2>
+        <div class="loading" id="loading">Gerando documento oficial...</div>
         
-        <div class="cadastro-clausula">
-            <h3 style="margin-top: 0; border-left: none; padding-left: 0;">➕ Cadastrar Nova Cláusula</h3>
-            <div class="form-row">
-                <div class="form-group" style="flex: 1 1 100%;">
-                    <label>Descrição Resumida</label>
-                    <input type="text" id="novaClausulaDesc" placeholder="Ex: Multa por atraso no pagamento" />
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group" style="flex: 1 1 100%;">
-                    <label>Texto Completo da Cláusula</label>
-                    <textarea id="novaClausulaTexto" rows="3" placeholder="Digite o texto completo da cláusula..."></textarea>
-                </div>
-            </div>
-            <button type="button" class="btn-add-clausula" onclick="adicionarClausula()">➕ Adicionar Cláusula</button>
-        </div>
-
-        <h3>📋 Cláusulas Disponíveis (marque as desejadas)</h3>
-        <div id="clausulasContainer" class="clausulas-grid">
-            <!-- preenchido via JavaScript -->
-        </div>
-
-        <div id="loading" class="loading">⏳ Processando... Aguarde...</div>
+        <!-- PRÉVIA COM VISUAL DE OFÍCIO -->
+        <div id="previa" class="previa"></div>
     </form>
-
-    <!-- ÁREA DE PRÉVIA -->
-    <div id="previa" class="previa"></div>
-
-    <!-- MODAL GERENCIADOR -->
-    <div id="modalGerenciador" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="fecharGerenciador()">&times;</span>
-            <h2>📋 Gerenciar Dados Cadastrados</h2>
-            
-            <div style="margin: 15px 0;">
-                <button class="btn-gerenciar" onclick="exportarDados()">📤 Exportar (JSON)</button>
-                <button class="btn-salvar" onclick="importarDados()">📥 Importar (JSON)</button>
-                <button class="btn-excluir" onclick="limparTodosDados()">🗑️ Limpar Tudo</button>
-            </div>
-            
-            <div id="conteudoGerenciador">
-                <p>Carregando dados...</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- BOTÕES DE AÇÃO -->
-    <div class="acoes-container" style="text-align: center; margin: 20px 0;">
-        <button onclick="salvarTodosDados()" class="btn-acao btn-salvar">💾 Salvar no Banco de Dados</button>
-        <button onclick="gerarPrevia()" class="btn-acao btn-prev">👁️ Visualizar Prévia</button>
-        <button onclick="gerarPDF()" class="btn-acao btn-pdf">📄 Gerar PDF</button>
-        <p id="msgSalvoFooter" style="margin-top: 10px; font-weight: bold; color: #28a745;"></p>
-    </div>
-
-    <footer>
-        <span>Desenvolvido por TWO A SEVEN - Digital Solutions / Todos os direitos reservados - <span id="anoFooter"></span></span>
-    </footer>
 </div>
 
+<footer>
+    <span>Sistema de Gestão Contratual • Sr. Cabral &copy; <span id="anoFooter"></span></span>
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
