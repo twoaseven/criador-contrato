@@ -125,8 +125,6 @@ function toggleFiador(checkbox) {
         }
     });
 }
-    const chkFiador = document.getElementById('incluirFiador');
-    toggleFiador(chkFiador);
     initSupabase();
 });
 
