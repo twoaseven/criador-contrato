@@ -143,15 +143,15 @@
         </div>
 
         <!-- FIADOR COM OPÇÃO DE ANULAÇÃO -->
-        <h3>FIADOR (Garantia - Art. 37 da Lei 8.245/91) 
-            
-            <label for="fiadorNaoAplica" class="checkbox-inline">
-                 <input type="checkbox" id="fiadorNaoAplica" onchange="toggleFiador(this)" />
-                 <span>Não se aplica ao contrato</span>
+        <h3>
+            FIADOR (Garantia - Art. 37 da Lei 8.245/91)
+            <label for="incluirFiador" class="checkbox-inline">
+                <input type="checkbox" id="incluirFiador" onchange="toggleFiador(this)" />
+                <span>Incluir fiador no contrato</span>
             </label>
-        </h3>
-        <div id="blocoFiadorContainer">
-            
+         </h3>
+
+          <div id="camposFiadorContainer" class="bloco-desabilitado">         
             <div class="form-row">
                 <div class="form-group">
                     <label>Nome Completo</label>
