@@ -563,18 +563,5 @@ footer span {
         flex: 1 1 250px;
     }
 }
-.bloco-desabilitado {
-    opacity: 0.45;
-    pointer-events: none;
-    user-select: none;
-    transition: opacity 0.2s ease;
-}
 
-.bloco-desabilitado input,
-.bloco-desabilitado select,
-.bloco-desabilitado textarea {
-    background-color: #090d16;
-    border-style: dashed;
-    cursor: not-allowed;
-}
 
