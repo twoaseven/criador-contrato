@@ -16,41 +16,27 @@
         <a href="index.html" class="btn-voltar">← Voltar para o Menu</a>
     </div>
 
-    <div class="info-box">
-        <strong>📋 INFORMAÇÕES IMPORTANTES:</strong><br>
-        • Este contrato segue as normas da <strong>Lei do Inquilinato (Lei nº 8.245/91)</strong><br>
-        • O documento possui formatação padrão de ofício e validade jurídica mediante reconhecimento de firma.
-    </div>
+    
 
     <div class="form-row">
         <div class="form-group">
             <label>Número do Contrato <span class="campo-obrigatorio">*</span></label>
             <input type="text" id="numContrato" placeholder="Ex: 2026/001" required />
         </div>
-        <div class="form-group">
-            <label>Data de Elaboração</label>
-            <input type="date" id="dataElaboracao" />
-        </div>
-        <div class="form-group">
-            <label>Prazo (meses) <span class="campo-obrigatorio">*</span></label>
-            <input type="number" id="prazoContrato" value="12" min="1" max="60" required />
-        </div>
-        <div class="form-group">
-            <label>Foro (Cidade)</label>
-            <input type="text" id="foroCidade" placeholder="Ex: São Paulo" />
-        </div>
+        
     </div>
 
-    <div class="busca">
+    <div class="nav-container">
+        <a href="index.html" class="btn-voltar">← Voltar para o Menu</a>
+    </div>
+
+    <div class="busca" role="search" aria-label="Busca rápida por CPF">
         <div class="form-group">
-            <label>Busca Rápida por CPF</label>
-            <input type="text" id="buscaCpf" placeholder="000.000.000-00" maxlength="14" />
+            <label for="buscaCpf">Busca Rápida por CPF</label>
+            <input type="text" id="buscaCpf" placeholder="000.000.000-00" maxlength="14" autocomplete="off" />
         </div>
-        <button class="btn-buscar" onclick="buscarPorCpf()">🔍 Buscar</button>
-        <button class="btn-salvar" onclick="salvarTodosDados()">💾 Salvar Cadastros</button>
-        <button class="btn-sync" onclick="sincronizarDados()">🔄 Sincronizar</button>
-        <button class="btn-gerenciar" onclick="abrirGerenciador()">📋 Gerenciar</button>
-        <span style="margin-left:auto;font-size:0.9rem;color:#28a745;" id="msgBusca"></span>
+        <button type="button" class="btn-buscar" onclick="buscarPorCpf()">🔍 Buscar</button>
+        <span id="msgBusca" aria-live="polite" style="margin-left:auto;font-size:0.9rem;color:#28a745;"></span>
     </div>
 
     <form id="formContrato" onsubmit="return false;">
