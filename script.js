@@ -1189,6 +1189,18 @@ window.limparTodosDados = limparTodosDados;
 window.exportarDados = exportarDados;
 window.importarDados = importarDados;
 window.sincronizarDados = sincronizarDados;
-window.toggleFiador = toggleFiador;
+window.toggleFiador = function(checkbox) {
+    const div = document.getElementById('camposFiadorContainer');
+    if (!div) return;
+
+    if (checkbox && checkbox.checked) {
+        div.style.display = 'block';
+    } else {
+        div.style.display = 'none';
+        div.querySelectorAll('input, select, textarea').forEach(campo => {
+            campo.value = '';
+        });
+    }
+};
 
 console.log('✅ script.js carregado com sucesso!');
