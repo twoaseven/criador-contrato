@@ -105,7 +105,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('#imovelValor, #caucaoValor')
         .forEach(el => el.addEventListener('input', function(e) { aplicarMascara(e, 'valor'); }));
+    
+function toggleFiador(checkbox) {
+    const container = document.getElementById('camposFiadorContainer');
+    if (!container) return;
 
+    const ativarFiador = checkbox ? checkbox.checked : false;
+    container.classList.toggle('bloco-desabilitado', !ativarFiador);
+
+    const campos = container.querySelectorAll('input, select, textarea');
+    campos.forEach((campo) => {
+        campo.disabled = !ativarFiador;
+        if (!ativarFiador) {
+            if (campo.type === 'checkbox' || campo.type === 'radio') {
+                campo.checked = false;
+            } else {
+                campo.value = '';
+            }
+        }
+    });
+}
+    const chkFiador = document.getElementById('incluirFiador');
+    toggleFiador(chkFiador);
     initSupabase();
 });
 
@@ -1168,5 +1189,6 @@ window.limparTodosDados = limparTodosDados;
 window.exportarDados = exportarDados;
 window.importarDados = importarDados;
 window.sincronizarDados = sincronizarDados;
+window.toggleFiador = toggleFiador;
 
 console.log('✅ script.js carregado com sucesso!');
