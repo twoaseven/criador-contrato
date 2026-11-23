@@ -884,33 +884,35 @@ function valorPorExtenso(valor) {
 }
 
 // ============================================================
-// ============================================================
 // 13. GERAR PRÉVIA E PDF
 // ============================================================
 function escaparHtml(texto) {
-    return String(texto || '')
+    return String(texto ?? '')
         .replace(/&/g, '&')
         .replace(/</g, '<')
         .replace(/>/g, '>')
-        .replace(/"/g, '"');
+        .replace(/"/g, '"')
+        .replace(/'/g, ''');
 }
 
 function montarContrato(dados, clausulas) {
-    const l = dados.locador;
-    const lt = dados.locatario;
-    const f = dados.fiador;
-    const i = dados.imovel;
-    const e = dados.encargos;
-    const g = dados.garantia;
-    const m = dados.multas;
-    const v = dados.vistoria;
+    const d = dados || {};
+    const l = d.locador || {};
+    const lt = d.locatario || {};
+    const f = d.fiador || {};
+    const i = d.imovel || {};
+    const e = d.encargos || {};
+    const g = d.garantia || {};
+    const m = d.multas || {};
+    const v = d.vistoria || {};
+    const listaClausulas = Array.isArray(clausulas) ? clausulas : [];
 
-    const numContrato = dados.numContrato || 'NÃO INFORMADO';
-    const dataElab = dados.dataElaboracao ? formatarData(dados.dataElaboracao) : 'Data não informada';
-    const prazo = dados.prazoContrato || '12';
-    const prazoExtenso = numeroPorExtenso(parseInt(prazo));
+    const numContrato = d.numContrato || 'NÃO INFORMADO';
+    const dataElab = d.dataElaboracao ? formatarData(d.dataElaboracao) : 'Data não informada';
+    const prazo = d.prazoContrato || '12';
+    const prazoExtenso = numeroPorExtenso(parseInt(prazo, 10) || 12);
     const valorExtenso = valorPorExtenso(i.valor);
-    const foro = dados.foroCidade || 'São Paulo';
+    const foro = d.foroCidade || 'São Paulo';
     const inicioFormatado = i.inicio ? formatarData(i.inicio) : 'a definir';
     const fimFormatado = i.fim ? formatarData(i.fim) : 'a definir';
     const obsAcordo = (document.getElementById('observacoesAcordoPartes')?.value || '').trim();
@@ -936,17 +938,17 @@ function montarContrato(dados, clausulas) {
         <div class="doc-secao">1. QUALIFICAÇÃO DAS PARTES</div>
         <p class="doc-paragrafo">
             <strong>LOCADOR (PROPRIETÁRIO):</strong> ${escaparHtml(l.nome || 'NÃO INFORMADO')},
-            nacionalidade ${escaparHtml(l.nacionalidade)}, estado civil ${escaparHtml(l.estadoCivil)},
-            profissão ${escaparHtml(l.profissao)}, portador(a) do RG nº ${escaparHtml(l.rg)} e
+            nacionalidade ${escaparHtml(l.nacionalidade || 'brasileiro')}, estado civil ${escaparHtml(l.estadoCivil || 'não informado')},
+            profissão ${escaparHtml(l.profissao || 'não informada')}, portador(a) do RG nº ${escaparHtml(l.rg || 'não informado')} e
             inscrito(a) no CPF sob o nº ${escaparHtml(l.cpf || 'NÃO INFORMADO')}, residente e domiciliado(a) em
-            ${escaparHtml(l.endereco)}, telefone ${escaparHtml(l.telefone)} e e-mail ${escaparHtml(l.email)}.
+            ${escaparHtml(l.endereco || 'não informado')}, telefone ${escaparHtml(l.telefone || 'não informado')} e e-mail ${escaparHtml(l.email || 'não informado')}.
         </p>
         <p class="doc-paragrafo">
             <strong>LOCATÁRIO (INQUILINO):</strong> ${escaparHtml(lt.nome || 'NÃO INFORMADO')},
-            nacionalidade ${escaparHtml(lt.nacionalidade)}, estado civil ${escaparHtml(lt.estadoCivil)},
-            profissão ${escaparHtml(lt.profissao)}, portador(a) do RG nº ${escaparHtml(lt.rg)} e
+            nacionalidade ${escaparHtml(lt.nacionalidade || 'brasileiro')}, estado civil ${escaparHtml(lt.estadoCivil || 'não informado')},
+            profissão ${escaparHtml(lt.profissao || 'não informada')}, portador(a) do RG nº ${escaparHtml(lt.rg || 'não informado')} e
             inscrito(a) no CPF sob o nº ${escaparHtml(lt.cpf || 'NÃO INFORMADO')}, residente e domiciliado(a) em
-            ${escaparHtml(lt.endereco)}, telefone ${escaparHtml(lt.telefone)} e e-mail ${escaparHtml(lt.email)}.
+            ${escaparHtml(lt.endereco || 'não informado')}, telefone ${escaparHtml(lt.telefone || 'não informado')} e e-mail ${escaparHtml(lt.email || 'não informado')}.
         </p>
     `;
 
@@ -954,10 +956,10 @@ function montarContrato(dados, clausulas) {
         html += `
         <p class="doc-paragrafo">
             <strong>FIADOR:</strong> ${escaparHtml(f.nome)},
-            nacionalidade ${escaparHtml(f.nacionalidade)}, estado civil ${escaparHtml(f.estadoCivil)},
-            profissão ${escaparHtml(f.profissao)}, portador(a) do RG nº ${escaparHtml(f.rg)} e
-            inscrito(a) no CPF sob o nº ${escaparHtml(f.cpf)}, residente e domiciliado(a) em
-            ${escaparHtml(f.endereco)}, telefone ${escaparHtml(f.telefone)} e e-mail ${escaparHtml(f.email)}${
+            nacionalidade ${escaparHtml(f.nacionalidade || 'brasileiro')}, estado civil ${escaparHtml(f.estadoCivil || 'não informado')},
+            profissão ${escaparHtml(f.profissao || 'não informada')}, portador(a) do RG nº ${escaparHtml(f.rg || 'não informado')} e
+            inscrito(a) no CPF sob o nº ${escaparHtml(f.cpf || 'não informado')}, residente e domiciliado(a) em
+            ${escaparHtml(f.endereco || 'não informado')}, telefone ${escaparHtml(f.telefone || 'não informado')} e e-mail ${escaparHtml(f.email || 'não informado')}${
                 f.conjugeNome
                     ? `, com anuência de seu cônjuge ${escaparHtml(f.conjugeNome)}, CPF nº ${escaparHtml(f.conjugeCpf || 'N/A')}, RG nº ${escaparHtml(f.conjugeRg || 'N/A')}`
                     : ''
@@ -977,7 +979,7 @@ function montarContrato(dados, clausulas) {
         i.metragem ? `Metragem Total: ${escaparHtml(i.metragem)} m²` : '',
         i.areaPrivativa ? `Área Privativa: ${escaparHtml(i.areaPrivativa)} m²` : '',
         i.areaComum ? `Área Comum: ${escaparHtml(i.areaComum)} m²` : '',
-        i.caracteristicas ? `Características: ${escaparHtml(i.caracteristicas)}` : ''
+        i.caracteristicas ? `Características do Imóvel: ${escaparHtml(i.caracteristicas)}` : ''
     ].filter(Boolean).join('; ');
 
     html += `
@@ -1049,14 +1051,18 @@ function montarContrato(dados, clausulas) {
         </p>
     `;
 
-    if (clausulas.length > 0 || obsAcordo) {
-        html += `<hr class="doc-divisor" /><div class="doc-secao">9. CLÁUSULAS ADICIONAIS E ACORDOS</div>`;
-        clausulas.forEach((c, idx) => {
+    html += `<hr class="doc-divisor" /><div class="doc-secao">9. CLÁUSULAS ADICIONAIS E ACORDOS</div>`;
+
+    if (listaClausulas.length > 0) {
+        listaClausulas.forEach((c, idx) => {
             html += `<p class="doc-paragrafo"><strong>Cláusula ${idx + 1} (${escaparHtml(c.descricao)}):</strong> ${escaparHtml(c.texto)}</p>`;
         });
-        if (obsAcordo) {
-            html += `<p class="doc-paragrafo"><strong>Acordo / Observação entre as Partes:</strong> ${escaparHtml(obsAcordo)}</p>`;
-        }
+    } else {
+        html += `<p class="doc-paragrafo">Nenhuma cláusula adicional selecionada.</p>`;
+    }
+
+    if (obsAcordo) {
+        html += `<p class="doc-paragrafo"><strong>Acordo / Observações entre as Partes:</strong> ${escaparHtml(obsAcordo)}</p>`;
     }
 
     html += `
@@ -1126,7 +1132,7 @@ function gerarPDF() {
             }
 
             const htmlContrato = montarContrato(dados, clausulas);
-            const elementoPrevia = document.querySelector('.previa');
+            const elementoPrevia = document.getElementById('previa') || document.querySelector('.previa');
             if (elementoPrevia) {
                 elementoPrevia.innerHTML = htmlContrato;
                 elementoPrevia.classList.add('visivel');
