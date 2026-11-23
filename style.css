@@ -493,18 +493,6 @@ footer span {
     .busca .btn-buscar { width: 100%; }
     .previa { padding: 16px; }
 }
-/* ============================================================
-   IMPRESSÃO / PDF: SOMENTE O CONTRATO OFICIAL
-   ============================================================ */
-/* ============================================================
-   IMPRESSÃO / PDF: SOMENTE O CONTRATO OFICIAL
-   ============================================================ */
-@media print {
-    @page {
-        size: A4;
-        margin: 12mm;
-    }
-
     html,
     body {
         width: 100% !important;
@@ -517,16 +505,6 @@ footer span {
         overflow: visible !important;
     }
 
-    /* Remove qualquer espaço ou altura de blocos não imprimíveis */
-    body > *:not(.container):not(#previa),
-    .container > *:not(#previa):not(.previa),
-    form,
-    .form-row,
-    .form-group,
-    .busca,
-    .clausulas-grid,
-    .cadastro-clausula,
-    .info-box,
 /* ============================================================
    IMPRESSÃO / PDF: SOMENTE O CONTRATO OFICIAL
    ============================================================ */
