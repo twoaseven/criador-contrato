@@ -1102,52 +1102,48 @@ function gerarPrevia() {
 
 function gerarPDF() {
     const loading = document.getElementById('loading');
-    if (loading) loading.classList.add('ativo');
+    const elementoPrevia = document.getElementById('previa') || document.querySelector('.previa');
 
-    setTimeout(() => {
-        try {
-            const dados = getDadosFormulario();
-            const clausulas = getClausulasMarcadas();
+    try {
+        // Se a prévia já estiver visível e com conteúdo, imprime exatamente ela
+        const previaPronta =
+            elementoPrevia &&
+            elementoPrevia.classList.contains('visivel') &&
+            elementoPrevia.innerHTML.trim().length > 0;
 
-            if (!dados.locador.nome || !dados.locador.cpf) {
-                alert('⚠️ Preencha Nome e CPF do Locador.');
-                if (loading) loading.classList.remove('ativo');
-                return;
-            }
-            if (!dados.locatario.nome || !dados.locatario.cpf) {
-                alert('⚠️ Preencha Nome e CPF do Locatário.');
-                if (loading) loading.classList.remove('ativo');
-                return;
-            }
-            if (!dados.numContrato) {
-                alert('⚠️ Informe o Número do Contrato.');
-                if (loading) loading.classList.remove('ativo');
-                return;
-            }
-            if (!dados.imovel.endereco) {
-                alert('⚠️ Informe o Endereço do Imóvel.');
-                if (loading) loading.classList.remove('ativo');
-                return;
-            }
-
-            const htmlContrato = montarContrato(dados, clausulas);
-            const elementoPrevia = document.getElementById('previa') || document.querySelector('.previa');
-            if (elementoPrevia) {
-                elementoPrevia.innerHTML = htmlContrato;
-                elementoPrevia.classList.add('visivel');
-            }
-
+        if (previaPronta) {
             window.print();
-
-            if (loading) loading.classList.remove('ativo');
-            mostrarMensagem('✅ PDF gerado com sucesso!', 'success');
-        } catch (error) {
-            console.error('❌ Erro no PDF:', error);
-            alert('❌ Erro ao gerar PDF: ' + error.message);
-            if (loading) loading.classList.remove('ativo');
+            if (typeof mostrarMensagem === 'function') {
+                mostrarMensagem('✅ Enviado para impressão / PDF!', 'success');
+            }
+            return;
         }
-    }, 300);
+
+        // Caso o usuário clique direto em Imprimir sem ter clicado em Visualizar antes
+        if (loading) loading.classList.add('ativo');
+
+        const dados = typeof getDadosFormulario === 'function' ? getDadosFormulario() : {};
+        const clausulas = typeof getClausulasMarcadas === 'function' ? getClausulasMarcadas() : [];
+
+        if (elementoPrevia && typeof montarContrato === 'function') {
+            elementoPrevia.innerHTML = montarContrato(dados, clausulas);
+            elementoPrevia.classList.add('visivel');
+        }
+
+        setTimeout(function() {
+            window.print();
+            if (loading) loading.classList.remove('ativo');
+            if (typeof mostrarMensagem === 'function') {
+                mostrarMensagem('✅ Enviado para impressão / PDF!', 'success');
+            }
+        }, 150);
+    } catch (error) {
+        console.error('❌ Erro ao imprimir:', error);
+        alert('❌ Erro ao abrir impressão: ' + error.message);
+        if (loading) loading.classList.remove('ativo');
+    }
 }
+
 // ============================================================
 // 14. GERENCIADOR
 // ============================================================
