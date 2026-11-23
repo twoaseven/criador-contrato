@@ -1104,43 +1104,45 @@ function gerarPDF() {
     const loading = document.getElementById('loading');
     const elementoPrevia = document.getElementById('previa') || document.querySelector('.previa');
 
+    if (!elementoPrevia) {
+        alert('⚠️ Área de prévia (#previa) não encontrada na página.');
+        return;
+    }
+
     try {
-        // Se a prévia já estiver visível e com conteúdo, imprime exatamente ela
-        const previaPronta =
-            elementoPrevia &&
-            elementoPrevia.classList.contains('visivel') &&
-            elementoPrevia.innerHTML.trim().length > 0;
-
-        if (previaPronta) {
-            window.print();
-            if (typeof mostrarMensagem === 'function') {
-                mostrarMensagem('✅ Enviado para impressão / PDF!', 'success');
-            }
-            return;
-        }
-
-        // Caso o usuário clique direto em Imprimir sem ter clicado em Visualizar antes
         if (loading) loading.classList.add('ativo');
 
-        const dados = typeof getDadosFormulario === 'function' ? getDadosFormulario() : {};
-        const clausulas = typeof getClausulasMarcadas === 'function' ? getClausulasMarcadas() : [];
+        let conteudoAtual = elementoPrevia.innerHTML ? elementoPrevia.innerHTML.trim() : '';
 
-        if (elementoPrevia && typeof montarContrato === 'function') {
-            elementoPrevia.innerHTML = montarContrato(dados, clausulas);
-            elementoPrevia.classList.add('visivel');
+        // Se ainda não houver conteúdo na prévia, monta agora
+        if (!conteudoAtual) {
+            const dados = typeof getDadosFormulario === 'function' ? getDadosFormulario() : {};
+            const clausulas = typeof getClausulasMarcadas === 'function' ? getClausulasMarcadas() : [];
+
+            if (typeof montarContrato === 'function') {
+                conteudoAtual = montarContrato(dados, clausulas) || '';
+            }
         }
 
-        setTimeout(function() {
+        // Garantia final para nunca sair página em branco
+        if (!conteudoAtual.trim()) {
+            conteudoAtual = '<div class="doc-titulo">CONTRATO DE LOCAÇÃO DE IMÓVEL</div><p class="doc-paragrafo">Preencha os dados do formulário e clique em Visualizar Contrato.</p>';
+        }
+
+        elementoPrevia.innerHTML = conteudoAtual;
+        elementoPrevia.classList.add('visivel');
+
+        setTimeout(function () {
             window.print();
             if (loading) loading.classList.remove('ativo');
             if (typeof mostrarMensagem === 'function') {
-                mostrarMensagem('✅ Enviado para impressão / PDF!', 'success');
+                mostrarMensagem('✅ Janela de impressão / PDF aberta!', 'success');
             }
         }, 150);
     } catch (error) {
         console.error('❌ Erro ao imprimir:', error);
-        alert('❌ Erro ao abrir impressão: ' + error.message);
         if (loading) loading.classList.remove('ativo');
+        alert('❌ Erro ao preparar impressão: ' + error.message);
     }
 }
 
