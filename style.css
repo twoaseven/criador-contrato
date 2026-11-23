@@ -1,8 +1,8 @@
 :root {
     --bg-color: #0f172a;
     --card-bg: #1e293b;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
+    --text-primary: #ffffff;
+    --text-secondary: #cbd5e1;
     --accent: #3b82f6;
     --accent-hover: #2563eb;
     --border: #334155;
@@ -22,6 +22,21 @@ body {
     padding: 16px;
     min-height: 100vh;
 }
+
+h1,
+h2,
+h3,
+h4,
+label {
+    color: var(--text-primary);
+}
+```[span_6](start_span)[span_6](end_span)
+
+Dessa forma, se amanhã você quiser testar outro tom para os títulos e rótulos, altera só a linha `--text-primary` no `:root` e pronto[span_7](start_span)[span_7](end_span).
+
+Ficou claro esse controle centralizado? E quando você quiser, já partimos para aquele ajuste da **data** no contrato.
+
+
 
 .container {
     width: 100%;
