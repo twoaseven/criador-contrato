@@ -891,8 +891,7 @@ function escaparHtml(texto) {
         .replace(/&/g, '&')
         .replace(/</g, '<')
         .replace(/>/g, '>')
-        .replace(/"/g, '"')
-        .replace(/'/g, ''');
+        .replace(/"/g, '"');
 }
 
 function montarContrato(dados, clausulas) {
