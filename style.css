@@ -239,7 +239,7 @@ textarea {
 .previa {
     display: none;
     margin-top: 24px;
-    padding: 36px 40px;
+    padding: 40px 44px;
     max-height: 780px;
     overflow-y: auto;
     background: #ffffff;
@@ -247,7 +247,7 @@ textarea {
     border-radius: 8px;
     border: 1px solid #cbd5e1;
     line-height: 1.7;
-    font-size: 1rem;
+    font-size: 0.98rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -255,53 +255,89 @@ textarea {
     display: block;
 }
 
-.doc-cabecalho-titulo {
+/* Setor 1: Título Principal */
+.doc-titulo {
     text-align: center;
     font-size: 1.45rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
     margin-bottom: 18px;
     color: #0f172a;
 }
 
-.doc-meta-esquerda {
+/* Setor 2: Número e Data à esquerda */
+.doc-meta {
     text-align: left;
-    margin-top: 12px;
+    margin-top: 10px;
     margin-bottom: 18px;
-    font-size: 0.96rem;
-    line-height: 1.55;
+    line-height: 1.6;
 }
 
+/* Linha contínua divisória (substitui =====) */
 .doc-divisor {
     border: 0;
     border-top: 1.5px solid #334155;
     margin: 18px 0;
 }
 
-.doc-lei-centralizada {
+/* Setor 3: Lei do Inquilinato centralizada */
+.doc-lei {
     text-align: center;
-    font-size: 0.95rem;
+    font-size: 0.94rem;
     line-height: 1.6;
-    margin: 14px 0 18px;
+    margin: 14px 0;
     color: #1e293b;
 }
 
-.doc-secao-titulo {
+/* Setor 4: Títulos de Seção e Parágrafos Justificados */
+.doc-secao {
     text-align: left;
     font-size: 1.05rem;
     font-weight: 700;
-    margin: 22px 0 10px;
     text-transform: uppercase;
+    margin: 22px 0 10px;
     color: #0f172a;
 }
 
-.doc-texto-justificado {
+.doc-paragrafo {
     text-align: justify;
     text-justify: inter-word;
     line-height: 1.75;
     margin-bottom: 14px;
-    width: 100%;
+}
+
+/* Setor 5: Fechamento e Assinaturas centralizadas */
+.doc-fechamento {
+    text-align: justify;
+    margin: 22px 0 12px;
+}
+
+.doc-local-data {
+    text-align: right;
+    margin: 16px 0 36px;
+}
+
+.doc-assinaturas {
+    text-align: center;
+    margin-top: 32px;
+}
+
+.doc-assinatura-item {
+    margin: 34px auto 0;
+    width: 340px;
+    max-width: 90%;
+    border-top: 1px solid #111827;
+    padding-top: 6px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.doc-rodape-lei {
+    text-align: center;
+    font-size: 0.88rem;
+    color: #475569;
+    margin-top: 12px;
 }
 
 .doc-alerta {
