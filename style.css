@@ -546,6 +546,42 @@ footer span {
         display: none !important;
     }
 
+    /* Remove qualquer espaço ou altura de blocos não imprimíveis */
+    body > *:not(.container):not(#previa),
+    .container > *:not(#previa):not(.previa),
+    form,
+    .form-row,
+    .form-group,
+    .busca,
+    .clausulas-grid,
+    .cadastro-clausula,
+    .info-box,
+    .secao-destaque,
+    .botoes,
+    .acoes-container,
+    .nav-container,
+    button,
+    .btn-acao,
+    .btn-voltar,
+    h1, h2, h3, h4,
+    .status-db,
+    #loading,
+    .loading,
+    .modal,
+    footer,
+    header,
+    nav {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        overflow: hidden !important;
+    }
+
+    
     html,
     body {
         width: 100% !important;
