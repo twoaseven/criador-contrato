@@ -219,88 +219,96 @@
         </div>
 
         <!-- IMÓVEL -->
-        <h2>🏠 2. Objeto do Contrato (Imóvel)</h2>
-        <div class="form-row">
-            <div class="form-group" style="flex:1 1 100%;">
-                <label>Selecionar Imóvel Cadastrado</label>
-                <select id="selectImovel" onchange="selecionarImovelPorDropdown(this.value)">
-                    <option value="">-- Cadastrar Novo ou Digitar Abaixo --</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group" style="flex: 1 1 100%;">
-                <label>Endereço Completo do Imóvel <span class="campo-obrigatorio">*</span></label>
-                <input type="text" id="imovelEnd" required />
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Matrícula / Registro no Cartório</label>
-                <input type="text" id="imovelRegistro" placeholder="Ex: Matrícula nº 123.456" />
-            </div>
-            <div class="form-group">
-                <label>Cartório de Registro de Imóveis</label>
-                <input type="text" id="imovelCartorio" placeholder="Ex: 1º CRI da Comarca" />
-            </div>
-            <div class="form-group">
-                <label>Inscrição Municipal / IPTU</label>
-                <input type="text" id="imovelInscricaoMunicipal" placeholder="Ex: 01.02.0345.0001-0" />
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Tipo de Imóvel</label>
-                <select id="imovelTipo">
-                    <option value="">Selecione</option>
-                    <option value="Apartamento">Apartamento</option>
-                    <option value="Casa">Casa</option>
-                    <option value="Comercial">Comercial</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Destinação</label>
-                <select id="imovelDestinacao">
-                    <option value="Residencial">Residencial</option>
-                    <option value="Comercial">Comercial</option>
-                </select>
+        <div class="secao-imovel">
+            <h2>🏠 2. Objeto do Contrato (Imóvel)</h2>
+
+            <div class="form-row">
+                <div class="form-group" style="flex: 1 1 100%;">
+                    <label for="selectImovel">Selecionar Imóvel Cadastrado</label>
+                    <select id="selectImovel" onchange="selecionarImovelPorDropdown(this.value)">
+                        <option value="">-- Cadastrar Novo ou Digitar Abaixo --</option>
+                    </select>
+                </div>
             </div>
 
-<div class="form-row">
-            <div class="form-group">
-                <label>Quartos</label>
-                <input type="number" id="imovelQuartos" min="0" placeholder="Ex: 2" />
+            <div class="form-row">
+                <div class="form-group" style="flex: 1 1 100%;">
+                    <label for="imovelEnd">Endereço Completo do Imóvel <span class="campo-obrigatorio">*</span></label>
+                    <input type="text" id="imovelEnd" required />
+                </div>
             </div>
-            <div class="form-group">
-                <label>Banheiros</label>
-                <input type="number" id="imovelBanheiros" min="0" placeholder="Ex: 1" />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="imovelRegistro">Matrícula / Registro no Cartório</label>
+                    <input type="text" id="imovelRegistro" placeholder="Ex: Matrícula nº 123.456" />
+                </div>
+                <div class="form-group">
+                    <label for="imovelCartorio">Cartório de Registro de Imóveis</label>
+                    <input type="text" id="imovelCartorio" placeholder="Ex: 1º CRI da Comarca" />
+                </div>
+                <div class="form-group">
+                    <label for="imovelInscricaoMunicipal">Inscrição Municipal / IPTU</label>
+                    <input type="text" id="imovelInscricaoMunicipal" placeholder="Ex: 01.02.0345.0001-0" />
+                </div>
             </div>
-            <div class="form-group">
-                <label>Vagas de Garagem</label>
-                <input type="number" id="imovelVagas" min="0" placeholder="Ex: 1" />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="imovelTipo">Tipo de Imóvel</label>
+                    <select id="imovelTipo">
+                        <option value="">Selecione</option>
+                        <option value="Apartamento">Apartamento</option>
+                        <option value="Casa">Casa</option>
+                        <option value="Comercial">Comercial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="imovelDestinacao">Destinação</label>
+                    <select id="imovelDestinacao">
+                        <option value="Residencial">Residencial</option>
+                        <option value="Comercial">Comercial</option>
+                    </select>
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Metragem Total (m²)</label>
-                <input type="text" id="imovelMetragem" placeholder="Ex: 65" />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="imovelQuartos">Quartos</label>
+                    <input type="number" id="imovelQuartos" min="0" placeholder="Ex: 2" />
+                </div>
+                <div class="form-group">
+                    <label for="imovelBanheiros">Banheiros</label>
+                    <input type="number" id="imovelBanheiros" min="0" placeholder="Ex: 1" />
+                </div>
+                <div class="form-group">
+                    <label for="imovelVagas">Vagas de Garagem</label>
+                    <input type="number" id="imovelVagas" min="0" placeholder="Ex: 1" />
+                </div>
             </div>
-            <div class="form-group">
-                <label>Área Privativa (m²)</label>
-                <input type="text" id="imovelAreaPrivativa" placeholder="Ex: 58" />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="imovelMetragem">Metragem Total (m²)</label>
+                    <input type="text" id="imovelMetragem" placeholder="Ex: 65" />
+                </div>
+                <div class="form-group">
+                    <label for="imovelAreaPrivativa">Área Privativa (m²)</label>
+                    <input type="text" id="imovelAreaPrivativa" placeholder="Ex: 58" />
+                </div>
+                <div class="form-group">
+                    <label for="imovelAreaComum">Área Comum (m²)</label>
+                    <input type="text" id="imovelAreaComum" placeholder="Ex: 7" />
+                </div>
             </div>
-            <div class="form-group">
-                <label>Área Comum (m²)</label>
-                <input type="text" id="imovelAreaComum" placeholder="Ex: 7" />
+
+            <div class="form-row">
+                <div class="form-group" style="flex: 1 1 100%;">
+                    <label for="imovelCaracteristicas">Características do Imóvel</label>
+                    <textarea id="imovelCaracteristicas" rows="2" placeholder="Ex: Armários planejados, ar-condicionado, varanda..."></textarea>
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group" style="flex: 1 1 100%;">
-                <label>Características do Imóvel</label>
-                <textarea id="imovelCaracteristicas" rows="2" placeholder="Ex: Armários planejados, ar-condicionado, varanda..."></textarea>
-            </div>
-        </div>
-            
+        </div>          
         </div>
         <!-- DEMAIS CAMPOS DE VALORES E CLÁUSULAS -->
         <h2>💰 3. Valores, Prazos e Condições</h2>
