@@ -239,23 +239,81 @@ textarea {
 .previa {
     display: none;
     margin-top: 24px;
-    padding: 32px;
-    max-height: 750px;
+    padding: 36px 40px;
+    max-height: 780px;
     overflow-y: auto;
     background: #ffffff;
-    color: #000000;
+    color: #111827;
     border-radius: 8px;
-    border: 1px solid var(--border);
-    white-space: pre-line;
-    word-break: break-word;
-    line-height: 1.75;
-    font-size: 0.98rem;
+    border: 1px solid #cbd5e1;
+    line-height: 1.7;
+    font-size: 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .previa.visivel {
     display: block;
 }
 
+.doc-cabecalho-titulo {
+    text-align: center;
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    color: #0f172a;
+}
+
+.doc-meta-esquerda {
+    text-align: left;
+    margin-top: 12px;
+    margin-bottom: 18px;
+    font-size: 0.96rem;
+    line-height: 1.55;
+}
+
+.doc-divisor {
+    border: 0;
+    border-top: 1.5px solid #334155;
+    margin: 18px 0;
+}
+
+.doc-lei-centralizada {
+    text-align: center;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 14px 0 18px;
+    color: #1e293b;
+}
+
+.doc-secao-titulo {
+    text-align: left;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 22px 0 10px;
+    text-transform: uppercase;
+    color: #0f172a;
+}
+
+.doc-texto-justificado {
+    text-align: justify;
+    text-justify: inter-word;
+    line-height: 1.75;
+    margin-bottom: 14px;
+    width: 100%;
+}
+
+.doc-alerta {
+    text-align: left;
+    background: #fef3c7;
+    border-left: 4px solid #d97706;
+    color: #78350f;
+    padding: 12px 14px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+}
 .modal {
     display: none;
     position: fixed;
