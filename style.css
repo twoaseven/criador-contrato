@@ -72,18 +72,24 @@ h4 {
 }
 
 .form-group {
-    flex: 1 1 200px;
-    min-width: 180px;
+    flex: 1 1 0;
+    min-width: 220px;
+    display: flex;
+    flex-direction: 600;
 }
 
-label {
-    display: block;
+.form-group label {
+    margin-bottom: 6px;
     font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 4px;
-    color: var(--text-secondary);
 }
 
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    box-sizing: border-box;
+}
 /* Checkbox ao lado do texto ("Não se aplica ao contrato") */
 .checkbox-inline {
     display: inline-flex;
