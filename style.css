@@ -25,6 +25,7 @@ body {
 
 .container {
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     background-color: var(--card-bg);
     padding: 25px;
@@ -64,9 +65,12 @@ h4 {
     font-size: 1rem;
 }
 
-.form-section,
 .secao-imovel {
     width: 100%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
 }
 
 .form-row {
