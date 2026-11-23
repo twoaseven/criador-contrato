@@ -493,29 +493,14 @@ footer span {
     .busca .btn-buscar { width: 100%; }
     .previa { padding: 16px; }
 }
-/* ============================================================
+  /* ===========================================================
    IMPRESSÃO / PDF: SOMENTE O CONTRATO OFICIAL
    ============================================================ */
 @media print {
-    /* Esconde tudo que não é o contrato */
-    body > *:not(.container):not(#previa),
-    .container > *:not(#previa):not(.previa),
-    header,
-    nav,
-    footer,
-    form,
-    .form-container,
-    .acoes,
-    .botoes,
-    button,
-    #loading,
-    .loading,
-    .toast,
-    .mensagem {
-        display: none !important;
+    @page {
+        margin: 14mm;
     }
 
-    /* Garante que o documento ocupe a folha inteira sem cortes */
     html,
     body {
         margin: 0 !important;
@@ -526,14 +511,15 @@ footer span {
         overflow: visible !important;
     }
 
-    .container {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-        background: #ffffff !important;
+    /* Esconde visualmente tudo na página na impressão */
+    body * {
+        visibility: hidden !important;
+    }
+
+    /* Exibe apenas a prévia do contrato e seu conteúdo interno */
+    #previa,
+    #previa * {
+        visibility: visible !important;
     }
 
     #previa,
@@ -544,15 +530,15 @@ footer span {
         width: 100% !important;
         max-width: 100% !important;
         max-height: none !important;
+        height: auto !important;
         overflow: visible !important;
         margin: 0 !important;
-        padding: 12px 18px !important;
+        padding: 0 !important;
         border: none !important;
         border-radius: 0 !important;
         box-shadow: none !important;
         background: #ffffff !important;
         color: #111827 !important;
-        page-break-inside: auto;
     }
 
     .doc-secao {
@@ -565,9 +551,4 @@ footer span {
         break-inside: avoid;
         page-break-inside: avoid;
     }
-
-    @page {
-        margin: 14mm;
-    }
 }
-
