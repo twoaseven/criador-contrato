@@ -350,6 +350,7 @@ textarea {
     margin-bottom: 20px;
     font-size: 0.92rem;
 }
+
 .modal {
     display: none;
     position: fixed;
@@ -493,6 +494,16 @@ footer span {
     .busca .btn-buscar { width: 100%; }
     .previa { padding: 16px; }
 }
+
+/* ============================================================
+   IMPRESSÃO / PDF: SOMENTE A PRÉVIA DO CONTRATO OFICIAL
+   ============================================================ */
+@media print {
+    @page {
+        size: A4;
+        margin: 12mm;
+    }
+
     html,
     body {
         width: 100% !important;
@@ -505,59 +516,7 @@ footer span {
         overflow: visible !important;
     }
 
-/* ============================================================
-   IMPRESSÃO / PDF: SOMENTE O CONTRATO OFICIAL
-   ============================================================ */
-@media print {
-    @page {
-        size: A4;
-        margin: 14mm;
-    }
-
-    /* Esconde tudo que não é o contrato */
-    body > *:not(#previa):not(.container),
-    .container > *:not(#previa):not(.previa),
-    .container form,
-    .container .form-row,
-    .container .form-group,
-    .container .busca,
-    .container .clausulas-grid,
-    .container .cadastro-clausula,
-    .container .info-box,
-    .container .secao-destaque,
-    .container .botoes,
-    .container .acoes-container,
-    .container .nav-container,
-    .container button,
-    .container .btn-acao,
-    .container .btn-voltar,
-    .container h1,
-    .container h2,
-    .container h3,
-    .container h4,
-    .container .status-db,
-    .container #loading,
-    .container .loading,
-    .container .modal,
-    .container footer,
-    header,
-    nav,
-    footer {
-        display: none !important;
-    }
-html,
-    body {
-        width: 100% !important;
-        height: auto !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #ffffff !important;
-        color: #111827 !important;
-        overflow: visible !important;
-
-        
-    /* Remove qualquer espaço ou altura de blocos não imprimíveis */
+    /* Esconde tudo que não é a prévia do contrato e zera qualquer espaço */
     body > *:not(.container):not(#previa),
     .container > *:not(#previa):not(.previa),
     form,
@@ -574,14 +533,16 @@ html,
     button,
     .btn-acao,
     .btn-voltar,
-    h1, h2, h3, h4,
+    h1,
+    h2,
+    h3,
+    h4,
     .status-db,
     #loading,
     .loading,
     .modal,
     footer,
     header,
-        
     nav {
         display: none !important;
         height: 0 !important;
@@ -594,6 +555,8 @@ html,
     }
 
     .container {
+        display: block !important;
+        position: static !important;
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
@@ -627,14 +590,51 @@ html,
         overflow: visible !important;
     }
 
+    .doc-titulo {
+        margin-top: 0 !important;
+        margin-bottom: 12px !important;
+        font-size: 1.3rem !important;
+    }
+
+    .doc-meta {
+        margin: 8px 0 12px !important;
+    }
+
+    .doc-divisor {
+        margin: 12px 0 !important;
+    }
+
     .doc-secao {
+        margin: 14px 0 6px !important;
         break-after: avoid;
         page-break-after: avoid;
     }
 
-    .doc-paragrafo,
-    .doc-assinatura-item {
+    .doc-paragrafo {
+        line-height: 1.55 !important;
+        margin-bottom: 10px !important;
         break-inside: avoid;
         page-break-inside: avoid;
+    }
+
+    .doc-local-data {
+        margin: 10px 0 18px !important;
+    }
+
+    .doc-assinaturas {
+        margin-top: 16px !important;
+    }
+
+    .doc-assinatura-item {
+        margin: 22px auto 0 !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .doc-rodape-lei {
+        margin-top: 10px !important;
+        margin-bottom: 0 !important;
+        break-after: avoid;
+        page-break-after: avoid;
     }
 }
