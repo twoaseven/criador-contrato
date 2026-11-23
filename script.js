@@ -520,6 +520,41 @@ function preencherFiador(dados) {
     if (ec && dados.estado_civil) ec.value = dados.estado_civil;
 }
 
+function selecionarImovelPorDropdown(valor) {
+    const campos = [
+        'imovelEnd',
+        'imovelRegistro',
+        'imovelCartorio',
+        'imovelInscricaoMunicipal',
+        'imovelTipo',
+        'imovelDestinacao'
+    ];
+
+    if (!valor) {
+        campos.forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.value = id === 'imovelDestinacao' ? 'Residencial' : '';
+        });
+        return;
+    }
+
+    const db = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
+    const imovel = (db.imoveis || []).find((item) => item.endereco === valor);
+    if (!imovel) return;
+
+    const setVal = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.value = v || '';
+    };
+
+    setVal('imovelEnd', imovel.endereco);
+    setVal('imovelRegistro', imovel.registro);
+    setVal('imovelCartorio', imovel.cartorio);
+    setVal('imovelInscricaoMunicipal', imovel.inscricaoMunicipal || imovel.inscricao_municipal);
+    setVal('imovelTipo', imovel.tipo);
+    setVal('imovelDestinacao', imovel.destinacao || 'Residencial');
+}
+
 // ============================================================
 // 10. OBTER DADOS DO FORMULÁRIO
 // ============================================================
@@ -577,6 +612,8 @@ function getDadosFormulario() {
         imovel: {
             endereco: getVal('imovelEnd'),
             registro: getVal('imovelRegistro'),
+            cartorio: getVal('imovelCartorio'),
+            inscricaoMunicipal: getVal('imovelInscricaoMunicipal'),
             tipo: getSelect('imovelTipo'),
             destinacao: getSelect('imovelDestinacao') || 'Residencial',
             quartos: getVal('imovelQuartos'),
@@ -695,6 +732,8 @@ async function salvarTodosDados() {
                 const { error } = await supabaseClient.from('imoveis').upsert({
                     endereco: dados.imovel.endereco,
                     registro: dados.imovel.registro,
+                    cartorio: dados.imovel.cartorio,
+                    inscricao_municipal: dados.imovel.inscricaoMunicipal,
                     tipo: dados.imovel.tipo,
                     destinacao: dados.imovel.destinacao,
                     quartos: dados.imovel.quartos,
@@ -785,6 +824,8 @@ function salvarDadosOffline(dados) {
         const obj = { 
             endereco: dados.imovel.endereco,
             registro: dados.imovel.registro,
+            cartorio: dados.imovel.cartorio,
+            inscricaoMunicipal: dados.imovel.inscricaoMunicipal,
             tipo: dados.imovel.tipo,
             destinacao: dados.imovel.destinacao,
             quartos: dados.imovel.quartos,
@@ -917,6 +958,8 @@ function montarContrato(dados, clausulas) {
     texto += '2. OBJETO DO CONTRATO\n\n';
     texto += `Endereço do Imóvel: ${i.endereco || 'NÃO INFORMADO'}\n`;
     if (i.registro) texto += `Registro no Cartório de Imóveis: ${i.registro}\n`;
+    if (i.cartorio) texto += `Cartório de Registro de Imóveis: ${i.cartorio}\n`;
+    if (i.inscricaoMunicipal) texto += `Inscrição Municipal / IPTU: ${i.inscricaoMunicipal}\n`;
     if (i.tipo) texto += `Tipo: ${i.tipo}\n`;
     if (i.destinacao) texto += `Destinação: ${i.destinacao}\n`;
     if (i.quartos) texto += `Quartos: ${i.quartos}\n`;
@@ -1187,6 +1230,7 @@ window.limparTodosDados = limparTodosDados;
 window.exportarDados = exportarDados;
 window.importarDados = importarDados;
 window.sincronizarDados = sincronizarDados;
+window.selecionarImovelPorDropdown = selecionarImovelPorDropdown;
 window.toggleFiador = function(checkbox) {
     const div = document.getElementById('camposFiadorContainer');
     if (!div) return;
