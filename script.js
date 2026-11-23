@@ -1049,20 +1049,92 @@ function montarContrato(dados, clausulas) {
 
     return texto;
 }
+function escaparHtml(texto) {
+    return String(texto || '')
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"');
+}
+
+function montarHtmlPrevia(dados, clausulas) {
+    const l = dados.locador || {};
+    const lt = dados.locatario || {};
+    const numContrato = dados.numContrato || 'Nº 2026/01';
+    const dataElab = dados.dataElaboracao ? formatarData(dados.dataElaboracao) : 'Data não informada';
+
+    const alertas = [];
+    if (!l.nome) alertas.push('Nome do Locador não informado.');
+    if (!lt.nome) alertas.push('Nome do Locatário não informado.');
+
+    const blocoAlerta = alertas.length
+        ? `<div class="doc-alerta"><strong>Atenção na conferência:</strong> ${escaparHtml(alertas.join(' '))}</div>`
+        : '';
+
+    const qualificacaoLocador = `<strong>LOCADOR(A) / PROPRIETÁRIO(A):</strong> ${
+        l.nome ? `<strong>${escaparHtml(l.nome)}</strong>` : '<em>Não informado</em>'
+    }, nacionalidade ${escaparHtml(l.nacionalidade || 'brasileiro(a)')}, estado civil ${
+        escaparHtml(l.estadoCivil || 'não informado')
+    }, profissão ${escaparHtml(l.profissao || 'não informada')}, portador(a) do RG nº ${
+        escaparHtml(l.rg || 'não informado')
+    } e inscrito(a) no CPF sob o nº ${
+        l.cpf ? `<strong>${escaparHtml(l.cpf)}</strong>` : '<em>NÃO INFORMADO</em>'
+    }, residente e domiciliado(a) em ${
+        escaparHtml(l.endereco || 'endereço não informado')
+    }, telefone ${escaparHtml(l.telefone || 'não informado')} e e-mail ${
+        escaparHtml(l.email || 'não informado')
+    }.`;
+
+    const qualificacaoLocatario = `<strong>LOCATÁRIO(A) / INQUILINO(A):</strong> ${
+        lt.nome ? `<strong>${escaparHtml(lt.nome)}</strong>` : '<em>Não informado</em>'
+    }, nacionalidade ${escaparHtml(lt.nacionalidade || 'brasileiro(a)')}, estado civil ${
+        escaparHtml(lt.estadoCivil || 'não informado')
+    }, profissão ${escaparHtml(lt.profissao || 'não informada')}, portador(a) do RG nº ${
+        lt.rg || 'não informado'
+    } e inscrito(a) no CPF sob o nº ${
+        lt.cpf ? `<strong>${escaparHtml(lt.cpf)}</strong>` : '<em>NÃO INFORMADO</em>'
+    }, residente e domiciliado(a) em ${
+        lt.endereco || 'endereço não informado'
+    }, telefone ${escaparHtml(lt.telefone || 'não informado')} e e-mail ${
+        lt.email || 'não informado'
+    }.`;
+
+    return `
+        ${blocoAlerta}
+        <div class="doc-cabecalho-titulo">Contrato de Locação de Imóvel</div>
+
+        <div class="doc-meta-esquerda">
+            <div><strong>Nº: ${escaparHtml(numContrato)}</strong></div>
+            <div><strong>Data:</strong> ${escaparHtml(dataElab)}</div>
+        </div>
+
+        <hr class="doc-divisor" />
+
+        <div class="doc-lei-centralizada">
+            Este contrato segue as normas da Lei do Inquilinato (Lei nº 8.245/91) e demais disposições do Código Civil Brasileiro.<br />
+            Para consulta das partes, acesse: www.contratos-aluguel.com.br/consulta<br />
+            <strong>IMPORTANTE:</strong> Este documento deverá ser autenticado em cartório para ter validade jurídica plena.
+        </div>
+
+        <hr class="doc-divisor" />
+
+        <div class="doc-secao-titulo">1. Qualificação das Partes</div>
+        <p class="doc-texto-justificado">${qualificacaoLocador}</p>
+        <p class="doc-texto-justificado">${qualificacaoLocatario}</p>
+    `;
+}
 
 function gerarPrevia() {
     const dados = getDadosFormulario();
     const clausulas = getClausulasMarcadas();
-    const texto = montarContrato(dados, clausulas);
     const previaDiv = document.getElementById('previa');
     if (previaDiv) {
-        previaDiv.textContent = texto;
+        previaDiv.innerHTML = montarHtmlPrevia(dados, clausulas);
         previaDiv.classList.add('visivel');
         previaDiv.scrollIntoView({ behavior: 'smooth' });
         mostrarMensagem('✓ Prévia gerada!', 'success');
     }
 }
-
 function gerarPDF() {
     const loading = document.getElementById('loading');
     if (loading) loading.classList.add('ativo');
