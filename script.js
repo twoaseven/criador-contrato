@@ -884,8 +884,17 @@ function valorPorExtenso(valor) {
 }
 
 // ============================================================
+// ============================================================
 // 13. GERAR PRÉVIA E PDF
 // ============================================================
+function escaparHtml(texto) {
+    return String(texto || '')
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"');
+}
+
 function montarContrato(dados, clausulas) {
     const l = dados.locador;
     const lt = dados.locatario;
@@ -895,6 +904,7 @@ function montarContrato(dados, clausulas) {
     const g = dados.garantia;
     const m = dados.multas;
     const v = dados.vistoria;
+
     const numContrato = dados.numContrato || 'NÃO INFORMADO';
     const dataElab = dados.dataElaboracao ? formatarData(dados.dataElaboracao) : 'Data não informada';
     const prazo = dados.prazoContrato || '12';
@@ -903,214 +913,19 @@ function montarContrato(dados, clausulas) {
     const foro = dados.foroCidade || 'São Paulo';
     const inicioFormatado = i.inicio ? formatarData(i.inicio) : 'a definir';
     const fimFormatado = i.fim ? formatarData(i.fim) : 'a definir';
+    const obsAcordo = (document.getElementById('observacoesAcordoPartes')?.value || '').trim();
 
-    let texto = '';
-    texto += ' '.repeat(55) + 'CONTRATO DE LOCAÇÃO DE IMÓVEL\n';
-    texto += ' '.repeat(60) + 'Nº: ' + numContrato + '\n';
-    texto += ' '.repeat(62) + dataElab + '\n\n';
-    texto += '='.repeat(80) + '\n\n';
-    texto += 'Este contrato segue as normas da Lei do Inquilinato (Lei nº 8.245/91) e demais disposições do Código Civil Brasileiro.\n';
-    texto += 'Para consulta das partes, acesse: www.contratos-aluguel.com.br/consulta\n\n';
-    texto += 'IMPORTANTE: Este documento deverá ser autenticado em cartório para ter validade jurídica plena.\n\n';
-    texto += '='.repeat(80) + '\n\n';
+    let html = `
+        <div class="doc-titulo">CONTRATO DE LOCAÇÃO DE IMÓVEL</div>
 
-    texto += '1. QUALIFICAÇÃO DAS PARTES\n\n';
-    texto += 'LOCADOR (PROPRIETÁRIO):\n';
-    texto += `Nome: ${l.nome || 'NÃO INFORMADO'}\n`;
-    if (l.nacionalidade) texto += `Nacionalidade: ${l.nacionalidade}\n`;
-    if (l.estadoCivil) texto += `Estado Civil: ${l.estadoCivil}\n`;
-    if (l.profissao) texto += `Profissão: ${l.profissao}\n`;
-    texto += `RG: ${l.rg || 'NÃO INFORMADO'}\n`;
-    texto += `CPF: ${l.cpf || 'NÃO INFORMADO'}\n`;
-    texto += `Endereço: ${l.endereco || 'NÃO INFORMADO'}\n`;
-    if (l.telefone) texto += `Telefone: ${l.telefone}\n`;
-    if (l.email) texto += `E-mail: ${l.email}\n\n`;
-
-    texto += 'LOCATÁRIO (INQUILINO):\n';
-    texto += `Nome: ${lt.nome || 'NÃO INFORMADO'}\n`;
-    if (lt.nacionalidade) texto += `Nacionalidade: ${lt.nacionalidade}\n`;
-    if (lt.estadoCivil) texto += `Estado Civil: ${lt.estadoCivil}\n`;
-    if (lt.profissao) texto += `Profissão: ${lt.profissao}\n`;
-    texto += `RG: ${lt.rg || 'NÃO INFORMADO'}\n`;
-    texto += `CPF: ${lt.cpf || 'NÃO INFORMADO'}\n`;
-    texto += `Endereço: ${lt.endereco || 'NÃO INFORMADO'}\n`;
-    if (lt.telefone) texto += `Telefone: ${lt.telefone}\n`;
-    if (lt.email) texto += `E-mail: ${lt.email}\n\n`;
-
-    if (f && f.nome) {
-        texto += 'FIADOR:\n';
-        texto += `Nome: ${f.nome}\n`;
-        if (f.nacionalidade) texto += `Nacionalidade: ${f.nacionalidade}\n`;
-        if (f.estadoCivil) texto += `Estado Civil: ${f.estadoCivil}\n`;
-        if (f.profissao) texto += `Profissão: ${f.profissao}\n`;
-        texto += `RG: ${f.rg || 'NÃO INFORMADO'}\n`;
-        texto += `CPF: ${f.cpf || 'NÃO INFORMADO'}\n`;
-        texto += `Endereço: ${f.endereco || 'NÃO INFORMADO'}\n`;
-        if (f.telefone) texto += `Telefone: ${f.telefone}\n`;
-        if (f.email) texto += `E-mail: ${f.email}\n`;
-        if (f.conjugeNome) {
-            texto += `Cônjuge: ${f.conjugeNome}, CPF: ${f.conjugeCpf || 'N/A'}, RG: ${f.conjugeRg || 'N/A'}\n`;
-        }
-        texto += '\n';
-    }
-
-    texto += '='.repeat(80) + '\n\n';
-    texto += '2. OBJETO DO CONTRATO\n\n';
-    texto += `Endereço do Imóvel: ${i.endereco || 'NÃO INFORMADO'}\n`;
-    if (i.registro) texto += `Registro no Cartório de Imóveis: ${i.registro}\n`;
-    if (i.cartorio) texto += `Cartório de Registro de Imóveis: ${i.cartorio}\n`;
-    if (i.inscricaoMunicipal) texto += `Inscrição Municipal / IPTU: ${i.inscricaoMunicipal}\n`;
-    if (i.tipo) texto += `Tipo: ${i.tipo}\n`;
-    if (i.destinacao) texto += `Destinação: ${i.destinacao}\n`;
-    if (i.quartos) texto += `Quartos: ${i.quartos}\n`;
-    if (i.banheiros) texto += `Banheiros: ${i.banheiros}\n`;
-    if (i.vagas) texto += `Vagas de Garagem: ${i.vagas}\n`;
-    if (i.metragem) texto += `Metragem Total: ${i.metragem} m²\n`;
-    if (i.areaPrivativa) texto += `Área Privativa: ${i.areaPrivativa} m²\n`;
-    if (i.areaComum) texto += `Área Comum: ${i.areaComum} m²\n`;
-    if (i.caracteristicas) texto += `Características: ${i.caracteristicas}\n\n`;
-    texto += 'O imóvel destina-se exclusivamente ao uso ' + (i.destinacao ? i.destinacao.toLowerCase() : 'residencial') + '.\n\n';
-
-    texto += '='.repeat(80) + '\n\n';
-    texto += '3. PRAZO DA LOCAÇÃO\n\n';
-    texto += `Data de Início: ${inicioFormatado}\n`;
-    texto += `Data de Término: ${fimFormatado}\n`;
-    texto += `Prazo: ${prazo} (${prazoExtenso}) meses\n`;
-    texto += `Renovação: ${i.renovacao === 'sim' ? 'Automática' : 'Dependerá de termo aditivo'}\n\n`;
-
-    texto += '='.repeat(80) + '\n\n';
-    texto += '4. VALOR, FORMA DE PAGAMENTO E REAJUSTE\n\n';
-    texto += `Valor do Aluguel: R$ ${i.valor || '0,00'} (${valorExtenso})\n`;
-    texto += `Dia de Vencimento: Dia ${i.vencimento || '5'} de cada mês\n`;
-    texto += `Forma de Pagamento: ${i.pagamento || 'PIX'}\n`;
-    texto += `Índice de Reajuste: ${i.indice || 'IPCA'}\n`;
-    texto += `Periodicidade do Reajuste: A cada ${i.periodicidade || '12'} meses\n\n`;
-
-    texto += '='.repeat(80) + '\n\n';
-    texto += '5. ENCARGOS E TRIBUTOS\n\n';
-    texto += `IPTU: ${e.iptu || 'Locador'}\n`;
-    texto += `Condomínio: ${e.condominio || 'Locatário'}\n`;
-    texto += `Água: ${e.agua || 'Locatário'}\n`;
-    texto += `Luz: ${e.luz || 'Locatário'}\n`;
-    texto += `Gás: ${e.gas || 'Locatário'}\n`;
-    texto += `Seguro Incêndio: ${e.seguro || 'Locador'}\n\n`;
-
-    texto += '='.repeat(80) + '\n\n';
-    texto += '6. GARANTIAS LOCATÍCIAS\n\n';
-    texto += `Modalidade: ${g.modalidade || 'Fiança'}\n`;
-    if (g.modalidade === 'Caução' && g.cauçãoValor) {
-        texto += `Valor da Caução: R$ ${g.cauçãoValor}\n`;
-    }
-    if (g.modalidade === 'Seguro Fiança') {
-        if (g.seguradora) texto += `Seguradora: ${g.seguradora}\n`;
-        if (g.apolice) texto += `Apólice nº: ${g.apolice}\n`;
-    }
-    texto += '\n';
-
-    texto += '='.repeat(80) + '\n\n';
-    texto += '7. MULTAS E RESCISÃO\n\n';
-    texto += `Multa por Atraso: ${m.atraso || '2'}%\n`;
-    texto += `Juros de Mora: ${m.juros || '1'}% ao mês\n`;
-    texto += `Multa Rescisória: ${m.rescisoria || '3'} meses\n\n`;
-
-    texto += '='.repeat(80) + '\n\n';
-    texto += '8. VISTORIA\n\n';
-    texto += 'O Laudo de Vistoria Inicial é parte integrante deste contrato.\n';
-    if (v.data) texto += `Data da Vistoria: ${formatarData(v.data)}\n`;
-    texto += `Laudo: ${v.laudo === 'sim' ? 'Será anexado' : 'Será realizado posteriormente'}\n`;
-    if (v.observacoes) texto += `Observações: ${v.observacoes}\n\n`;
-
-    texto += '='.repeat(80) + '\n\n';
-    if (clausulas.length > 0) {
-        texto += 'CLÁUSULAS ADICIONAIS:\n\n';
-        clausulas.forEach((c, idx) => {
-            texto += `Cláusula ${idx+1}: ${c.descricao}\n`;
-            texto += `${c.texto}\n\n`;
-        });
-        texto += '='.repeat(80) + '\n\n';
-    }
-
-    texto += 'Estando assim justos e contratados, firmam o presente instrumento em 2 (duas) vias.\n\n';
-    texto += `${foro}, ${dataElab}\n\n`;
-    texto += '___________________________________________\n';
-    texto += 'Assinatura do LOCADOR\n\n';
-    texto += '___________________________________________\n';
-    texto += 'Assinatura do LOCATÁRIO\n\n';
-    if (f && f.nome) {
-        texto += '___________________________________________\n';
-        texto += 'Assinatura do FIADOR\n\n';
-    }
-    texto += '___________________________________________\n';
-    texto += '1ª Testemunha\n\n';
-    texto += '___________________________________________\n';
-    texto += '2ª Testemunha\n\n';
-    texto += '='.repeat(80) + '\n';
-    texto += 'Documento elaborado em conformidade com a Lei nº 8.245/91.\n';
-
-    return texto;
-}
-function escaparHtml(texto) {
-    return String(texto || '')
-        .replace(/&/g, '&')
-        .replace(/</g, '<')
-        .replace(/>/g, '>')
-        .replace(/"/g, '"');
-}
-
-function montarHtmlPrevia(dados, clausulas) {
-    const l = dados.locador || {};
-    const lt = dados.locatario || {};
-    const numContrato = dados.numContrato || 'Nº 2026/01';
-    const dataElab = dados.dataElaboracao ? formatarData(dados.dataElaboracao) : 'Data não informada';
-
-    const alertas = [];
-    if (!l.nome) alertas.push('Nome do Locador não informado.');
-    if (!lt.nome) alertas.push('Nome do Locatário não informado.');
-
-    const blocoAlerta = alertas.length
-        ? `<div class="doc-alerta"><strong>Atenção na conferência:</strong> ${escaparHtml(alertas.join(' '))}</div>`
-        : '';
-
-    const qualificacaoLocador = `<strong>LOCADOR(A) / PROPRIETÁRIO(A):</strong> ${
-        l.nome ? `<strong>${escaparHtml(l.nome)}</strong>` : '<em>Não informado</em>'
-    }, nacionalidade ${escaparHtml(l.nacionalidade || 'brasileiro(a)')}, estado civil ${
-        escaparHtml(l.estadoCivil || 'não informado')
-    }, profissão ${escaparHtml(l.profissao || 'não informada')}, portador(a) do RG nº ${
-        escaparHtml(l.rg || 'não informado')
-    } e inscrito(a) no CPF sob o nº ${
-        l.cpf ? `<strong>${escaparHtml(l.cpf)}</strong>` : '<em>NÃO INFORMADO</em>'
-    }, residente e domiciliado(a) em ${
-        escaparHtml(l.endereco || 'endereço não informado')
-    }, telefone ${escaparHtml(l.telefone || 'não informado')} e e-mail ${
-        escaparHtml(l.email || 'não informado')
-    }.`;
-
-    const qualificacaoLocatario = `<strong>LOCATÁRIO(A) / INQUILINO(A):</strong> ${
-        lt.nome ? `<strong>${escaparHtml(lt.nome)}</strong>` : '<em>Não informado</em>'
-    }, nacionalidade ${escaparHtml(lt.nacionalidade || 'brasileiro(a)')}, estado civil ${
-        escaparHtml(lt.estadoCivil || 'não informado')
-    }, profissão ${escaparHtml(lt.profissao || 'não informada')}, portador(a) do RG nº ${
-        lt.rg || 'não informado'
-    } e inscrito(a) no CPF sob o nº ${
-        lt.cpf ? `<strong>${escaparHtml(lt.cpf)}</strong>` : '<em>NÃO INFORMADO</em>'
-    }, residente e domiciliado(a) em ${
-        lt.endereco || 'endereço não informado'
-    }, telefone ${escaparHtml(lt.telefone || 'não informado')} e e-mail ${
-        lt.email || 'não informado'
-    }.`;
-
-    return `
-        ${blocoAlerta}
-        <div class="doc-cabecalho-titulo">Contrato de Locação de Imóvel</div>
-
-        <div class="doc-meta-esquerda">
-            <div><strong>Nº: ${escaparHtml(numContrato)}</strong></div>
+        <div class="doc-meta">
+            <div><strong>Nº:</strong> ${escaparHtml(numContrato)}</div>
             <div><strong>Data:</strong> ${escaparHtml(dataElab)}</div>
         </div>
 
         <hr class="doc-divisor" />
 
-        <div class="doc-lei-centralizada">
+        <div class="doc-lei">
             Este contrato segue as normas da Lei do Inquilinato (Lei nº 8.245/91) e demais disposições do Código Civil Brasileiro.<br />
             Para consulta das partes, acesse: www.contratos-aluguel.com.br/consulta<br />
             <strong>IMPORTANTE:</strong> Este documento deverá ser autenticado em cartório para ter validade jurídica plena.
@@ -1118,23 +933,168 @@ function montarHtmlPrevia(dados, clausulas) {
 
         <hr class="doc-divisor" />
 
-        <div class="doc-secao-titulo">1. Qualificação das Partes</div>
-        <p class="doc-texto-justificado">${qualificacaoLocador}</p>
-        <p class="doc-texto-justificado">${qualificacaoLocatario}</p>
+        <div class="doc-secao">1. QUALIFICAÇÃO DAS PARTES</div>
+        <p class="doc-paragrafo">
+            <strong>LOCADOR (PROPRIETÁRIO):</strong> ${escaparHtml(l.nome || 'NÃO INFORMADO')},
+            nacionalidade ${escaparHtml(l.nacionalidade)}, estado civil ${escaparHtml(l.estadoCivil)},
+            profissão ${escaparHtml(l.profissao)}, portador(a) do RG nº ${escaparHtml(l.rg)} e
+            inscrito(a) no CPF sob o nº ${escaparHtml(l.cpf || 'NÃO INFORMADO')}, residente e domiciliado(a) em
+            ${escaparHtml(l.endereco)}, telefone ${escaparHtml(l.telefone)} e e-mail ${escaparHtml(l.email)}.
+        </p>
+        <p class="doc-paragrafo">
+            <strong>LOCATÁRIO (INQUILINO):</strong> ${escaparHtml(lt.nome || 'NÃO INFORMADO')},
+            nacionalidade ${escaparHtml(lt.nacionalidade)}, estado civil ${escaparHtml(lt.estadoCivil)},
+            profissão ${escaparHtml(lt.profissao)}, portador(a) do RG nº ${escaparHtml(lt.rg)} e
+            inscrito(a) no CPF sob o nº ${escaparHtml(lt.cpf || 'NÃO INFORMADO')}, residente e domiciliado(a) em
+            ${escaparHtml(lt.endereco)}, telefone ${escaparHtml(lt.telefone)} e e-mail ${escaparHtml(lt.email)}.
+        </p>
     `;
+
+    if (f && f.nome) {
+        html += `
+        <p class="doc-paragrafo">
+            <strong>FIADOR:</strong> ${escaparHtml(f.nome)},
+            nacionalidade ${escaparHtml(f.nacionalidade)}, estado civil ${escaparHtml(f.estadoCivil)},
+            profissão ${escaparHtml(f.profissao)}, portador(a) do RG nº ${escaparHtml(f.rg)} e
+            inscrito(a) no CPF sob o nº ${escaparHtml(f.cpf)}, residente e domiciliado(a) em
+            ${escaparHtml(f.endereco)}, telefone ${escaparHtml(f.telefone)} e e-mail ${escaparHtml(f.email)}${
+                f.conjugeNome
+                    ? `, com anuência de seu cônjuge ${escaparHtml(f.conjugeNome)}, CPF nº ${escaparHtml(f.conjugeCpf || 'N/A')}, RG nº ${escaparHtml(f.conjugeRg || 'N/A')}`
+                    : ''
+            }.
+        </p>`;
+    }
+
+    const detalhesImovel = [
+        i.registro ? `Registro no Cartório de Imóveis: ${escaparHtml(i.registro)}` : '',
+        i.cartorio ? `Cartório: ${escaparHtml(i.cartorio)}` : '',
+        i.inscricaoMunicipal ? `Inscrição Municipal / IPTU: ${escaparHtml(i.inscricaoMunicipal)}` : '',
+        i.tipo ? `Tipo: ${escaparHtml(i.tipo)}` : '',
+        i.destinacao ? `Destinação: ${escaparHtml(i.destinacao)}` : '',
+        i.quartos ? `Quartos: ${escaparHtml(i.quartos)}` : '',
+        i.banheiros ? `Banheiros: ${escaparHtml(i.banheiros)}` : '',
+        i.vagas ? `Vagas de Garagem: ${escaparHtml(i.vagas)}` : '',
+        i.metragem ? `Metragem Total: ${escaparHtml(i.metragem)} m²` : '',
+        i.areaPrivativa ? `Área Privativa: ${escaparHtml(i.areaPrivativa)} m²` : '',
+        i.areaComum ? `Área Comum: ${escaparHtml(i.areaComum)} m²` : '',
+        i.caracteristicas ? `Características: ${escaparHtml(i.caracteristicas)}` : ''
+    ].filter(Boolean).join('; ');
+
+    html += `
+        <hr class="doc-divisor" />
+        <div class="doc-secao">2. OBJETO DO CONTRATO</div>
+        <p class="doc-paragrafo">
+            O presente contrato tem como objeto a locação do imóvel situado em <strong>${escaparHtml(i.endereco || 'NÃO INFORMADO')}</strong>${
+                detalhesImovel ? ` (${detalhesImovel})` : ''
+            }. O imóvel destina-se exclusivamente ao uso <strong>${escaparHtml(i.destinacao ? i.destinacao.toLowerCase() : 'residencial')}</strong>.
+        </p>
+
+        <hr class="doc-divisor" />
+        <div class="doc-secao">3. PRAZO DA LOCAÇÃO</div>
+        <p class="doc-paragrafo">
+            O prazo da presente locação é de <strong>${escaparHtml(prazo)} (${escaparHtml(prazoExtenso)}) meses</strong>,
+            iniciando-se em <strong>${escaparHtml(inicioFormatado)}</strong> e terminando em <strong>${escaparHtml(fimFormatado)}</strong>.
+            Renovação: ${i.renovacao === 'sim' ? 'Automática, salvo manifestação contrária das partes' : 'Dependerá de termo aditivo firmado entre as partes'}.
+        </p>
+
+        <hr class="doc-divisor" />
+        <div class="doc-secao">4. VALOR, FORMA DE PAGAMENTO E REAJUSTE</div>
+        <p class="doc-paragrafo">
+            O valor mensal do aluguel convencionado é de <strong>R$ ${escaparHtml(i.valor || '0,00')} (${escaparHtml(valorExtenso)})</strong>,
+            com vencimento todo <strong>dia ${escaparHtml(i.vencimento || '5')}</strong> de cada mês, a ser pago mediante
+            <strong>${escaparHtml(i.pagamento || 'PIX')}</strong>. O valor será reajustado a cada
+            <strong>${escaparHtml(i.periodicidade || '12')} meses</strong> pelo índice <strong>${escaparHtml(i.indice || 'IPCA')}</strong>.
+        </p>
+
+        <hr class="doc-divisor" />
+        <div class="doc-secao">5. ENCARGOS E TRIBUTOS</div>
+        <p class="doc-paragrafo">
+            Ficam definidas as seguintes responsabilidades sobre os encargos incidentes no imóvel:
+            <strong>IPTU:</strong> ${escaparHtml(e.iptu || 'Locador')};
+            <strong>Condomínio:</strong> ${escaparHtml(e.condominio || 'Locatário')};
+            <strong>Água:</strong> ${escaparHtml(e.agua || 'Locatário')};
+            <strong>Luz / Energia Elétrica:</strong> ${escaparHtml(e.luz || 'Locatário')};
+            <strong>Gás:</strong> ${escaparHtml(e.gas || 'Locatário')};
+            <strong>Seguro Incêndio:</strong> ${escaparHtml(e.seguro || 'Locador')}.
+        </p>
+
+        <hr class="doc-divisor" />
+        <div class="doc-secao">6. GARANTIAS LOCATÍCIAS</div>
+        <p class="doc-paragrafo">
+            Modalidade de garantia escolhida: <strong>${escaparHtml(g.modalidade || 'Fiança')}</strong>${
+                g.modalidade === 'Caução' && g.cauçãoValor ? `, no valor de R$ ${escaparHtml(g.cauçãoValor)}` : ''
+            }${
+                g.modalidade === 'Seguro Fiança'
+                    ? `${g.seguradora ? `, Seguradora: ${escaparHtml(g.seguradora)}` : ''}${g.apolice ? `, Apólice nº ${escaparHtml(g.apolice)}` : ''}`
+                    : ''
+            }.
+        </p>
+
+        <hr class="doc-divisor" />
+        <div class="doc-secao">7. MULTAS E RESCISÃO</div>
+        <p class="doc-paragrafo">
+            Em caso de atraso no pagamento, incidirá multa moratória de <strong>${escaparHtml(m.atraso || '2')}%</strong>,
+            acrescida de juros de mora de <strong>${escaparHtml(m.juros || '1')}% ao mês</strong>. Em caso de rescisão antecipada,
+            aplicar-se-á multa rescisória proporcional equivalente a <strong>${escaparHtml(m.rescisoria || '3')} meses</strong> de aluguel.
+        </p>
+
+        <hr class="doc-divisor" />
+        <div class="doc-secao">8. VISTORIA</div>
+        <p class="doc-paragrafo">
+            O Laudo de Vistoria Inicial é parte integrante deste contrato${
+                v.data ? `, realizado em ${escaparHtml(formatarData(v.data))}` : ''
+            } (${v.laudo === 'sim' ? 'anexado ao instrumento' : 'a ser realizado e anexado posteriormente'}).${
+                v.observacoes ? ` Observações da vistoria: ${escaparHtml(v.observacoes)}.` : ''
+            }
+        </p>
+    `;
+
+    if (clausulas.length > 0 || obsAcordo) {
+        html += `<hr class="doc-divisor" /><div class="doc-secao">9. CLÁUSULAS ADICIONAIS E ACORDOS</div>`;
+        clausulas.forEach((c, idx) => {
+            html += `<p class="doc-paragrafo"><strong>Cláusula ${idx + 1} (${escaparHtml(c.descricao)}):</strong> ${escaparHtml(c.texto)}</p>`;
+        });
+        if (obsAcordo) {
+            html += `<p class="doc-paragrafo"><strong>Acordo / Observação entre as Partes:</strong> ${escaparHtml(obsAcordo)}</p>`;
+        }
+    }
+
+    html += `
+        <hr class="doc-divisor" />
+        <p class="doc-fechamento">
+            Estando assim justos e contratados, firmam o presente instrumento em 2 (duas) vias de igual teor e forma, na presença de 2 (duas) testemunhas, elegendo o foro da comarca de <strong>${escaparHtml(foro)}</strong> para dirimir quaisquer dúvidas oriundas deste contrato.
+        </p>
+
+        <div class="doc-local-data">${escaparHtml(foro)}, ${escaparHtml(dataElab)}.</div>
+
+        <div class="doc-assinaturas">
+            <div class="doc-assinatura-item">Assinatura do LOCADOR</div>
+            <div class="doc-assinatura-item">Assinatura do LOCATÁRIO</div>
+            ${f && f.nome ? '<div class="doc-assinatura-item">Assinatura do FIADOR</div>' : ''}
+            <div class="doc-assinatura-item">1ª Testemunha</div>
+            <div class="doc-assinatura-item">2ª Testemunha</div>
+        </div>
+
+        <hr class="doc-divisor" />
+        <div class="doc-rodape-lei">Documento elaborado em conformidade com a Lei nº 8.245/91.</div>
+    `;
+
+    return html;
 }
 
 function gerarPrevia() {
     const dados = getDadosFormulario();
     const clausulas = getClausulasMarcadas();
+    const htmlContrato = montarContrato(dados, clausulas);
     const previaDiv = document.getElementById('previa');
     if (previaDiv) {
-        previaDiv.innerHTML = montarHtmlPrevia(dados, clausulas);
+        previaDiv.innerHTML = htmlContrato;
         previaDiv.classList.add('visivel');
         previaDiv.scrollIntoView({ behavior: 'smooth' });
         mostrarMensagem('✓ Prévia gerada!', 'success');
     }
 }
+
 function gerarPDF() {
     const loading = document.getElementById('loading');
     if (loading) loading.classList.add('ativo');
@@ -1165,10 +1125,10 @@ function gerarPDF() {
                 return;
             }
 
-            const textoContrato = montarContrato(dados, clausulas);
+            const htmlContrato = montarContrato(dados, clausulas);
             const elementoPrevia = document.querySelector('.previa');
             if (elementoPrevia) {
-                elementoPrevia.innerText = textoContrato;
+                elementoPrevia.innerHTML = htmlContrato;
                 elementoPrevia.classList.add('visivel');
             }
 
@@ -1183,7 +1143,6 @@ function gerarPDF() {
         }
     }, 300);
 }
-
 // ============================================================
 // 14. GERENCIADOR
 // ============================================================
