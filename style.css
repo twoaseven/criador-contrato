@@ -545,7 +545,18 @@ footer span {
     footer {
         display: none !important;
     }
+html,
+    body {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #111827 !important;
+        overflow: visible !important;
 
+        
     /* Remove qualquer espaço ou altura de blocos não imprimíveis */
     body > *:not(.container):not(#previa),
     .container > *:not(#previa):not(.previa),
@@ -570,6 +581,7 @@ footer span {
     .modal,
     footer,
     header,
+        
     nav {
         display: none !important;
         height: 0 !important;
@@ -579,19 +591,6 @@ footer span {
         padding: 0 !important;
         border: 0 !important;
         overflow: hidden !important;
-    }
-
-    
-    html,
-    body {
-        width: 100% !important;
-        height: auto !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #ffffff !important;
-        color: #111827 !important;
-        overflow: visible !important;
     }
 
     .container {
