@@ -30,13 +30,6 @@ h4,
 label {
     color: var(--text-primary);
 }
-```[span_6](start_span)[span_6](end_span)
-
-Dessa forma, se amanhã você quiser testar outro tom para os títulos e rótulos, altera só a linha `--text-primary` no `:root` e pronto[span_7](start_span)[span_7](end_span).
-
-Ficou claro esse controle centralizado? E quando você quiser, já partimos para aquele ajuste da **data** no contrato.
-
-
 
 .container {
     width: 100%;
