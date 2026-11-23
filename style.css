@@ -493,33 +493,71 @@ footer span {
     .busca .btn-buscar { width: 100%; }
     .previa { padding: 16px; }
 }
-  /* ===========================================================
+/* ============================================================
    IMPRESSÃO / PDF: SOMENTE O CONTRATO OFICIAL
    ============================================================ */
 @media print {
     @page {
+        size: A4;
         margin: 14mm;
+    }
+
+    /* Esconde tudo que não é o contrato */
+    body > *:not(#previa):not(.container),
+    .container > *:not(#previa):not(.previa),
+    .container form,
+    .container .form-row,
+    .container .form-group,
+    .container .busca,
+    .container .clausulas-grid,
+    .container .cadastro-clausula,
+    .container .info-box,
+    .container .secao-destaque,
+    .container .botoes,
+    .container .acoes-container,
+    .container .nav-container,
+    .container button,
+    .container .btn-acao,
+    .container .btn-voltar,
+    .container h1,
+    .container h2,
+    .container h3,
+    .container h4,
+    .container .status-db,
+    .container #loading,
+    .container .loading,
+    .container .modal,
+    .container footer,
+    header,
+    nav,
+    footer {
+        display: none !important;
     }
 
     html,
     body {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
         background: #ffffff !important;
         color: #111827 !important;
-        height: auto !important;
         overflow: visible !important;
     }
 
-    /* Esconde visualmente tudo na página na impressão */
-    body * {
-        visibility: hidden !important;
-    }
-
-    /* Exibe apenas a prévia do contrato e seu conteúdo interno */
-    #previa,
-    #previa * {
-        visibility: visible !important;
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        overflow: visible !important;
     }
 
     #previa,
@@ -531,7 +569,7 @@ footer span {
         max-width: 100% !important;
         max-height: none !important;
         height: auto !important;
-        overflow: visible !important;
+        min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
         border: none !important;
@@ -539,6 +577,7 @@ footer span {
         box-shadow: none !important;
         background: #ffffff !important;
         color: #111827 !important;
+        overflow: visible !important;
     }
 
     .doc-secao {
