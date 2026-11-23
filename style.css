@@ -279,7 +279,35 @@ footer span {
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
 }
+/* Centraliza e alinha o bloco do formulário e as linhas de campos */
+.form-section,
+.secao-imovel {
+    max-width: 960px;
+    margin: 0 auto;
+}
 
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.form-group {
+    flex: 1 1 240px;
+    min-width: 200px;
+    max-width: 100%;
+    text-align: left;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
 .cadastro-clausula {
     background: rgba(255, 255, 255, 0.03);
     padding: 15px;
