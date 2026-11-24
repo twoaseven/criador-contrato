@@ -1164,7 +1164,7 @@ function imprimirPreviaLimpa() {
 
     if (!elementoPrevia) {
         alert('⚠️ Área de prévia (#previa) não encontrada na página.');
-        return;
+     //   return;
     }
 
     try {
