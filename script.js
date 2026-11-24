@@ -562,42 +562,44 @@ function getDadosFormulario() {
     const getVal = (id) => {
         const el = document.getElementById(id);
         return el ? el.value.trim() : '';
-    };
+    };                 
     const getSelect = (id) => {
         const el = document.getElementById(id);
         return el ? el.value : '';
     };
     
     return {
-        numContrato: getVal('numContrato'),
-        dataElaboracao: getVal('dataElaboracao'),
-        prazoContrato: getVal('prazoContrato') || '12',
+        numContrato: getVal('numContrato') || 'não informado',
+        dataInicio: getVal('dataInicio') || 'não informado',
+        dataValidade: getVal('dataValidade') || 'não informado',
+        dataElaboracao: getVal('dataElaboracao') || 'não informado',
+        prazoContrato: getVal('prazoContrato') || '12 Meses',
         foroCidade: getVal('foroCidade') || 'São Paulo',
         locador: {
-            nome: getVal('locadorNome'),
+            nome: getVal('locadorNome') || 'não informado',
             nacionalidade: getVal('locadorNacionalidade') || 'brasileiro',
             estadoCivil: getSelect('locadorEstadoCivil') || 'solteiro',
             profissao: getVal('locadorProfissao') || 'não informada',
             rg: getVal('locadorRg') || 'não informado',
-            cpf: getVal('locadorCpf'),
+            cpf: getVal('locadorCpf') || 'não informado',
             endereco: getVal('locadorEnd') || 'não informado',
             telefone: getVal('locadorTel') || 'não informado',
             email: getVal('locadorEmail') || 'não informado'
         },
         locatario: {
-            nome: getVal('locatarioNome'),
-            nacionalidade: getVal('locatarioNacionalidade') || 'brasileiro',
-            estadoCivil: getSelect('locatarioEstadoCivil') || 'solteiro',
+            nome: getVal('locatarioNome') || 'não informado',
+            nacionalidade: getVal('locatarioNacionalidade') || 'não informado',
+            estadoCivil: getSelect('locatarioEstadoCivil') || 'não informado',
             profissao: getVal('locatarioProfissao') || 'não informada',
             rg: getVal('locatarioRg') || 'não informado',
-            cpf: getVal('locatarioCpf'),
+            cpf: getVal('locatarioCpf') || 'não informado',
             endereco: getVal('locatarioEnd') || 'não informado',
             telefone: getVal('locatarioTel') || 'não informado',
             email: getVal('locatarioEmail') || 'não informado'
         },
         fiador: {
-            nome: getVal('fiadorNome'),
-            nacionalidade: getVal('fiadorNacionalidade') || 'brasileiro',
+            nome: getVal('fiadorNome') || 'não informado',
+            nacionalidade: getVal('fiadorNacionalidade') || 'não informado',
             estadoCivil: getSelect('fiadorEstadoCivil') || 'solteiro',
             profissao: getVal('fiadorProfissao') || 'não informada',
             rg: getVal('fiadorRg') || 'não informado',
@@ -642,7 +644,7 @@ function getDadosFormulario() {
         },
         garantia: {
             modalidade: getSelect('garantiaModalidade'),
-            cauçãoValor: getVal('caucaoValor'),
+            caucaoValor: getVal('caucaoValor'),
             seguradora: getVal('seguroSeguradora'),
             apolice: getVal('seguroApolice')
         },
