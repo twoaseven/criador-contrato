@@ -1087,19 +1087,6 @@ function montarContrato(dados, clausulas) {
     return html;
 }
 
-//function gerarPrevia() {
-  //  const dados = getDadosFormulario();
-    //const clausulas = getClausulasMarcadas();
-    //const htmlContrato = montarContrato(dados, clausulas);
-    //const previaDiv = document.getElementById('previa');
-    //if (previaDiv) {
-       // previaDiv.innerHTML = htmlContrato;
-       // previaDiv.classList.add('visivel');
-       // previaDiv.scrollIntoView({ behavior: 'smooth' });
-        //mostrarMensagem('✓ Prévia gerada!', 'success');
-   // }
-//}
-
 function gerarPrevia() {
     const previaDiv = document.getElementById('previa') || document.querySelector('.previa');
     const areaImprimir = document.getElementById('acaoImprimirPrevia');
