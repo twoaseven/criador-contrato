@@ -1158,9 +1158,9 @@ function imprimirPreviaLimpa() {
     janelaImpressao.document.close();
 }
 
-//function gerarPDF() {
-   // const loading = document.getElementById('loading');
-   // const elementoPrevia = document.getElementById('previa') || document.querySelector('.previa');
+   function gerarPDF() {
+      const loading = document.getElementById('loading');
+      const elementoPrevia = document.getElementById('previa') || document.querySelector('.previa');
 
     if (!elementoPrevia) {
         alert('⚠️ Área de prévia (#previa) não encontrada na página.');
@@ -1197,7 +1197,8 @@ function imprimirPreviaLimpa() {
                 mostrarMensagem('✅ Janela de impressão / PDF aberta!', 'success');
             }
         }, 150);
-    } catch (error) {
+    }
+    catch (error) {
         console.error('❌ Erro ao imprimir:', error);
         if (loading) loading.classList.remove('ativo');
         alert('❌ Erro ao preparar impressão: ' + error.message);
