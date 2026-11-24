@@ -917,13 +917,34 @@ function montarContrato(dados, clausulas) {
     const inicioFormatado = i.inicio ? formatarData(i.inicio) : 'a definir';
     const fimFormatado = i.fim ? formatarData(i.fim) : 'a definir';
     const obsAcordo = (document.getElementById('observacoesAcordoPartes')?.value || '').trim();
+    const formatarDataSeguro = (valor) => {
+    if (!valor) return '';
+    if (typeof formatarData === 'function') return formatarData(valor);
+    if (valor.includes('-')) {
+        const [ano, mes, dia] = valor.split('-');
+        return `${dia}/${mes}/${ano}`;
+    }
+    return valor;
+};
+
+const inicioValidadeBR = formatarDataSeguro(d.dataInicio);
+const fimValidadeBR = formatarDataSeguro(d.dataValidade);
+
+let textoValidadeContrato = 'Não informada';
+if (inicioValidadeBR && fimValidadeBR) {
+    textoValidadeContrato = `De ${inicioValidadeBR} a ${fimValidadeBR}`;
+} else if (inicioValidadeBR) {
+    textoValidadeContrato = `A partir de ${inicioValidadeBR}`;
+} else if (fimValidadeBR) {
+    textoValidadeContrato = `Até ${fimValidadeBR}`;
+}
 
     let html = `
         <div class="doc-titulo">CONTRATO DE LOCAÇÃO DE IMÓVEL</div>
 
         <div class="doc-meta">
             <div><strong>Nº:</strong> ${escaparHtml(numContrato)}</div>
-            <div><strong>Data:</strong> ${escaparHtml(dataElab)}</div>
+            <div><strong>Validade do Contrato:</strong> ${textoValidadeContrato}</div>
         </div>
 
         <hr class="doc-divisor" />
