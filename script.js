@@ -1087,22 +1087,93 @@ function montarContrato(dados, clausulas) {
     return html;
 }
 
+//function gerarPrevia() {
+  //  const dados = getDadosFormulario();
+    //const clausulas = getClausulasMarcadas();
+    //const htmlContrato = montarContrato(dados, clausulas);
+    //const previaDiv = document.getElementById('previa');
+    //if (previaDiv) {
+       // previaDiv.innerHTML = htmlContrato;
+       // previaDiv.classList.add('visivel');
+       // previaDiv.scrollIntoView({ behavior: 'smooth' });
+        //mostrarMensagem('✓ Prévia gerada!', 'success');
+   // }
+//}
+
 function gerarPrevia() {
-    const dados = getDadosFormulario();
-    const clausulas = getClausulasMarcadas();
-    const htmlContrato = montarContrato(dados, clausulas);
-    const previaDiv = document.getElementById('previa');
-    if (previaDiv) {
-        previaDiv.innerHTML = htmlContrato;
-        previaDiv.classList.add('visivel');
-        previaDiv.scrollIntoView({ behavior: 'smooth' });
+    const previaDiv = document.getElementById('previa') || document.querySelector('.previa');
+    const areaImprimir = document.getElementById('acaoImprimirPrevia');
+    if (!previaDiv) return;
+
+    try {
+        const dados = typeof getDadosFormulario === 'function' ? getDadosFormulario() : {};
+        const clausulas = typeof getClausulasMarcadas === 'function' ? getClausulasMarcadas() : [];
+        previaDiv.innerHTML = montarContrato(dados, clausulas);
+    } catch (err) {
+        console.error('Erro ao montar prévia:', err);
+        previaDiv.innerHTML = montarContrato({}, []);
+    }
+
+    previaDiv.classList.add('visivel');
+    if (areaImprimir) {
+        areaImprimir.style.display = 'flex';
+    }
+
+    previaDiv.scrollIntoView({ behavior: 'smooth' });
+    if (typeof mostrarMensagem === 'function') {
         mostrarMensagem('✓ Prévia gerada!', 'success');
     }
 }
 
-function gerarPDF() {
-    const loading = document.getElementById('loading');
-    const elementoPrevia = document.getElementById('previa') || document.querySelector('.previa');
+function imprimirPreviaLimpa() {
+    const previaDiv = document.getElementById('previa') || document.querySelector('.previa');
+    if (!previaDiv || !previaDiv.classList.contains('visivel') || !previaDiv.innerHTML.trim()) {
+        alert('⚠️ Clique primeiro em "Visualizar Contrato" para gerar a prévia.');
+        return;
+    }
+
+    // Coleta os estilos da página (incluindo .doc-titulo, .doc-meta, .doc-secao, etc.)
+    const estilosAtuais = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+        .map(function (el) { return el.outerHTML; })
+        .join('\n');
+
+    const janelaImpressao = window.open('', '_blank', 'width=900,height=700');
+    if (!janelaImpressao) {
+        alert('⚠️ Permita pop-ups no navegador para abrir a tela de impressão.');
+        return;
+    }
+
+    janelaImpressao.document.open();
+    janelaImpressao.document.write(
+        '<!DOCTYPE html>' +
+        '<html lang="pt-BR">' +
+        '<head>' +
+        '<meta charset="UTF-8">' +
+        '<title>Contrato de Locação</title>' +
+        estilosAtuais +
+        '<style>' +
+        '@page { size: A4; margin: 14mm; }' +
+        'body { background: #ffffff !important; color: #111827 !important; margin: 0 !important; padding: 0 !important; }' +
+        '.container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; background: #ffffff !important; }' +
+        '.previa, #previa { display: block !important; max-height: none !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; border: none !important; box-shadow: none !important; background: #ffffff !important; color: #111827 !important; }' +
+        '</style>' +
+        '</head>' +
+        '<body>' +
+        '<div id="previa" class="previa visivel">' + previaDiv.innerHTML + '</div>' +
+        '<script>' +
+        'window.onload = function() {' +
+        '  setTimeout(function() { window.print(); }, 200);' +
+        '};' +
+        '</script>' +
+        '</body>' +
+        '</html>'
+    );
+    janelaImpressao.document.close();
+}
+
+//function gerarPDF() {
+   // const loading = document.getElementById('loading');
+   // const elementoPrevia = document.getElementById('previa') || document.querySelector('.previa');
 
     if (!elementoPrevia) {
         alert('⚠️ Área de prévia (#previa) não encontrada na página.');
