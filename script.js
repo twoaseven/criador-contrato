@@ -924,12 +924,47 @@ function montarContrato(dados, clausulas) {
         const [ano, mes, dia] = valor.split('-');
         return `${dia}/${mes}/${ano}`;
     }
-    return valor;
-};
 
-const inicioValidadeBR = formatarDataSeguro(d.dataInicio);
-const fimValidadeBR = formatarDataSeguro(d.dataValidade);
+        function calcularDuracaoExtenso(inicioISO, fimISO) {
+    if (!inicioISO || !fimISO) return '';
 
+    const [anoIni, mesIni, diaIni] = inicioISO.split('-').map(Number);
+    const [anoFim, mesFim, diaFim] = fimISO.split('-').map(Number);
+
+    if (!anoIni || !mesIni || !diaIni || !anoFim || !mesFim || !diaFim) return '';
+
+    const dataIni = new Date(anoIni, mesIni - 1, diaIni);
+    const dataFim = new Date(anoFim, mesFim - 1, diaFim);
+
+    if (dataFim < dataIni) return '';
+
+    let anos = anoFim - anoIni;
+    let meses = mesFim - mesIni;
+    let dias = diaFim - diaIni;
+
+    if (dias < 0) {
+        meses -= 1;
+        // Último dia do mês anterior à data final
+        const ultimoDiaMesAnterior = new Date(anoFim, mesFim - 1, 0).getDate();
+        dias += ultimoDiaMesAnterior;
+    }
+
+    if (meses < 0) {
+        anos -= 1;
+        meses += 12;
+    }
+
+    const partes = [];
+    if (anos > 0) partes.push(`${anos} ${anos === 1 ? 'ano' : 'anos'}`);
+    if (meses > 0) partes.push(`${meses} ${meses === 1 ? 'mês' : 'meses'}`);
+    if (dias > 0) partes.push(`${dias} ${dias === 1 ? 'dia' : 'dias'}`);
+
+    if (partes.length === 0) return '0 dias';
+    if (partes.length === 1) return partes[0];
+    if (partes.length === 2) return `${partes[0]} e ${partes[1]}`;
+    return `${partes[0]}, ${partes[1]} e ${partes[2]}`;
+}
+    
 let textoValidadeContrato = 'Não informada';
 if (inicioValidadeBR && fimValidadeBR) {
     textoValidadeContrato = `De ${inicioValidadeBR} a ${fimValidadeBR}`;
@@ -938,6 +973,15 @@ if (inicioValidadeBR && fimValidadeBR) {
 } else if (fimValidadeBR) {
     textoValidadeContrato = `Até ${fimValidadeBR}`;
 }
+
+        
+    return valor;
+};
+
+const inicioValidadeBR = formatarDataSeguro(d.dataInicio);
+const fimValidadeBR = formatarDataSeguro(d.dataValidade);
+const duracaoTexto = calcularDuracaoExtenso(d.dataInicio, d.dataValidade);
+
 
     let html = `
         <div class="doc-titulo">CONTRATO DE LOCAÇÃO DE IMÓVEL</div>
