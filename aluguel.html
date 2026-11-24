@@ -392,8 +392,7 @@
         </div>
 
         <div class="botoes">
-            <button type="button" class="btn-prev" onclick="gerarPrevia()">Visualizar Contrato</button>
-            <button type="button" class="btn-pdf" onclick="gerarPDF()">Imprimir</button>
+            <button type="button" class="btn-prev" onclick="gerarPrevia()">Visualizar Prévia do Contrato</button>
 
         </div>
 
@@ -401,6 +400,10 @@
         
         <!-- PRÉVIA COM VISUAL DE OFÍCIO -->
         <div id="previa" class="previa"></div>
+
+        <div id="acaoImprimirPrevia" class="acao-imprimir-previa" style="display: none;">
+             <button type="button" class="btn-pdf" onclick="imprimirPreviaLimpa()">Imprimir</button>
+        </div>
     </form>
 </div>
 
