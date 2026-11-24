@@ -262,7 +262,12 @@ textarea {
 .previa.visivel {
     display: block;
 }
-
+.acao-imprimir-previa {
+    display: none;
+    justify-content: center;
+    margin-top: 16px;
+    margin-bottom: 24px;
+}
 /* Setor 1: Título Principal */
 .doc-titulo {
     text-align: center;
