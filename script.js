@@ -1008,17 +1008,19 @@ function montarContrato(dados, clausulas) {
         <hr class="doc-divisor" />
 
         <div class="doc-lei">
-            Este contrato segue as normas da Lei do Inquilinato (Lei nº 8.245/91) e demais disposições do Código Civil Brasileiro.<br />
-            Para consulta das partes, acesse: www.contratos-aluguel.com.br/consulta<br />
-            <strong>IMPORTANTE:</strong>
-
-*Autenticação em cartório: Ainda que a assinatura já gere obrigação e seriedade entre as partes, este documento deverá ser 
-autenticado em cartório para reforçar a autenticidade das assinaturas e garantir maior segurança jurídica e força probatória; 
-não deixe de realizar esse passo para proteger o acordo.
-
-*Assessoria jurídica: As partes envolvidas, se quiserem, podem — e é até recomendado — levar este documento para ser analisado 
-por um advogado do setor imobiliário antes de firmá-lo.
-        </div>
+    Este contrato segue as normas da Lei do Inquilinato (Lei nº 8.245/91) e demais disposições do Código Civil Brasileiro.<br />
+    Para consulta das partes, acesse: www.contratos-aluguel.com.br/consulta<br />
+    <div class="doc-aviso-importante">
+        <div class="doc-aviso-titulo">IMPORTANTE:</div>
+        <ul class="doc-aviso-lista">
+            <li><strong>Autenticação em Cartório:</strong> Ainda que a assinatura já gere obrigação e seriedade entre as partes, 
+            este documento deverá ser autenticado em cartório para reforçar a autenticidade das assinaturas e 
+            garantir maior segurança jurídica e força probatória; não deixe de realizar.</li>
+            <li><strong>Assessoria Jurídica:</strong> As partes envolvidas, se quiserem, podem — e é até recomendado — 
+            levar este documento para análise prévia por um advogado do setor imobiliário antes de firmá-lo.</li>
+        </ul>
+    </div>
+</div>
 
         <hr class="doc-divisor" />
 
