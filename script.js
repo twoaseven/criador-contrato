@@ -580,9 +580,9 @@ function getDadosFormulario() {
         numContrato: getVal('numContrato'),
         dataInicio: getVal('dataInicio'),
         dataValidade: getVal('dataValidade'),
-        dataElaboracao: getVal('dataElaboracao') || 'não informado',
-        prazoContrato: getVal('prazoContrato') || '12 Meses',
-        foroCidade: getVal('foroCidade') || 'São Paulo',
+        dataElaboracao: getVal('dataElaboracao') || hojeISO,
+        prazoContrato: getVal('prazoContrato'),
+        foroCidade: getVal('foroCidade') || 'Manaus-AM',
         locador: {
             nome: getVal('locadorNome') || 'não informado',
             nacionalidade: getVal('locadorNacionalidade') || 'brasileiro',
@@ -606,15 +606,15 @@ function getDadosFormulario() {
             email: getVal('locatarioEmail') || 'não informado'
         },
         fiador: {
-            nome: getVal('fiadorNome') || 'não informado',
-            nacionalidade: getVal('fiadorNacionalidade') || 'não informado',
-            estadoCivil: getSelect('fiadorEstadoCivil') || 'solteiro',
-            profissao: getVal('fiadorProfissao') || 'não informada',
-            rg: getVal('fiadorRg') || 'não informado',
-            cpf: getVal('fiadorCpf') || 'não informado',
-            endereco: getVal('fiadorEnd') || 'não informado',
-            telefone: getVal('fiadorTel') || 'não informado',
-            email: getVal('fiadorEmail') || 'não informado',
+            nome: getVal('fiadorNome'),
+            nacionalidade: getVal('fiadorNacionalidade'),
+            estadoCivil: getSelect('fiadorEstadoCivil'),
+            profissao: getVal('fiadorProfissao'),
+            rg: getVal('fiadorRg'),
+            cpf: getVal('fiadorCpf'),
+            endereco: getVal('fiadorEnd'),
+            telefone: getVal('fiadorTel'),
+            email: getVal('fiadorEmail'),
             conjugeNome: getVal('fiadorConjugeNome'),
             conjugeCpf: getVal('fiadorConjugeCpf'),
             conjugeRg: getVal('fiadorConjugeRg')
@@ -966,12 +966,12 @@ function montarContrato(dados, clausulas) {
     const v = d.vistoria || {};
     const listaClausulas = Array.isArray(clausulas) ? clausulas : [];
 
-    const numContrato = d.numContrato || 'NÃO INFORMADO';
+    const numContrato = d.numContrato ;
     const dataElab = d.dataElaboracao ? formatarData(d.dataElaboracao) : 'Data não informada';
-    const prazo = d.prazoContrato || '12';
+    const prazo = d.prazoContrato ;
     const prazoExtenso = numeroPorExtenso(parseInt(prazo, 10) || 12);
     const valorExtenso = valorPorExtenso(i.valor);
-    const foro = d.foroCidade || 'São Paulo';
+    const foro = d.foroCidade ;
     const inicioFormatado = i.inicio ? formatarData(i.inicio) : 'a definir';
     const fimFormatado = i.fim ? formatarData(i.fim) : 'a definir';
     const obsAcordo = (document.getElementById('observacoesAcordoPartes')?.value || '').trim();
@@ -1032,14 +1032,14 @@ function montarContrato(dados, clausulas) {
         <div class="doc-secao">1. QUALIFICAÇÃO DAS PARTES</div>
         <p class="doc-paragrafo">
             <strong>LOCADOR (PROPRIETÁRIO):</strong> ${escaparHtml(l.nome || 'NÃO INFORMADO')},
-            nacionalidade ${escaparHtml(l.nacionalidade || 'brasileiro')}, estado civil ${escaparHtml(l.estadoCivil || 'não informado')},
+            nacionalidade ${escaparHtml(l.nacionalidade || 'NÃO INFORMADO')}, estado civil ${escaparHtml(l.estadoCivil || 'não informado')},
             profissão ${escaparHtml(l.profissao || 'não informada')}, portador(a) do RG nº ${escaparHtml(l.rg || 'não informado')} e
             inscrito(a) no CPF sob o nº ${escaparHtml(l.cpf || 'NÃO INFORMADO')}, residente e domiciliado(a) em
             ${escaparHtml(l.endereco || 'não informado')}, telefone ${escaparHtml(l.telefone || 'não informado')} e e-mail ${escaparHtml(l.email || 'não informado')}.
         </p>
         <p class="doc-paragrafo">
             <strong>LOCATÁRIO (INQUILINO):</strong> ${escaparHtml(lt.nome || 'NÃO INFORMADO')},
-            nacionalidade ${escaparHtml(lt.nacionalidade || 'brasileiro')}, estado civil ${escaparHtml(lt.estadoCivil || 'não informado')},
+            nacionalidade ${escaparHtml(lt.nacionalidade || 'NÃO INFORMADO')}, estado civil ${escaparHtml(lt.estadoCivil || 'não informado')},
             profissão ${escaparHtml(lt.profissao || 'não informada')}, portador(a) do RG nº ${escaparHtml(lt.rg || 'não informado')} e
             inscrito(a) no CPF sob o nº ${escaparHtml(lt.cpf || 'NÃO INFORMADO')}, residente e domiciliado(a) em
             ${escaparHtml(lt.endereco || 'não informado')}, telefone ${escaparHtml(lt.telefone || 'não informado')} e e-mail ${escaparHtml(lt.email || 'não informado')}.
@@ -1050,7 +1050,7 @@ function montarContrato(dados, clausulas) {
         html += `
         <p class="doc-paragrafo">
             <strong>FIADOR:</strong> ${escaparHtml(f.nome)},
-            nacionalidade ${escaparHtml(f.nacionalidade || 'brasileiro')}, estado civil ${escaparHtml(f.estadoCivil || 'não informado')},
+            nacionalidade ${escaparHtml(f.nacionalidade || 'NÃO INFORMADO')}, estado civil ${escaparHtml(f.estadoCivil || 'não informado')},
             profissão ${escaparHtml(f.profissao || 'não informada')}, portador(a) do RG nº ${escaparHtml(f.rg || 'não informado')} e
             inscrito(a) no CPF sob o nº ${escaparHtml(f.cpf || 'não informado')}, residente e domiciliado(a) em
             ${escaparHtml(f.endereco || 'não informado')}, telefone ${escaparHtml(f.telefone || 'não informado')} e e-mail ${escaparHtml(f.email || 'não informado')}${
@@ -1082,7 +1082,7 @@ function montarContrato(dados, clausulas) {
         <p class="doc-paragrafo">
             O presente contrato tem como objeto a locação do imóvel situado em <strong>${escaparHtml(i.endereco || 'NÃO INFORMADO')}</strong>${
                 detalhesImovel ? ` (${detalhesImovel})` : ''
-            }. O imóvel destina-se exclusivamente ao uso <strong>${escaparHtml(i.destinacao ? i.destinacao.toLowerCase() : 'residencial')}</strong>.
+            }. O imóvel destina-se exclusivamente ao uso <strong>${escaparHtml(i.destinacao ? i.destinacao.toLowerCase)}</strong>.
         </p>
 
         <hr class="doc-divisor" />
@@ -1098,26 +1098,26 @@ function montarContrato(dados, clausulas) {
         <p class="doc-paragrafo">
             O valor mensal do aluguel convencionado é de <strong>R$ ${escaparHtml(i.valor || '0,00')} (${escaparHtml(valorExtenso)})</strong>,
             com vencimento todo <strong>dia ${escaparHtml(i.vencimento || '5')}</strong> de cada mês, a ser pago mediante
-            <strong>${escaparHtml(i.pagamento || 'PIX')}</strong>. O valor será reajustado a cada
-            <strong>${escaparHtml(i.periodicidade || '12')} meses</strong> pelo índice <strong>${escaparHtml(i.indice || 'IPCA')}</strong>.
+            <strong>${escaparHtml(i.pagamento )}</strong>. O valor será reajustado a cada
+            <strong>${escaparHtml(i.periodicidade  )} meses</strong> pelo índice <strong>${escaparHtml(i.indice )}</strong>.
         </p>
 
         <hr class="doc-divisor" />
         <div class="doc-secao">5. ENCARGOS E TRIBUTOS</div>
         <p class="doc-paragrafo">
             Ficam definidas as seguintes responsabilidades sobre os encargos incidentes no imóvel:
-            <strong>IPTU:</strong> ${escaparHtml(e.iptu || 'Locador')};
-            <strong>Condomínio:</strong> ${escaparHtml(e.condominio || 'Locatário')};
-            <strong>Água:</strong> ${escaparHtml(e.agua || 'Locatário')};
-            <strong>Luz / Energia Elétrica:</strong> ${escaparHtml(e.luz || 'Locatário')};
-            <strong>Gás:</strong> ${escaparHtml(e.gas || 'Locatário')};
-            <strong>Seguro Incêndio:</strong> ${escaparHtml(e.seguro || 'Locador')}.
+            <strong>IPTU:</strong> ${escaparHtml(e.iptu )};
+            <strong>Condomínio:</strong> ${escaparHtml(e.condominio )};
+            <strong>Água:</strong> ${escaparHtml(e.agua )};
+            <strong>Luz / Energia Elétrica:</strong> ${escaparHtml(e.luz )};
+            <strong>Gás:</strong> ${escaparHtml(e.gas )};
+            <strong>Seguro Incêndio:</strong> ${escaparHtml(e.seguro )}.
         </p>
 
         <hr class="doc-divisor" />
         <div class="doc-secao">6. GARANTIAS LOCATÍCIAS</div>
         <p class="doc-paragrafo">
-            Modalidade de garantia escolhida: <strong>${escaparHtml(g.modalidade || 'Fiança')}</strong>${
+            Modalidade de garantia escolhida: <strong>${escaparHtml(g.modalidade )}</strong>${
                 g.modalidade === 'Caucao' && g.caucaoValor ? `, no valor de R$ ${escaparHtml(g.caucaoValor)}` : ''
             }${
                 g.modalidade === 'Seguro Fiança'
@@ -1129,9 +1129,9 @@ function montarContrato(dados, clausulas) {
         <hr class="doc-divisor" />
         <div class="doc-secao">7. MULTAS E RESCISÃO</div>
         <p class="doc-paragrafo">
-            Em caso de atraso no pagamento, incidirá multa moratória de <strong>${escaparHtml(m.atraso || '2')}%</strong>,
-            acrescida de juros de mora de <strong>${escaparHtml(m.juros || '1')}% ao mês</strong>. Em caso de rescisão antecipada,
-            aplicar-se-á multa rescisória proporcional equivalente a <strong>${escaparHtml(m.rescisoria || '3')} meses</strong> de aluguel.
+            Em caso de atraso no pagamento, incidirá multa moratória de <strong>${escaparHtml(m.atraso )}%</strong>,
+            acrescida de juros de mora de <strong>${escaparHtml(m.juros )}% ao mês</strong>. Em caso de rescisão antecipada,
+            aplicar-se-á multa rescisória proporcional equivalente a <strong>${escaparHtml(m.rescisoria )} meses</strong> de aluguel.
         </p>
 
         <hr class="doc-divisor" />
