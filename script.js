@@ -131,6 +131,22 @@ function toggleFiador(checkbox) {
         }
     });
 }
+    function toggleOutorgaConjugal(checkbox) {
+    const container = document.getElementById('camposConjugeFiadorContainer');
+    if (!container) return;
+
+    const ativo = checkbox ? checkbox.checked : false;
+    container.style.display = ativo ? 'block' : 'none';
+
+    if (!ativo) {
+        container.querySelectorAll('input, select, textarea').forEach((campo) => {
+            campo.value = '';
+        });
+    }
+}
+
+
+        
     initSupabase();
 });
 
@@ -1563,6 +1579,7 @@ window.exportarDados = exportarDados;
 window.importarDados = importarDados;
 window.sincronizarDados = sincronizarDados;
 window.selecionarImovelPorDropdown = selecionarImovelPorDropdown;
+window.toggleOutorgaConjugal = toggleOutorgaConjugal;
 window.toggleFiador = function(checkbox) {
     const div = document.getElementById('camposFiadorContainer');
     if (!div) return;
