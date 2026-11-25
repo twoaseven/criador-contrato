@@ -1017,7 +1017,7 @@ autenticado em cartório para reforçar a autenticidade das assinaturas e garant
 não deixe de realizar esse passo para proteger o acordo.
 
 *Assessoria jurídica: As partes envolvidas, se quiserem, podem — e é até recomendado — levar este documento para ser analisado 
-por um advogado do setor imobiliário antes de firmá-lo.Este documento deverá ser autenticado em cartório para ter validade jurídica plena.
+por um advogado do setor imobiliário antes de firmá-lo.
         </div>
 
         <hr class="doc-divisor" />
