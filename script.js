@@ -989,7 +989,7 @@ function montarContrato(dados, clausulas) {
     : `De ${inicioValidadeBR} a ${fimValidadeBR}`;
 
     let html = `
-        <div class="doc-titulo">CONTRATO DE LOCAÇÃO DE IMÓVEL</div>
+        <div class="doc-titulo">*** CONTRATO DE LOCAÇÃO DE IMÓVEL ***</div>
 
         <div class="doc-meta">
             <div><strong>CONTRATO Nº:</strong> ${escaparHtml(numContrato)}</div>
