@@ -992,8 +992,8 @@ function montarContrato(dados, clausulas) {
         <div class="doc-titulo">CONTRATO DE LOCAÇÃO DE IMÓVEL</div>
 
         <div class="doc-meta">
-            <div><strong>Nº:</strong> ${escaparHtml(numContrato)}</div>
-            <div><strong>Validade do Contrato:</strong> ${textoValidadeContrato}</div>
+            <div><strong>CONTRATO Nº:</strong> ${escaparHtml(numContrato)}</div>
+            <div><strong>VALIDADE DO CONTRATO:</strong> ${textoValidadeContrato}</div>
         </div>
 
         <hr class="doc-divisor" />
@@ -1256,7 +1256,7 @@ function imprimirPreviaLimpa() {
 
         // Garantia final para nunca sair página em branco
         if (!conteudoAtual.trim()) {
-            conteudoAtual = '<div class="doc-titulo">CONTRATO DE LOCAÇÃO DE IMÓVEL</div><p class="doc-paragrafo">Preencha os dados do formulário e clique em Visualizar Contrato.</p>';
+            conteudoAtual = '<div class="doc-titulo">*** CONTRATO DE LOCAÇÃO DE IMÓVEL ***</div><p class="doc-paragrafo">Preencha os dados do formulário e clique em Visualizar Contrato.</p>';
         }
 
         elementoPrevia.innerHTML = conteudoAtual;
