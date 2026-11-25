@@ -738,6 +738,172 @@ function vincularEventosSequenciaContrato() {
     inputCpfLt?.addEventListener('change', aoAlterarCpf);
 }
 
+async function salvarDadosContrato(dados) {
+    const d = dados || getDadosFormulario();
+
+    // Registra histórico do contrato se houver locador e locatário com CPF válido
+    const chave = gerarChavePartes(d.locador?.cpf, d.locatario?.cpf);
+    if (chave) {
+        const inputNum = document.getElementById('numContrato');
+        const seqAtual = Number(inputNum?.dataset?.sequencia) || 1;
+        const registroContrato = {
+            chave_partes: chave,
+            cpf_locador: removerMascara(d.locador?.cpf || ''),
+            cpf_locatario: removerMascara(d.locatario?.cpf || ''),
+            sequencia: seqAtual,
+            numero_contrato: d.numContrato || `${new Date().getFullYear()}/${String(seqAtual).padStart(3, '0')}`,
+            data_inicio: d.dataInicio || '',
+            data_validade: d.dataValidade || '',
+            valor_imovel: d.imovel?.valor || '',
+            endereco_imovel: d.imovel?.endereco || '',
+            criado_em: new Date().toISOString()
+        };
+
+        const dbOffline = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
+        if (!Array.isArray(dbOffline.contratos)) dbOffline.contratos = [];
+        const idx = dbOffline.contratos.findIndex(
+            c => c.chave_partes === chave && Number(c.sequencia) === Number(seqAtual)
+        );
+        if (idx >= 0) dbOffline.contratos[idx] = registroContrato;
+        else dbOffline.contratos.push(registroContrato);
+        localStorage.setItem('contratos_db_offline', JSON.stringify(dbOffline));
+
+        if (dbStatus === 'online' && supabaseClient) {
+            await supabaseClient
+                .from('contratos')
+                .upsert(registroContrato, { onConflict: 'chave_partes,sequencia' });
+        }
+    }
+
+    // Salva locador, locatário, fiador (com outorga conjugal) e imóvel
+    const db = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
+    db.locadores = db.locadores || [];
+    db.locatarios = db.locatarios || [];
+    db.fiadores = db.fiadores || [];
+    db.imoveis = db.imoveis || [];
+
+    const cpfL = removerMascara(d.locador?.cpf);
+    if (d.locador?.nome && cpfL.length === 11) {
+        const objL = {
+            nome: d.locador.nome,
+            cpf: cpfL,
+            rg: d.locador.rg,
+            nacionalidade: d.locador.nacionalidade,
+            estado_civil: d.locador.estadoCivil,
+            profissao: d.locador.profissao,
+            endereco: d.locador.endereco,
+            telefone: d.locador.telefone,
+            email: d.locador.email
+        };
+        const i = db.locadores.findIndex(x => removerMascara(x.cpf) === cpfL);
+        if (i >= 0) db.locadores[i] = objL; else db.locadores.push(objL);
+        if (dbStatus === 'online' && supabaseClient) {
+            await supabaseClient.from('locadores').upsert(objL, { onConflict: 'cpf' });
+        }
+    }
+
+    const cpfLt = removerMascara(d.locatario?.cpf);
+    if (d.locatario?.nome && cpfLt.length === 11) {
+        const objLt = {
+            nome: d.locatario.nome,
+            cpf: cpfLt,
+            rg: d.locatario.rg,
+            nacionalidade: d.locatario.nacionalidade,
+            estado_civil: d.locatario.estadoCivil,
+            profissao: d.locatario.profissao,
+            endereco: d.locatario.endereco,
+            telefone: d.locatario.telefone,
+            email: d.locatario.email
+        };
+        const i = db.locatarios.findIndex(x => removerMascara(x.cpf) === cpfLt);
+        if (i >= 0) db.locatarios[i] = objLt; else db.locatarios.push(objLt);
+        if (dbStatus === 'online' && supabaseClient) {
+            await supabaseClient.from('locatarios').upsert(objLt, { onConflict: 'cpf' });
+        }
+    }
+
+    const cpfF = removerMascara(d.fiador?.cpf);
+    if (d.fiadorAtivo && d.fiador?.nome && cpfF.length === 11) {
+        const objF = {
+            nome: d.fiador.nome,
+            cpf: cpfF,
+            rg: d.fiador.rg,
+            nacionalidade: d.fiador.nacionalidade,
+            estado_civil: d.fiador.estadoCivil,
+            profissao: d.fiador.profissao,
+            endereco: d.fiador.endereco,
+            telefone: d.fiador.telefone,
+            email: d.fiador.email,
+            outorga_conjugal: Boolean(d.fiador.outorgaConjugal),
+            conjuge_nome: d.fiador.outorgaConjugal ? d.fiador.conjugeNome : '',
+            conjuge_cpf: d.fiador.outorgaConjugal ? removerMascara(d.fiador.conjugeCpf) : '',
+            conjuge_rg: d.fiador.outorgaConjugal ? d.fiador.conjugeRg : ''
+        };
+        const i = db.fiadores.findIndex(x => removerMascara(x.cpf) === cpfF);
+        if (i >= 0) db.fiadores[i] = objF; else db.fiadores.push(objF);
+        if (dbStatus === 'online' && supabaseClient) {
+            await supabaseClient.from('fiadores').upsert(objF, { onConflict: 'cpf' });
+        }
+    }
+
+    if (d.imovel?.endereco) {
+        const objI = {
+            endereco: d.imovel.endereco,
+            registro: d.imovel.registro,
+            cartorio: d.imovel.cartorio,
+            inscricao_municipal: d.imovel.inscricaoMunicipal,
+            tipo: d.imovel.tipo,
+            destinacao: d.imovel.destinacao,
+            quartos: d.imovel.quartos,
+            banheiros: d.imovel.banheiros,
+            vagas: d.imovel.vagas,
+            metragem: d.imovel.metragem,
+            area_privativa: d.imovel.areaPrivativa,
+            area_comum: d.imovel.areaComum,
+            caracteristicas: d.imovel.caracteristicas
+        };
+        const i = db.imoveis.findIndex(x => x.endereco === d.imovel.endereco);
+        if (i >= 0) db.imoveis[i] = objI; else db.imoveis.push(objI);
+        if (dbStatus === 'online' && supabaseClient) {
+            await supabaseClient.from('imoveis').upsert(objI, { onConflict: 'endereco' });
+        }
+    }
+
+    localStorage.setItem('contratos_db_offline', JSON.stringify(db));
+}
+
+async function salvarEImprimir() {
+    const btn = document.getElementById('btnSalvarImprimir');
+    const previaDiv = document.getElementById('previa');
+
+    if (!previaDiv || !previaDiv.innerHTML.trim()) {
+        alert('Gere a prévia do contrato antes de salvar e imprimir.');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+    }
+
+    try {
+        const dados = getDadosFormulario();
+        await salvarDadosContrato(dados);
+        imprimirPreviaLimpa();
+    } catch (err) {
+        console.error('Erro ao salvar antes de imprimir:', err);
+        alert('Erro ao salvar no banco. A impressão será aberta mesmo assim.');
+        imprimirPreviaLimpa();
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Salvar / Imprimir';
+        }
+    }
+}
+
+window.salvarEImprimir = salvarEImprimir;
+
 // ============================================================
 // 9. GLOBAIS
 // ============================================================
