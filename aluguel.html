@@ -200,22 +200,30 @@
                     <label>E-mail</label>
                     <input type="email" id="fiadorEmail" />
                 </div>
-            </div>
-            <h4>Cônjuge do Fiador (para Outorga Conjugal)</h4>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Nome do Cônjuge</label>
-                    <input type="text" id="fiadorConjugeNome" />
-                </div>
-                <div class="form-group">
-                    <label>CPF do Cônjuge</label>
-                    <input type="text" id="fiadorConjugeCpf" placeholder="000.000.000-00" maxlength="14" />
-                </div>
-                <div class="form-group">
-                    <label>RG do Cônjuge</label>
-                    <input type="text" id="fiadorConjugeRg" placeholder="00.000.000-0" maxlength="12" />
-                </div>
-            </div>
+            </div>  
+                    <div class="outorga-conjugal-box">
+                          <label>
+                          <input type="checkbox" id="outorgaConjugalFiador" onchange="toggleOutorgaConjugal(this)">
+                          <span>Possui cônjuge / Outorga conjugal do fiador</span>
+                         </label>
+
+                       <div id="camposConjugeFiadorContainer" style="display: none;">
+                           <div class="campo-grupo">
+                              <label for="fiadorConjugeNome">Nome do Cônjuge</label>
+                              <input type="text" id="fiadorConjugeNome" placeholder="Nome completo do cônjuge">
+                           </div>
+
+                            <div class="campo-grupo">
+                                <label for="fiadorConjugeCpf">CPF do Cônjuge</label>
+                                 <input type="text" id="fiadorConjugeCpf" placeholder="000.000.000-00">
+                           </div>
+
+                            <div class="campo-grupo">
+                                  <label for="fiadorConjugeRg">RG do Cônjuge</label>
+                                  <input type="text" id="fiadorConjugeRg" placeholder="00.000.000-0">
+                            </div>
+                        </div>
+                     </div>
         </div>
 
         <!-- IMÓVEL -->
