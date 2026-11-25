@@ -964,12 +964,18 @@ function montarContrato(dados, clausulas) {
         }
         return valor;
     };
+    
+    const marcadorDataPendente = '??/??/????';
+    const inicioValidadeBR = formatarDataSeguro(d.dataInicio) || marcadorDataPendente;
+    const fimValidadeBR = formatarDataSeguro(d.dataValidade) || marcadorDataPendente;
 
-    const inicioValidadeBR = formatarDataSeguro(d.dataInicio);
-    const fimValidadeBR = formatarDataSeguro(d.dataValidade);
-    const duracaoTexto = typeof calcularDuracaoExtenso === 'function'
-        ? calcularDuracaoExtenso(d.dataInicio, d.dataValidade)
-        : '';
+    const duracaoTexto = (d.dataInicio && d.dataValidade && typeof calcularDuracaoExtenso === 'function')
+    ? calcularDuracaoExtenso(d.dataInicio, d.dataValidade)
+    : '';
+
+    const textoValidadeContrato = duracaoTexto
+    ? `De ${inicioValidadeBR} a ${fimValidadeBR} (${duracaoTexto})`
+    : `De ${inicioValidadeBR} a ${fimValidadeBR}`;
 
     let textoValidadeContrato = 'Não informada';
     if (inicioValidadeBR && fimValidadeBR) {
