@@ -902,7 +902,6 @@ async function salvarEImprimir() {
     }
 }
 
-window.salvarEImprimir = salvarEImprimir;
 
 // ============================================================
 // 9. GLOBAIS
@@ -912,5 +911,5 @@ window.toggleOutorgaConjugal = toggleOutorgaConjugal;
 window.buscarPorCpf = buscarPorCpf;
 window.selecionarImovelPorDropdown = selecionarImovelPorDropdown;
 window.gerarPrevia = gerarPrevia;
-window.imprimirPreviaLimpa = imprimirPreviaLimpa;
+window.salvarEImprimir = salvarEImprimir;
 window.atualizarNumeroContratoAutomatico = atualizarNumeroContratoAutomatico;
