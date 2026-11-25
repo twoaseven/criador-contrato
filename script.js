@@ -977,16 +977,6 @@ function montarContrato(dados, clausulas) {
     ? `De ${inicioValidadeBR} a ${fimValidadeBR} (${duracaoTexto})`
     : `De ${inicioValidadeBR} a ${fimValidadeBR}`;
 
-    let textoValidadeContrato = 'Não informada';
-    if (inicioValidadeBR && fimValidadeBR) {
-        textoValidadeContrato = duracaoTexto
-            ? `De ${inicioValidadeBR} a ${fimValidadeBR} (${duracaoTexto})`
-            : `De ${inicioValidadeBR} a ${fimValidadeBR}`;
-    } else if (inicioValidadeBR) {
-        textoValidadeContrato = `A partir de ${inicioValidadeBR}`;
-    } else if (fimValidadeBR) {
-        textoValidadeContrato = `Até ${fimValidadeBR}`;
-    }
     let html = `
         <div class="doc-titulo">CONTRATO DE LOCAÇÃO DE IMÓVEL</div>
 
