@@ -569,9 +569,9 @@ function getDadosFormulario() {
     };
     
     return {
-        numContrato: getVal('numContrato') || 'não informado',
-        dataInicio: getVal('dataInicio') || 'não informado',
-        dataValidade: getVal('dataValidade') || 'não informado',
+        numContrato: getVal('numContrato'),
+        dataInicio: getVal('dataInicio'),
+        dataValidade: getVal('dataValidade'),
         dataElaboracao: getVal('dataElaboracao') || 'não informado',
         prazoContrato: getVal('prazoContrato') || '12 Meses',
         foroCidade: getVal('foroCidade') || 'São Paulo',
