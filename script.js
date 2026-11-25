@@ -849,11 +849,22 @@ function salvarDadosOffline(dados) {
 // ============================================================
 // 12. FORMATAR DATA E OUTROS
 // ============================================================
+//function formatarData(dataStr) {
+//    if (!dataStr) return 'a definir';
+//    const partes = dataStr.split('-');
+//    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+//}
+
 function formatarData(dataStr) {
-    if (!dataStr) return 'a definir';
-    const partes = dataStr.split('-');
+    if (!dataStr || typeof dataStr !== 'string') return 'a definir';
+    const partes = dataStr.trim().split('-');
+    if (partes.length !== 3 || !partes[0] || !partes[1] || !partes[2]) {
+        return dataStr;
+    }
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
+
+
 
 function numeroPorExtenso(num) {
     const numeros = ['zero','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez',
@@ -1084,7 +1095,7 @@ function montarContrato(dados, clausulas) {
         <div class="doc-secao">6. GARANTIAS LOCATÍCIAS</div>
         <p class="doc-paragrafo">
             Modalidade de garantia escolhida: <strong>${escaparHtml(g.modalidade || 'Fiança')}</strong>${
-                g.modalidade === 'Caução' && g.cauçãoValor ? `, no valor de R$ ${escaparHtml(g.cauçãoValor)}` : ''
+                g.modalidade === 'Caucao' && g.caucaoValor ? `, no valor de R$ ${escaparHtml(g.caucaoValor)}` : ''
             }${
                 g.modalidade === 'Seguro Fiança'
                     ? `${g.seguradora ? `, Seguradora: ${escaparHtml(g.seguradora)}` : ''}${g.apolice ? `, Apólice nº ${escaparHtml(g.apolice)}` : ''}`
