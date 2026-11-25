@@ -303,6 +303,28 @@ textarea {
     color: #1e293b;
 }
 
+.doc-aviso-importante {
+    margin-top: 8px;
+    text-align: left;
+}
+
+.doc-aviso-titulo {
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    color: var(--text-primary, #111827);
+}
+
+.doc-aviso-lista {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.doc-aviso-lista li {
+    margin-bottom: 4px;
+    line-height: 1.45;
+}
+
 /* Setor 4: Títulos de Seção e Parágrafos Justificados */
 .doc-secao {
     text-align: left;
