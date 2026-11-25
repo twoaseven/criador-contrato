@@ -86,13 +86,19 @@ document.addEventListener('DOMContentLoaded', function() {
         dataElab.value = hoje;
     }
 
-    const numContrato = document.getElementById('numContrato');
-    if (numContrato && !numContrato.value) {
-        const ano = new Date().getFullYear();
-        const num = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        numContrato.value = `${ano}/${num}`;
-    }
+    //const numContrato = document.getElementById('numContrato');
+   // if (numContrato && !numContrato.value) {
+   //     const ano = new Date().getFullYear();
+   //     const num = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+   //     numContrato.value = `${ano}/${num}`;
+   // }
 
+     bloquearCampoNumeroContrato();
+    vincularEventosSequenciaContrato();
+    atualizarNumeroContratoAutomatico(false);
+
+
+    
     // Aplicar máscaras
     document.querySelectorAll('#locadorCpf, #locatarioCpf, #fiadorCpf, #fiadorConjugeCpf, #buscaCpf')
         .forEach(el => el.addEventListener('input', function(e) { aplicarMascara(e, 'cpf'); }));
@@ -477,6 +483,7 @@ function preencherLocador(dados) {
     }
     const ec = document.getElementById('locadorEstadoCivil');
     if (ec && dados.estado_civil) ec.value = dados.estado_civil;
+    atualizarNumeroContratoAutomatico(true);
 }
 
 function preencherLocatario(dados) {
@@ -496,6 +503,7 @@ function preencherLocatario(dados) {
     }
     const ec = document.getElementById('locatarioEstadoCivil');
     if (ec && dados.estado_civil) ec.value = dados.estado_civil;
+    atualizarNumeroContratoAutomatico(true);
 }
 
 function preencherFiador(dados) {
@@ -676,7 +684,8 @@ async function salvarTodosDados() {
         alert("O campo Endereço do Imóvel é obrigatório.");
         return;
     }
-
+             await registrarContratoNoHistorico(dados);
+    
     if (dbStatus === 'online' && supabaseClient) {
         try {
             mostrarMensagem('📦 Salvando...', 'info');
@@ -1380,8 +1389,152 @@ async function sincronizarDados() {
 }
 
 // ============================================================
+// SEQUÊNCIA AUTOMÁTICA DO NÚMERO DO CONTRATO (LOCADOR + LOCATÁRIO)
+// ============================================================
+function bloquearCampoNumeroContrato() {
+    const inputNum = document.getElementById('numContrato');
+    if (!inputNum) return;
+
+    inputNum.readOnly = true;
+    inputNum.setAttribute('readonly', 'readonly');
+    inputNum.setAttribute('aria-readonly', 'true');
+    inputNum.classList.add('campo-bloqueado', 'num-contrato-automatico');
+    inputNum.title = 'Número gerado automaticamente pela combinação dos CPFs';
+}
+
+function gerarChavePartes(cpfLocador, cpfLocatario) {
+    const cpfL = removerMascara(cpfLocador || '');
+    const cpfLt = removerMascara(cpfLocatario || '');
+    if (cpfL.length !== 11 || cpfLt.length !== 11) return '';
+    return `${cpfL}_${cpfLt}`;
+}
+
+function obterUltimaSequenciaLocal(chave) {
+    if (!chave) return 0;
+    const db = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
+    const lista = Array.isArray(db.contratos) ? db.contratos : [];
+    return lista
+        .filter((item) => item.chave_partes === chave)
+        .reduce((maior, item) => Math.max(maior, Number(item.sequencia) || 0), 0);
+}
+
+async function obterUltimaSequenciaSupabase(chave) {
+    if (!chave || dbStatus !== 'online' || !supabaseClient) return 0;
+    try {
+        const { data, error } = await supabaseClient
+            .from('contratos')
+            .select('sequencia')
+            .eq('chave_partes', chave)
+            .order('sequencia', { ascending: false })
+            .limit(1);
+
+        if (error || !data || data.length === 0) return 0;
+        return Number(data[0].sequencia) || 0;
+    } catch (_) {
+        return 0;
+    }
+}
+
+async function atualizarNumeroContratoAutomatico(forcarAtualizacao = false) {
+    const inputNum = document.getElementById('numContrato');
+    const inputCpfL = document.getElementById('locadorCpf');
+    const inputCpfLt = document.getElementById('locatarioCpf');
+    if (!inputNum) return;
+
+    bloquearCampoNumeroContrato();
+
+    const ano = new Date().getFullYear();
+    const chave = gerarChavePartes(inputCpfL?.value, inputCpfLt?.value);
+
+    if (!chave) {
+        inputNum.dataset.chaveAtual = '';
+        inputNum.dataset.sequencia = '';
+        inputNum.value = `${ano}/??`;
+        return;
+    }
+
+    const chaveMudou = inputNum.dataset.chaveAtual !== chave;
+    if (!forcarAtualizacao && !chaveMudou && inputNum.dataset.sequencia) {
+        return;
+    }
+
+    const seqLocal = obterUltimaSequenciaLocal(chave);
+    const seqOnline = await obterUltimaSequenciaSupabase(chave);
+    const ultimaSeq = Math.max(seqLocal, seqOnline);
+    const proximaSeq = ultimaSeq + 1;
+
+    inputNum.dataset.chaveAtual = chave;
+    inputNum.dataset.sequencia = String(proximaSeq);
+    inputNum.value = `${ano}/${String(proximaSeq).padStart(3, '0')}`;
+}
+
+async function registrarContratoNoHistorico(dados) {
+    const d = dados || getDadosFormulario();
+    const chave = gerarChavePartes(d.locador?.cpf, d.locatario?.cpf);
+    if (!chave) return;
+
+    const inputNum = document.getElementById('numContrato');
+    const seqLocal = obterUltimaSequenciaLocal(chave);
+    const seqOnline = await obterUltimaSequenciaSupabase(chave);
+    const seqInformada = Number(inputNum?.dataset?.sequencia) || 0;
+    const sequencia = Math.max(seqLocal, seqOnline, seqInformada) + (seqInformada > Math.max(seqLocal, seqOnline) ? 0 : 1);
+
+    const numeroFormatado = d.numContrato || `${new Date().getFullYear()}/${String(sequencia).padStart(3, '0')}`;
+
+    const registro = {
+        chave_partes: chave,
+        cpf_locador: removerMascara(d.locador?.cpf || ''),
+        cpf_locatario: removerMascara(d.locatario?.cpf || ''),
+        sequencia,
+        numero_contrato: numeroFormatado,
+        data_inicio: d.dataInicio || '',
+        data_validade: d.dataValidade || '',
+        valor_imovel: d.imovel?.valor || '',
+        endereco_imovel: d.imovel?.endereco || '',
+        criado_em: new Date().toISOString()
+    };
+
+    const db = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
+    if (!Array.isArray(db.contratos)) db.contratos = [];
+    const idxExistente = db.contratos.findIndex(
+        (c) => c.chave_partes === chave && Number(c.sequencia) === Number(sequencia)
+    );
+    if (idxExistente >= 0) db.contratos[idxExistente] = registro;
+    else db.contratos.push(registro);
+    localStorage.setItem('contratos_db_offline', JSON.stringify(db));
+
+    if (dbStatus === 'online' && supabaseClient) {
+        try {
+            await supabaseClient
+                .from('contratos')
+                .upsert(registro, { onConflict: 'chave_partes,sequencia' });
+        } catch (err) {
+            console.warn('⚠️ Não foi possível registrar contrato no Supabase agora:', err);
+        }
+    }
+}
+
+function vincularEventosSequenciaContrato() {
+    const inputCpfL = document.getElementById('locadorCpf');
+    const inputCpfLt = document.getElementById('locatarioCpf');
+
+    const aoAlterarCpf = () => {
+        atualizarNumeroContratoAutomatico(false);
+    };
+
+    inputCpfL?.addEventListener('input', aoAlterarCpf);
+    inputCpfL?.addEventListener('change', aoAlterarCpf);
+    inputCpfLt?.addEventListener('input', aoAlterarCpf);
+    inputCpfLt?.addEventListener('change', aoAlterarCpf);
+}
+
+
+// ============================================================
 // EXPOR FUNÇÕES GLOBAIS
 // ============================================================
+window.atualizarNumeroContratoAutomatico = atualizarNumeroContratoAutomatico;
+window.registrarContratoNoHistorico = registrarContratoNoHistorico;
+window.bloquearCampoNumeroContrato = bloquearCampoNumeroContrato;
 window.gerarPrevia = gerarPrevia;
 window.gerarPDF = gerarPDF;
 window.buscarPorCpf = buscarPorCpf;
