@@ -1082,7 +1082,7 @@ function montarContrato(dados, clausulas) {
         <p class="doc-paragrafo">
             O presente contrato tem como objeto a locação do imóvel situado em <strong>${escaparHtml(i.endereco || 'NÃO INFORMADO')}</strong>${
                 detalhesImovel ? ` (${detalhesImovel})` : ''
-            }. O imóvel destina-se exclusivamente ao uso <strong>${escaparHtml(i.destinacao ? i.destinacao.toLowerCase)}</strong>.
+           }. O imóvel destina-se exclusivamente ao uso <strong>${escaparHtml(i.destinacao ? i.destinacao.toLowerCase() : '')}</strong>.
         </p>
 
         <hr class="doc-divisor" />
