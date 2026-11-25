@@ -1013,11 +1013,16 @@ function montarContrato(dados, clausulas) {
     <div class="doc-aviso-importante">
         <div class="doc-aviso-titulo">IMPORTANTE:</div>
         <ul class="doc-aviso-lista">
-            <li><strong>Autenticação em Cartório:</strong> Ainda que a assinatura já gere obrigação e seriedade entre as partes, 
+            <li><strong>Autenticação em Cartório:</strong><br>
+            Ainda que a assinatura já gere obrigação e seriedade entre as partes, 
             este documento deverá ser autenticado em cartório para reforçar a autenticidade das assinaturas e 
-            garantir maior segurança jurídica e força probatória; não deixe de realizar.</li>
-            <li><strong>Assessoria Jurídica:</strong> As partes envolvidas, se quiserem, podem — e é até recomendado — 
-            levar este documento para análise prévia por um advogado do setor imobiliário antes de firmá-lo.</li>
+            garantir maior segurança jurídica e força probatória; não deixe de realizar.
+            </li>
+            <li>
+            <strong>Assessoria Jurídica:</strong><br>
+            As partes envolvidas, se quiserem, podem — e é até recomendado — 
+            levar este documento para análise prévia por um advogado do setor imobiliário antes de firmá-lo.
+            </li>
         </ul>
     </div>
 </div>
