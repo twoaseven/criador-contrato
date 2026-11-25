@@ -311,8 +311,9 @@ textarea {
 .doc-aviso-titulo {
     font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: 4px;
-    color: var(--text-primary, #111827);
+    margin: 8px 0 6px 0;
+    color: #0f172a;
+    display: block;
 }
 
 .doc-aviso-lista {
