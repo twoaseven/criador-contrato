@@ -91,7 +91,16 @@
 
         <!-- LOCATÁRIO -->
         <h3>LOCATÁRIO (Inquilino)</h3>
-        
+
+         <div class="form-row">
+            <div class="form-group" style="flex: 1 1 100%;">
+                <label for="selectLocatario">Inquilinos Vinculados a Este Locador</label>
+                <select id="selectLocatario" onchange="selecionarLocatarioPorDropdown(this.value)">
+                    <option value="">-- Novo Inquilino (Preencher Abaixo) ou Selecione um Existente --</option>
+                </select>
+            </div>
+        </div>
+                                 
         <div class="form-row">
             <div class="form-group">
                 <label>Nome Completo <span class="campo-obrigatorio">*</span></label>
