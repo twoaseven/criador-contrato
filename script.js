@@ -270,10 +270,6 @@ async function buscarPorCpf() {
             const { data: locador } = await supabaseClient.from('locadores').select('*').eq('cpf', cpfLimpo).maybeSingle();
             if (locador) { preencherParte('locador', locador); encontrado = true; }
 
-            if (prefixo === 'locador') {
-        carregarLocatariosPorLocador(dados.cpf || document.getElementById('locadorCpf')?.value);
-    }
-
             const { data: locatario } = await supabaseClient.from('locatarios').select('*').eq('cpf', cpfLimpo).maybeSingle();
             if (locatario) { preencherParte('locatario', locatario); encontrado = true; }
 
