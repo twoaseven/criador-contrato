@@ -8,6 +8,7 @@ let supabaseClient = null;
 let dbStatus = 'offline';
 let CLAUSULAS = [];
 let clausulasAdicionais = [];
+let locatariosDoLocadorAtual = [];
 
 // ============================================================
 // 2. MÁSCARAS E UTILITÁRIOS
@@ -269,6 +270,10 @@ async function buscarPorCpf() {
             const { data: locador } = await supabaseClient.from('locadores').select('*').eq('cpf', cpfLimpo).maybeSingle();
             if (locador) { preencherParte('locador', locador); encontrado = true; }
 
+            if (prefixo === 'locador') {
+        carregarLocatariosPorLocador(dados.cpf || document.getElementById('locadorCpf')?.value);
+    }
+
             const { data: locatario } = await supabaseClient.from('locatarios').select('*').eq('cpf', cpfLimpo).maybeSingle();
             if (locatario) { preencherParte('locatario', locatario); encontrado = true; }
 
@@ -311,6 +316,10 @@ function preencherParte(prefixo, dados) {
     }
     const ec = document.getElementById(`${prefixo}EstadoCivil`);
     if (ec && dados.estado_civil) ec.value = dados.estado_civil;
+    
+    if (prefixo === 'locador') {
+        carregarLocatariosPorLocador(dados.cpf || document.getElementById('locadorCpf')?.value);
+    }
 
     if (prefixo === 'fiador') {
         const cbFiador = document.getElementById('incluirFiador');
@@ -358,6 +367,104 @@ function selecionarImovelPorDropdown(valor) {
     document.getElementById('imovelTipo').value = imovel.tipo || '';
     document.getElementById('imovelDestinacao').value = imovel.destinacao || 'Residencial';
 }
+
+async function carregarLocatariosPorLocador(cpfLocador) {
+    const selectEl = document.getElementById('selectLocatario');
+    if (!selectEl) return;
+
+    locatariosDoLocadorAtual = [];
+    selectEl.innerHTML = '<option value="">-- Novo Inquilino (Preencher Abaixo) ou Selecione um Existente --</option>';
+
+    const cpfLocadorLimpo = removerMascara(cpfLocador);
+    if (cpfLocadorLimpo.length !== 11) return;
+
+    let cpfsLocatarios = [];
+    let listaLocatarios = [];
+
+    if (dbStatus === 'online' && supabaseClient) {
+        try {
+            const { data: contratos, error: errContratos } = await supabaseClient
+                .from('contratos')
+                .select('cpf_locatario')
+                .eq('cpf_locador', cpfLocadorLimpo);
+
+            if (errContratos) throw errContratos;
+
+            cpfsLocatarios = [...new Set(
+                (contratos || [])
+                    .map(c => removerMascara(c.cpf_locatario))
+                    .filter(cpf => cpf.length === 11)
+            )];
+
+            if (cpfsLocatarios.length > 0) {
+                const { data: locatarios, error: errLocatarios } = await supabaseClient
+                    .from('locatarios')
+                    .select('*')
+                    .in('cpf', cpfsLocatarios)
+                    .order('nome', { ascending: true });
+
+                if (errLocatarios) throw errLocatarios;
+                listaLocatarios = locatarios || [];
+            }
+        } catch (err) {
+            console.error('Erro ao carregar locatários do locador no Supabase:', err);
+        }
+    }
+
+    // Mescla / fallback com dados locais caso existam
+    const dbOffline = JSON.parse(localStorage.getItem('contratos_db_offline') || '{}');
+    const contratosLocal = Array.isArray(dbOffline.contratos) ? dbOffline.contratos : [];
+    const locatariosLocal = Array.isArray(dbOffline.locatarios) ? dbOffline.locatarios : [];
+
+    const cpfsLocal = contratosLocal
+        .filter(c => removerMascara(c.cpf_locador) === cpfLocadorLimpo)
+        .map(c => removerMascara(c.cpf_locatario))
+        .filter(cpf => cpf.length === 11);
+
+    const todosCpfs = [...new Set([...cpfsLocatarios, ...cpfsLocal])];
+
+    const mapaPorCpf = new Map();
+    locatariosLocal.forEach((loc) => {
+        const cpfLimpo = removerMascara(loc.cpf);
+        if (todosCpfs.includes(cpfLimpo)) {
+            mapaPorCpf.set(cpfLimpo, loc);
+        }
+    });
+    listaLocatarios.forEach((loc) => {
+        const cpfLimpo = removerMascara(loc.cpf);
+        if (todosCpfs.includes(cpfLimpo)) {
+            mapaPorCpf.set(cpfLimpo, loc);
+        }
+    });
+
+    locatariosDoLocadorAtual = Array.from(mapaPorCpf.values()).sort((a, b) =>
+        String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR')
+    );
+
+    locatariosDoLocadorAtual.forEach((loc) => {
+        const opt = document.createElement('option');
+        opt.value = removerMascara(loc.cpf);
+        opt.textContent = loc.nome || mascaraCPF(loc.cpf);
+        selectEl.appendChild(opt);
+    });
+}
+
+function selecionarLocatarioPorDropdown(cpfSelecionado) {
+    const cpfLimpo = removerMascara(
+        cpfSelecionado || document.getElementById('selectLocatario')?.value || ''
+    );
+    if (!cpfLimpo) return;
+
+    const locatario = locatariosDoLocadorAtual.find(
+        item => removerMascara(item.cpf) === cpfLimpo
+    );
+    if (!locatario) return;
+
+    preencherParte('locatario', locatario);
+    atualizarNumeroContratoAutomatico(true);
+}
+
+
 
 // ============================================================
 // 7. DADOS DO FORMULÁRIO E MONTAGEM DO CONTRATO
@@ -913,3 +1020,4 @@ window.selecionarImovelPorDropdown = selecionarImovelPorDropdown;
 window.gerarPrevia = gerarPrevia;
 window.salvarEImprimir = salvarEImprimir;
 window.atualizarNumeroContratoAutomatico = atualizarNumeroContratoAutomatico;
+window.selecionarLocatarioPorDropdown = selecionarLocatarioPorDropdown;
